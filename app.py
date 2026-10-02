@@ -5,7 +5,13 @@ from config import Config
 
 
 def create_app():
-    app = Flask(__name__)
+    base_dir = os.path.abspath(os.path.dirname(__file__))
+    app = Flask(
+        __name__,
+        static_folder=os.path.join(base_dir, 'static'),
+        template_folder=os.path.join(base_dir, 'templates'),
+        static_url_path='/static'
+    )
     app.config.from_object(Config)
 
     # --- Initialize databases if they don't exist ---
