@@ -27,14 +27,14 @@
 
                 <h4>WHERE (Filtering)</h4>
                 <div class="code-block">
-                    <span class="code-keyword">SELECT</span> *<br>
-                    <span class="code-keyword">FROM</span> Courses<br>
-                    <span class="code-keyword">WHERE</span> credits &gt; 3;
+                    <span class="code-keyword">SELECT</span> student_id, student_name<br>
+                    <span class="code-keyword">FROM</span> Students<br>
+                    <span class="code-keyword">WHERE</span> year_level = 1;
                 </div>
 
                 <h4>JOIN (Combining Tables)</h4>
                 <div class="code-block">
-                    <span class="code-keyword">SELECT</span> s.student_name, c.course_name<br>
+                    <span class="code-keyword">SELECT</span> s.student_name, c.course_name, e.score<br>
                     <span class="code-keyword">FROM</span> Students s<br>
                     <span class="code-keyword">JOIN</span> Enrollments e <span class="code-keyword">ON</span> s.student_id = e.student_id<br>
                     <span class="code-keyword">JOIN</span> Courses c <span class="code-keyword">ON</span> e.course_id = c.course_id;
@@ -42,17 +42,17 @@
 
                 <h4>GROUP BY and HAVING (Aggregation)</h4>
                 <div class="code-block">
-                    <span class="code-keyword">SELECT</span> student_id, <span class="code-keyword">COUNT</span>(course_id) <span class="code-keyword">AS</span> total_courses<br>
-                    <span class="code-keyword">FROM</span> Enrollments<br>
-                    <span class="code-keyword">GROUP BY</span> student_id<br>
-                    <span class="code-keyword">HAVING COUNT</span>(course_id) &gt; 2;
+                    <span class="code-keyword">SELECT</span> program, <span class="code-keyword">COUNT</span>(student_id) <span class="code-keyword">AS</span> total_students<br>
+                    <span class="code-keyword">FROM</span> Students<br>
+                    <span class="code-keyword">GROUP BY</span> program<br>
+                    <span class="code-keyword">HAVING COUNT</span>(student_id) &gt; 2;
                 </div>
 
                 <h4>ORDER BY and LIMIT</h4>
                 <div class="code-block">
-                    <span class="code-keyword">SELECT</span> course_name, credits<br>
+                    <span class="code-keyword">SELECT</span> course_id, course_name<br>
                     <span class="code-keyword">FROM</span> Courses<br>
-                    <span class="code-keyword">ORDER BY</span> credits <span class="code-keyword">DESC</span><br>
+                    <span class="code-keyword">ORDER BY</span> course_name <span class="code-keyword">ASC</span><br>
                     <span class="code-keyword">LIMIT</span> 5;
                 </div>
             </div>
@@ -69,33 +69,33 @@
 
                 <h4>Filtering with For Loops</h4>
                 <div class="code-block">
-                    <span class="code-comment"># Getting courses with more than 3 credits</span><br>
-                    heavy_courses = []<br>
-                    <span class="code-keyword">for</span> c <span class="code-keyword">in</span> courses:<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">if</span> c[<span class="code-string">'credits'</span>] &gt; 3:<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;heavy_courses.append(c)
+                    <span class="code-comment"># Getting students in year level 1</span><br>
+                    first_year = []<br>
+                    <span class="code-keyword">for</span> s <span class="code-keyword">in</span> students:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">if</span> s[<span class="code-string">'year_level'</span>] == 1:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first_year.append(s)
                 </div>
                 
                 <h4>List Comprehensions with Filtering</h4>
                 <div class="code-block">
                     <span class="code-comment"># Same as above, but more concise</span><br>
-                    heavy_courses = [c <span class="code-keyword">for</span> c <span class="code-keyword">in</span> courses <span class="code-keyword">if</span> c[<span class="code-string">'credits'</span>] &gt; 3]
+                    first_year = [s <span class="code-keyword">for</span> s <span class="code-keyword">in</span> students <span class="code-keyword">if</span> s[<span class="code-string">'year_level'</span>] == 1]
                 </div>
 
                 <h4>Sorting with Lambda Functions</h4>
                 <div class="code-block">
-                    <span class="code-comment"># Sort courses by credits in descending order</span><br>
-                    sorted_courses = <span class="code-keyword">sorted</span>(courses, key=<span class="code-keyword">lambda</span> x: x[<span class="code-string">'credits'</span>], reverse=<span class="code-keyword">True</span>)
+                    <span class="code-comment"># Sort enrollments by score in descending order</span><br>
+                    sorted_scores = <span class="code-keyword">sorted</span>(enrollments, key=<span class="code-keyword">lambda</span> e: e[<span class="code-string">'score'</span>] <span class="code-keyword">or</span> 0, reverse=<span class="code-keyword">True</span>)
                 </div>
 
                 <h4>Aggregation Functions</h4>
                 <div class="code-block">
-                    <span class="code-comment"># Counting elements (len)</span><br>
+                    <span class="code-comment"># Counting total students</span><br>
                     total_students = <span class="code-keyword">len</span>(students)<br><br>
-                    <span class="code-comment"># Summing values</span><br>
-                    total_credits = <span class="code-keyword">sum</span>(c[<span class="code-string">'credits'</span>] <span class="code-keyword">for</span> c <span class="code-keyword">in</span> courses)<br><br>
-                    <span class="code-comment"># Finding maximum</span><br>
-                    max_credits = <span class="code-keyword">max</span>(c[<span class="code-string">'credits'</span>] <span class="code-keyword">for</span> c <span class="code-keyword">in</span> courses)
+                    <span class="code-comment"># Total non-missing score sum</span><br>
+                    total_scores = <span class="code-keyword">sum</span>(e[<span class="code-string">'score'</span>] <span class="code-keyword">for</span> e <span class="code-keyword">in</span> enrollments <span class="code-keyword">if</span> e[<span class="code-string">'score'</span>] <span class="code-keyword">is not None</span>)<br><br>
+                    <span class="code-comment"># Finding maximum score</span><br>
+                    max_score = <span class="code-keyword">max</span>(e[<span class="code-string">'score'</span>] <span class="code-keyword">for</span> e <span class="code-keyword">in</span> enrollments <span class="code-keyword">if</span> e[<span class="code-string">'score'</span>] <span class="code-keyword">is not None</span>)
                 </div>
             </div>
             

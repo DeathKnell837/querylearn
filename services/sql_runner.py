@@ -1,5 +1,6 @@
 import sqlite3
 import threading
+import time
 
 def execute_sql(db_path, sql_code, timeout=10):
     # Basic DDL/DML blocking
@@ -8,6 +9,7 @@ def execute_sql(db_path, sql_code, timeout=10):
         return {"columns": [], "rows": [], "error": "DDL/DML operations are not allowed.", "execution_time": 0}
 
     result = {}
+    t0 = time.time()
     def target():
         try:
             # Using read-only mode URI
@@ -33,5 +35,5 @@ def execute_sql(db_path, sql_code, timeout=10):
     if thread.is_alive():
         return {"columns": [], "rows": [], "error": "Execution timed out.", "execution_time": timeout}
     
-    result['execution_time'] = 0 # Placeholder for actual timing
+    result['execution_time'] = round(time.time() - t0, 4)
     return result

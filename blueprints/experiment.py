@@ -49,10 +49,10 @@ def comprehension(language):
         q2 = request.form.get('q2', '')
         q3 = request.form.get('q3', '')
         
-        # Grade questions (q1 correct is 'b', q2 is 'b', q3 is 'c')
+        # Grade questions (q1 correct is 'b', q2 is 'c', q3 is 'b')
         score_1 = 1.0 if q1 == 'b' else 0.0
-        score_2 = 1.0 if q2 == 'b' else 0.0
-        score_3 = 1.0 if q3 == 'c' else 0.0
+        score_2 = 1.0 if q2 == 'c' else 0.0
+        score_3 = 1.0 if q3 == 'b' else 0.0
         
         try:
             conn = sqlite3.connect(Config.RESEARCH_DB)

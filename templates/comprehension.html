@@ -27,23 +27,23 @@
                     <div style="margin: 20px 0;">
                         <textarea id="editor-q1">
 {% if language == 'sql' %}
-SELECT student_name, email
+SELECT student_name, program
 FROM Students
-WHERE status = 'Active';
+WHERE year_level = 1;
 {% else %}
-active_students = [
-    {'name': s['student_name'], 'email': s['email']} 
+first_year_students = [
+    {'name': s['student_name'], 'program': s['program']} 
     for s in students 
-    if s['status'] == 'Active'
+    if s['year_level'] == 1
 ]
 {% endif %}
                         </textarea>
                     </div>
                     <div class="radio-card-group" style="display: flex; flex-direction: column; gap: 10px;">
-                        <label class="radio-card p-3 border rounded"><input type="radio" name="q1" value="a"> Selects all students and their emails</label>
-                        <label class="radio-card p-3 border rounded"><input type="radio" name="q1" value="b"> Gets names and emails of active students</label>
-                        <label class="radio-card p-3 border rounded"><input type="radio" name="q1" value="c"> Counts the active students</label>
-                        <label class="radio-card p-3 border rounded"><input type="radio" name="q1" value="d"> Updates student status to Active</label>
+                        <label class="radio-card p-3 border rounded"><input type="radio" name="q1" value="a"> Selects all students and their programs</label>
+                        <label class="radio-card p-3 border rounded"><input type="radio" name="q1" value="b"> Gets names and programs of 1st year students</label>
+                        <label class="radio-card p-3 border rounded"><input type="radio" name="q1" value="c"> Counts the 1st year students</label>
+                        <label class="radio-card p-3 border rounded"><input type="radio" name="q1" value="d"> Updates student year level to 1</label>
                     </div>
                     <div style="margin-top: 20px; text-align: right;">
                         <button type="button" class="btn btn-primary" onclick="nextQuestion(1)">Next</button>
@@ -57,19 +57,19 @@ active_students = [
                         <textarea id="editor-q2">
 {% if language == 'sql' %}
 SELECT COUNT(course_id)
-FROM Courses
-WHERE credits = 4;
+FROM Enrollments
+WHERE score >= 85;
 {% else %}
-four_credit_courses = [c for c in courses if c['credits'] == 4]
-print(len(four_credit_courses))
+high_scores = [e for e in enrollments if e['score'] is not None and e['score'] >= 85]
+print(len(high_scores))
 {% endif %}
                         </textarea>
                     </div>
                     <div class="radio-card-group" style="display: flex; flex-direction: column; gap: 10px;">
-                        <label class="radio-card p-3 border rounded"><input type="radio" name="q2" value="a"> A list of 4-credit courses</label>
-                        <label class="radio-card p-3 border rounded"><input type="radio" name="q2" value="b"> The total credits of all courses</label>
-                        <label class="radio-card p-3 border rounded"><input type="radio" name="q2" value="c"> The number of 4-credit courses</label>
-                        <label class="radio-card p-3 border rounded"><input type="radio" name="q2" value="d"> Course IDs of 4-credit courses</label>
+                        <label class="radio-card p-3 border rounded"><input type="radio" name="q2" value="a"> A list of courses with score 85</label>
+                        <label class="radio-card p-3 border rounded"><input type="radio" name="q2" value="b"> The total score of all enrollments</label>
+                        <label class="radio-card p-3 border rounded"><input type="radio" name="q2" value="c"> The number of enrollments with score 85 or higher</label>
+                        <label class="radio-card p-3 border rounded"><input type="radio" name="q2" value="d"> Course IDs of top scorers</label>
                     </div>
                     <div style="margin-top: 20px; text-align: right;">
                         <button type="button" class="btn btn-outline" onclick="prevQuestion(2)" style="margin-right: 10px;">Previous</button>
@@ -83,24 +83,24 @@ print(len(four_credit_courses))
                     <div style="margin: 20px 0;">
                         <textarea id="editor-q3">
 {% if language == 'sql' %}
-SELECT student_id, grade
+SELECT student_id, score
 FROM Enrollments
-WHERE grade >= 90
-ORDER BY grade DESC;
+WHERE score >= 90
+ORDER BY score DESC;
 {% else %}
-high_grades = [
-    {'id': e['student_id'], 'grade': e['grade']}
+high_scores = [
+    {'id': e['student_id'], 'score': e['score']}
     for e in enrollments
-    if e['grade'] >= 90
+    if e['score'] is not None and e['score'] >= 90
 ]
-high_grades.sort(key=lambda x: x['grade'], reverse=True)
+high_scores.sort(key=lambda x: x['score'], reverse=True)
 {% endif %}
                         </textarea>
                     </div>
                     <div class="radio-card-group" style="display: flex; flex-direction: column; gap: 10px;">
                         <label class="radio-card p-3 border rounded"><input type="radio" name="q3" value="a"> Descending order</label>
-                        <label class="radio-card p-3 border rounded"><input type="radio" name="q3" value="b"> Grade >= 90</label>
-                        <label class="radio-card p-3 border rounded"><input type="radio" name="q3" value="c"> Selecting student_id and grade</label>
+                        <label class="radio-card p-3 border rounded"><input type="radio" name="q3" value="b"> Score >= 90</label>
+                        <label class="radio-card p-3 border rounded"><input type="radio" name="q3" value="c"> Selecting student_id and score</label>
                         <label class="radio-card p-3 border rounded"><input type="radio" name="q3" value="d"> Enrollments table</label>
                     </div>
                     <div style="margin-top: 20px; text-align: right;">

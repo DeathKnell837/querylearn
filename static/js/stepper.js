@@ -87,7 +87,7 @@ class FormStepper {
             indicator.classList.remove('active', 'completed');
             if (index < this.currentStep) {
                 indicator.classList.add('completed');
-                indicator.innerHTML = '✓';
+                indicator.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
             } else if (index === this.currentStep) {
                 indicator.classList.add('active');
                 indicator.innerHTML = (index + 1).toString();

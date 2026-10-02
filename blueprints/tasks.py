@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import time
+import ast
 from flask import Blueprint, request, jsonify, session, url_for
 from config import Config
 from services.sql_runner import execute_sql
@@ -152,8 +153,18 @@ def submit():
         output_str = learner_res.get('output', '').strip()
         expected_rows = oracle_res.get('rows', [])
         
-        # Simple heuristic check: row count check or representation match
-        if expected_rows and str(len(expected_rows)) in output_str or any(str(r[0]) in output_str for r in expected_rows):
+        parsed = None
+        try:
+            parsed = ast.literal_eval(output_str)
+        except Exception:
+            pass
+
+        if isinstance(parsed, list):
+            check_res = check_answer(parsed, expected_rows, task_info)
+            is_correct = check_res['correct']
+            feedback = check_res['feedback'] if not is_correct else "Correct procedural Python output generated!"
+            log_attempt(language, form, task_id, code, check_res['classification'], feedback)
+        elif expected_rows and (str(len(expected_rows)) in output_str or any(str(r[0]) in output_str for r in expected_rows)):
             is_correct = True
             feedback = "Correct procedural Python output generated!"
             log_attempt(language, form, task_id, code, "correct", feedback)
