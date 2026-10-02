@@ -74,24 +74,30 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
             <div class="db-editor-card" style="padding: 1.5rem;">
                 <h3 style="color: white; margin-bottom: 1rem;">Success Rate Comparison</h3>
-                <canvas id="successChart" height="200"></canvas>
+                <div style="position: relative; height: 260px; width: 100%;">
+                    <canvas id="successChart"></canvas>
+                </div>
             </div>
             
             <div class="db-editor-card" style="padding: 1.5rem;">
                 <h3 style="color: white; margin-bottom: 1rem;">Mean Duration Comparison</h3>
-                <canvas id="durationChart" height="200"></canvas>
+                <div style="position: relative; height: 260px; width: 100%;">
+                    <canvas id="durationChart"></canvas>
+                </div>
             </div>
             
             <div class="db-editor-card" style="padding: 1.5rem;">
                 <h3 style="color: white; margin-bottom: 1rem;">Overall Success Rate</h3>
-                <div style="width: 250px; margin: 0 auto;">
-                    <canvas id="overallSuccessChart" height="250"></canvas>
+                <div style="position: relative; height: 260px; width: 100%;">
+                    <canvas id="overallSuccessChart"></canvas>
                 </div>
             </div>
             
             <div class="db-editor-card" style="padding: 1.5rem;">
                 <h3 style="color: white; margin-bottom: 1rem;">Attempt Distribution</h3>
-                <canvas id="attemptChart" height="200"></canvas>
+                <div style="position: relative; height: 260px; width: 100%;">
+                    <canvas id="attemptChart"></canvas>
+                </div>
             </div>
         </div>
         
@@ -125,7 +131,7 @@
                 }
             ]
         },
-        options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } }
     });
 
     // 2. Mean Duration Comparison
@@ -146,7 +152,7 @@
                 }
             ]
         },
-        options: { responsive: true, scales: { y: { beginAtZero: true } } }
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
     });
     
     // 3. Overall Success Rate
@@ -181,7 +187,7 @@
                 }
             ]
         },
-        options: { responsive: true, scales: { y: { beginAtZero: true } } }
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
     });
 </script>
 
