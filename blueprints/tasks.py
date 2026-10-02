@@ -56,13 +56,21 @@ def run():
             "courses": courses,
             "enrollments": enrollments
         }
-        result = execute_python(code, data_vars, timeout=Config.CODE_EXECUTION_TIMEOUT)
-        return jsonify({
-            "success": result['error'] is None,
-            "output": result.get('output', ''),
-            "error": result.get('error'),
-            "execution_time": result.get('execution_time', 0.05)
-        })
+        try:
+            result = execute_python(code, data_vars, timeout=Config.CODE_EXECUTION_TIMEOUT)
+            return jsonify({
+                "success": result['error'] is None,
+                "output": result.get('output', ''),
+                "error": result.get('error'),
+                "execution_time": result.get('execution_time', 0.05)
+            })
+        except Exception as e:
+            return jsonify({
+                "success": False,
+                "output": "",
+                "error": f"Execution error: {str(e)}",
+                "execution_time": 0
+            })
 
 @tasks_bp.route('/submit', methods=['POST'])
 def submit():
