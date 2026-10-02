@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}Readiness Verification - QueryLearn{% endblock %}
+
+{% block content %}
+<div class="container fade-in">
+    <div class="card">
+        <div class="card-header">
+            <h2>Readiness Verification</h2>
+            <p class="text-muted">Answer both questions correctly to proceed to the timed evaluation.</p>
+        </div>
+        <div class="card-body">
+            <form id="readiness-form" action="{{ url_for('experiment.readiness') }}" method="POST">
+                
+                <div class="form-group" style="margin-bottom: 30px;">
+                    <label class="form-label" style="font-size: 1.1em; font-weight: bold;">1. What does the following SQL query return?</label>
+                    <div class="code-block" style="margin: 15px 0;">
+                        <span class="code-keyword">SELECT</span> student_name <span class="code-keyword">FROM</span> Students <span class="code-keyword">WHERE</span> year_level = 2;
+                    </div>
+                    
+                    <div class="radio-card-group" style="display: flex; flex-direction: column; gap: 10px;">
+                        <label class="radio-card p-3 border rounded" style="cursor: pointer;">
+                            <input type="radio" name="q1" value="a"> (a) All students
+                        </label>
+                        <label class="radio-card p-3 border rounded" style="cursor: pointer;">
+                            <input type="radio" name="q1" value="b"> (b) Students in year 2
+                        </label>
+                        <label class="radio-card p-3 border rounded" style="cursor: pointer;">
+                            <input type="radio" name="q1" value="c"> (c) The number of students
+                        </label>
+                        <label class="radio-card p-3 border rounded" style="cursor: pointer;">
+                            <input type="radio" name="q1" value="d"> (d) Student IDs only
+                        </label>
+                    </div>
+                    <div id="q1-error" class="text-danger" style="display: none; margin-top: 5px; color: #ff6b6b;">Incorrect. Please review the SQL Reference.</div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 30px;">
+                    <label class="form-label" style="font-size: 1.1em; font-weight: bold;">2. What does this Python code print?</label>
+                    <div class="code-block" style="margin: 15px 0;">
+                        result = [s[<span class="code-string">'student_name'</span>] <span class="code-keyword">for</span> s <span class="code-keyword">in</span> students <span class="code-keyword">if</span> s[<span class="code-string">'program'</span>] == <span class="code-string">'BSCS'</span>]<br>
+                        <span class="code-keyword">print</span>(<span class="code-keyword">len</span>(result))
+                    </div>
+                    
+                    <div class="radio-card-group" style="display: flex; flex-direction: column; gap: 10px;">
+                        <label class="radio-card p-3 border rounded" style="cursor: pointer;">
+                            <input type="radio" name="q2" value="a"> (a) Names of BSCS students
+                        </label>
+                        <label class="radio-card p-3 border rounded" style="cursor: pointer;">
+                            <input type="radio" name="q2" value="b"> (b) All student names
+                        </label>
+                        <label class="radio-card p-3 border rounded" style="cursor: pointer;">
+                            <input type="radio" name="q2" value="c"> (c) Count of BSCS students
+                        </label>
+                        <label class="radio-card p-3 border rounded" style="cursor: pointer;">
+                            <input type="radio" name="q2" value="d"> (d) Program names
+                        </label>
+                    </div>
+                    <div id="q2-error" class="text-danger" style="display: none; margin-top: 5px; color: #ff6b6b;">Incorrect. Please review the Python Reference.</div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <button type="button" class="btn btn-primary btn-lg" onclick="validateReadiness()">Submit Answers</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function validateReadiness() {
+        var q1 = document.querySelector('input[name="q1"]:checked');
+        var q2 = document.querySelector('input[name="q2"]:checked');
+        
+        var q1Error = document.getElementById('q1-error');
+        var q2Error = document.getElementById('q2-error');
+        
+        q1Error.style.display = 'none';
+        q2Error.style.display = 'none';
+        
+        var valid = true;
+        
+        if (!q1 || q1.value !== 'b') {
+            q1Error.style.display = 'block';
+            valid = false;
+        }
+        
+        if (!q2 || q2.value !== 'c') {
+            q2Error.style.display = 'block';
+            valid = false;
+        }
+        
+        if (valid) {
+            // Both correct, redirect to experiment start or submit form
+            // Since requirements say redirect to url_for('experiment.start') on both correct:
+            window.location.href = "{{ url_for('experiment.start') }}";
+        }
+    }
+</script>
+{% endblock %}

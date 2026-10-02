@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task {{ current_task_num }} of 6: {{ task.title }} — QueryLearn</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- CodeMirror 5 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/monokai.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<div class="ws-page">
+    <!-- Left Icon Rail -->
+    <aside class="ws-rail">
+        <a href="{{ url_for('index') }}" class="ws-rail-logo" title="QueryLearn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#ffffff"/>
+                <path d="M2 17L12 22L22 17" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 12L12 17L22 12" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </a>
+        <button class="ws-rail-btn active" title="Tasks">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        </button>
+        <button class="ws-rail-btn" title="Schema / Settings" onclick="toggleSchema()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </button>
+        <div class="ws-rail-bottom">
+            <a href="{{ url_for('auth.logout') }}" class="ws-rail-btn" title="Exit">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Workspace Viewport -->
+    <div class="ws-viewport">
+        <!-- Workspace Top Bar -->
+        <header class="ws-topbar">
+            <!-- Timer Pill (Orange) -->
+            <div id="timer-pill" class="ws-timer-pill">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <span id="timer-text">05:23 remaining</span>
+            </div>
+
+            <!-- Centered Progress Group -->
+            <div class="ws-progress-center">
+                <span class="ws-attempt-text">Attempt <span id="attempt-num">1</span>/5</span>
+                <div class="ws-dot-group">
+                    {% for i in range(1, 7) %}
+                        <div class="ws-dot {% if i <= current_task_num %}filled{% endif %}" title="Task {{ i }}"></div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Topbar Right Profile -->
+            <div class="ws-topbar-right">
+                <button class="ws-bell-btn" title="Notifications">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                </button>
+                <div class="ws-avatar">P</div>
+            </div>
+        </header>
+
+        <!-- Workspace Body -->
+        <main class="ws-body">
+            <!-- Columns: Left Task Card & Right Code Editor -->
+            <div class="ws-columns">
+                <!-- Left Task Card (Clean Crisp White Surface) -->
+                <div class="ws-task-card">
+                    <h2 class="ws-task-title">Task {{ current_task_num }} of 6: {{ task.title }}</h2>
+                    <p class="ws-task-intro">{{ task.instruction }}</p>
+
+                    <ul class="ws-task-bullets">
+                        {% for req in task.requirements %}
+                            <li>{{ req }}</li>
+                        {% endfor %}
+                    </ul>
+
+                    <!-- Collapsible Table Schema -->
+                    <div class="ws-schema-box">
+                        <div class="ws-schema-header" onclick="toggleSchema()">
+                            <span>Table Schema</span>
+                            <span id="schema-chevron">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                            </span>
+                        </div>
+                        <div class="ws-schema-content" id="schema-tree">
+                            <div class="ws-schema-db">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+                                <span>database</span>
+                            </div>
+                            {% for tbl in schema %}
+                                <div class="ws-schema-table">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line></svg>
+                                    <strong>{{ tbl.table }}</strong>
+                                    <span style="color: #64748b; font-size: 0.82rem; margin-left: 0.4rem;">
+                                        ({% for col in tbl.columns %}{{ col.name }}{% if not loop.last %}, {% endif %}{% endfor %})
+                                    </span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Code Editor Window -->
+                <div class="ws-editor-window">
+                    <div class="ws-editor-top">
+                        <div class="ws-editor-tab">
+                            <span>sql.st</span>
+                            <span class="ws-editor-tab-close">&times;</span>
+                        </div>
+                        <div class="ws-editor-top-tools">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="12" y1="3" x2="12" y2="21"></line></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+                        </div>
+                    </div>
+
+                    <div class="ws-editor-subbar">std &gt; = sql</div>
+
+                    <div class="ws-editor-textarea">
+                        <textarea id="code-editor">{{ task.sql_starter }}</textarea>
+                    </div>
+
+                    <div class="ws-editor-bottom">
+                        <button class="ws-btn-skip" onclick="skipTask()">Skip Task &rarr;</button>
+                        <button class="ws-btn-run" id="btn-run" onclick="runCode()">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            <span>Run Query</span>
+                        </button>
+                        <button class="ws-btn-submit" id="btn-submit" onclick="submitCode()">
+                            Submit Answer
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Results Panel (White Grid / Clean Table) -->
+            <div class="ws-results-panel">
+                <div class="ws-results-title">Query results</div>
+                <div class="ws-results-table-wrap">
+                    <table class="ws-results-table" id="results-table">
+                        <thead id="table-head">
+                            <tr>
+                                <th>student_id</th>
+                                <th>student_name</th>
+                                <th>score</th>
+                                <th>course_id</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: #94a3b8; padding: 1.5rem;">
+                                    Click "Run Query" or press Ctrl+Enter to preview output records.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Floating Toast Pill (Matching Mockup 1) -->
+                <div id="ws-toast" class="ws-toast-pill">
+                    <div class="ws-toast-check">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <span id="ws-toast-text">Query executed successfully</span>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- CodeMirror & Task Workspace Engine -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/sql/sql.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/matchbrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/closebrackets.min.js"></script>
+
+<script>
+    const TASK_ID = "{{ task.id }}";
+    const TASK_NUM = {{ current_task_num }};
+    const LANGUAGE = "sql";
+    const FORM = "{{ current_form }}";
+    let attempts = 1;
+    let timerSeconds = 323;
+
+    // Init CodeMirror
+    const editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
+        mode: 'text/x-sql',
+        theme: 'monokai',
+        lineNumbers: true,
+        indentUnit: 4,
+        tabSize: 4,
+        matchBrackets: true,
+        autoCloseBrackets: true,
+        extraKeys: {
+            "Ctrl-Enter": () => runCode(),
+            "Cmd-Enter": () => runCode()
+        }
+    });
+
+    // Toggle Schema Accordion
+    function toggleSchema() {
+        const tree = document.getElementById('schema-tree');
+        const chevron = document.getElementById('schema-chevron');
+        if (tree.style.display === 'none') {
+            tree.style.display = 'block';
+            chevron.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>';
+        } else {
+            tree.style.display = 'none';
+            chevron.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+        }
+    }
+
+    // Floating Toast Notification
+    function showToast(text, isError = false) {
+        const toast = document.getElementById('ws-toast');
+        const toastText = document.getElementById('ws-toast-text');
+        toastText.textContent = text;
+
+        if (isError) {
+            toast.classList.add('error');
+        } else {
+            toast.classList.remove('error');
+        }
+
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3200);
+    }
+
+    // Countdown Timer
+    const timerInterval = setInterval(() => {
+        timerSeconds--;
+        if (timerSeconds < 0) timerSeconds = 0;
+        const mins = Math.floor(timerSeconds / 60);
+        const secs = timerSeconds % 60;
+        document.getElementById('timer-text').textContent = 
+            `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} remaining`;
+
+        if (timerSeconds <= 60) {
+            document.getElementById('timer-pill').classList.add('urgent');
+        }
+
+        if (timerSeconds === 0) {
+            clearInterval(timerInterval);
+            showToast("Time expired! Submitting task...", true);
+            submitCode(true);
+        }
+    }, 1000);
+
+    // Run Code
+    async function runCode() {
+        const code = editor.getValue();
+        try {
+            const resp = await fetch('/api/run', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: code, language: LANGUAGE, task_id: TASK_ID, form: FORM })
+            });
+            const data = await resp.json();
+
+            if (data.error) {
+                renderError(data.error);
+                showToast(data.error, true);
+            } else {
+                renderTable(data.columns, data.rows);
+                showToast("Query executed successfully");
+            }
+        } catch (err) {
+            renderError(err.message);
+            showToast("Network error", true);
+        }
+    }
+
+    // Submit Answer
+    async function submitCode(isTimeout = false) {
+        const code = editor.getValue();
+        attempts++;
+        document.getElementById('attempt-num').textContent = attempts;
+
+        try {
+            const resp = await fetch('/api/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    code: code, 
+                    language: LANGUAGE, 
+                    task_id: TASK_ID, 
+                    form: FORM,
+                    timed_out: isTimeout,
+                    elapsed_seconds: 323 - timerSeconds
+                })
+            });
+            const data = await resp.json();
+
+            if (data.correct) {
+                showToast("Query passed all hidden test cases! Proceeding...");
+                setTimeout(() => {
+                    window.location.href = data.next_task_url;
+                }, 1200);
+            } else {
+                showToast(data.feedback || "Incorrect query result", true);
+                if (data.task_complete) {
+                    setTimeout(() => {
+                        window.location.href = data.next_task_url;
+                    }, 1400);
+                }
+            }
+        } catch (err) {
+            showToast("Error submitting answer: " + err.message, true);
+        }
+    }
+
+    // Skip Task
+    async function skipTask() {
+        if (!confirm("Skip this task and move to the next item?")) return;
+        try {
+            const resp = await fetch('/api/skip', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ task_id: TASK_ID, language: LANGUAGE, form: FORM })
+            });
+            const data = await resp.json();
+            window.location.href = data.next_task_url;
+        } catch (err) {
+            alert(err.message);
+        }
+    }
+
+    // Render Clean Spreadsheet Table
+    function renderTable(cols, rows) {
+        const thead = document.getElementById('table-head');
+        const tbody = document.getElementById('table-body');
+
+        thead.innerHTML = '<tr>' + cols.map(c => `<th>${c}</th>`).join('') + '</tr>';
+        if (!rows || rows.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="${cols.length || 1}" style="text-align: center; color: #64748b; padding: 1.25rem;">0 rows returned</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = rows.map(r => `
+            <tr>
+                ${r.map(val => `<td>${val === null ? '<em style="color:#94a3b8;">NULL</em>' : val}</td>`).join('')}
+            </tr>
+        `).join('');
+    }
+
+    function renderError(err) {
+        const thead = document.getElementById('table-head');
+        const tbody = document.getElementById('table-body');
+        thead.innerHTML = `<tr><th>Error</th></tr>`;
+        tbody.innerHTML = `<tr><td style="color:#ef4444; font-family:var(--font-mono); padding:1.25rem;">${err}</td></tr>`;
+    }
+</script>
+</body>
+</html>

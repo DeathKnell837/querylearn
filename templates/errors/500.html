@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}500 Internal Server Error - QueryLearn{% endblock %}
+
+{% block content %}
+<div class="container fade-in" style="display: flex; justify-content: center; align-items: center; min-height: 70vh;">
+    <div class="card text-center" style="max-width: 600px; width: 100%; padding: 50px 20px; background: transparent; border: none;">
+        <h1 style="font-size: 6em; font-weight: 800; margin-bottom: 0; color: #f87171;">500</h1>
+        
+        <h2 style="margin-bottom: 20px; font-size: 2em;">Internal Server Error</h2>
+        
+        <p style="font-size: 1.1em; color: var(--text-muted); margin-bottom: 40px;">
+            An unexpected error occurred. Please try again or contact the research administrator.
+        </p>
+
+        <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">Return Home</a>
+    </div>
+</div>
+{% endblock %}

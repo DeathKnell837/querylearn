@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Break Time - QueryLearn{% endblock %}
+
+{% block content %}
+<div class="container fade-in" style="display: flex; justify-content: center; align-items: center; min-height: 70vh;">
+    <div class="card text-center" style="max-width: 600px; width: 100%; padding: 40px 20px;">
+        <div style="margin-bottom: 30px; color: var(--text-muted);">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                <line x1="6" y1="1" x2="6" y2="4"></line>
+                <line x1="10" y1="1" x2="10" y2="4"></line>
+                <line x1="14" y1="1" x2="14" y2="4"></line>
+            </svg>
+        </div>
+        
+        <h2 style="margin-bottom: 20px;">Take a Short Break</h2>
+        
+        <p style="font-size: 1.1em; margin-bottom: 30px; line-height: 1.6;">
+            You've completed the first set of tasks. Take a few minutes to rest before continuing with <strong>{{ next_language|upper }}</strong>.
+        </p>
+
+        <div style="margin: 30px 0;">
+            <div id="break-timer" style="font-size: 3em; font-family: var(--font-mono); font-weight: bold; color: var(--text-white);">05:00</div>
+        </div>
+
+        <p class="text-muted" style="margin-bottom: 30px; font-size: 0.9em;">
+            Take as much time as you need. The next set of tasks will begin when you click continue.
+        </p>
+
+        <a href="{{ url_for('experiment.comprehension', language=next_language) }}" class="btn btn-primary btn-lg">I'm Ready to Continue</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    var timeLeft = 300; // 5 minutes
+    var timerEl = document.getElementById('break-timer');
+    
+    var timerInterval = setInterval(function() {
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            timerEl.textContent = "00:00";
+            return;
+        }
+        
+        timeLeft--;
+        var minutes = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+        var seconds = (timeLeft % 60).toString().padStart(2, '0');
+        timerEl.textContent = minutes + ":" + seconds;
+    }, 1000);
+</script>
+{% endblock %}

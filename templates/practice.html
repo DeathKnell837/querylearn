@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block title %}Practice Tasks - QueryLearn{% endblock %}
+
+{% block content %}
+<div class="container fade-in">
+    <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header">
+            <h2>Practice Tasks</h2>
+            <p class="text-muted">Try these practice problems before the timed evaluation. These are not scored.</p>
+        </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header">
+            <h3>Practice Task 1 (SQL)</h3>
+            <p>List all student names from the Students table.</p>
+        </div>
+        <div class="card-body">
+            <textarea id="sql-editor">SELECT student_name FROM Students;</textarea>
+            <div style="margin-top: 15px;">
+                <button class="btn btn-primary" onclick="runPractice('sql')">Run SQL</button>
+            </div>
+            <div id="sql-output" class="code-block" style="margin-top: 15px; display: none; min-height: 50px;"></div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header">
+            <h3>Practice Task 2 (Python)</h3>
+            <p>Print the names of all students.</p>
+        </div>
+        <div class="card-body">
+            <textarea id="python-editor">for s in students:
+    print(s['student_name'])</textarea>
+            <div style="margin-top: 15px;">
+                <button class="btn btn-primary" onclick="runPractice('python')">Run Python</button>
+            </div>
+            <div id="python-output" class="code-block" style="margin-top: 15px; display: none; min-height: 50px;"></div>
+        </div>
+    </div>
+
+    <div class="card text-center" style="background: transparent; border: none;">
+        <div class="card-body">
+            <a href="{{ url_for('experiment.readiness') }}" id="btn-ready" class="btn btn-success btn-lg" style="opacity: 0.5; pointer-events: none;">Ready for Evaluation</a>
+            <p class="text-muted" style="margin-top: 10px; font-size: 0.9em;">Please attempt both practice tasks to continue.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/sql/sql.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+
+<script>
+    var sqlEditor = CodeMirror.fromTextArea(document.getElementById('sql-editor'), {
+        mode: 'text/x-sql',
+        theme: 'monokai',
+        lineNumbers: true,
+        viewportMargin: Infinity
+    });
+
+    var pythonEditor = CodeMirror.fromTextArea(document.getElementById('python-editor'), {
+        mode: 'python',
+        theme: 'monokai',
+        lineNumbers: true,
+        viewportMargin: Infinity
+    });
+
+    var practiceAttempted = {
+        sql: false,
+        python: false
+    };
+
+    function checkReadiness() {
+        if (practiceAttempted.sql && practiceAttempted.python) {
+            var btn = document.getElementById('btn-ready');
+            btn.style.opacity = '1';
+            btn.style.pointerEvents = 'auto';
+        }
+    }
+
+    async function runPractice(language) {
+        var outputDiv = document.getElementById(language + '-output');
+        outputDiv.style.display = 'block';
+        outputDiv.innerHTML = '<span class="text-muted">Executing against live database...</span>';
+        
+        var code = (language === 'sql') ? sqlEditor.getValue() : pythonEditor.getValue();
+
+        try {
+            const resp = await fetch('/api/run', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    code: code,
+                    language: language,
+                    task_id: 1,
+                    form: 'A'
+                })
+            });
+            const data = await resp.json();
+
+            if (data.error) {
+                outputDiv.innerHTML = '<span style="color: #ef4444;">Error: ' + data.error + '</span>';
+            } else if (language === 'sql') {
+                if (data.rows && data.rows.length > 0) {
+                    var html = '<table class="table" style="width: 100%; border-collapse: collapse; margin-top: 5px;"><thead><tr>';
+                    data.columns.forEach(c => html += '<th style="padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left;">' + c + '</th>');
+                    html += '</tr></thead><tbody>';
+                    data.rows.slice(0, 5).forEach(r => {
+                        html += '<tr>';
+                        r.forEach(val => html += '<td style="padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.05);">' + (val !== null ? val : 'NULL') + '</td>');
+                        html += '</tr>';
+                    });
+                    html += '</tbody></table>';
+                    if (data.rows.length > 5) {
+                        html += '<p style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px;">Showing first 5 of ' + data.rows.length + ' rows.</p>';
+                    }
+                    outputDiv.innerHTML = html;
+                } else {
+                    outputDiv.innerHTML = '<span class="text-muted">Query executed successfully (0 rows returned).</span>';
+                }
+            } else {
+                outputDiv.innerHTML = '<pre style="margin: 0; color: #93c5fd; white-space: pre-wrap;">' + (data.output || '(No stdout output)') + '</pre>';
+            }
+
+            practiceAttempted[language] = true;
+            checkReadiness();
+        } catch (err) {
+            outputDiv.innerHTML = '<span style="color: #ef4444;">Execution failed: ' + err.message + '</span>';
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}Code Comprehension Assessment ({{ language|upper }}) - QueryLearn{% endblock %}
+
+{% block content %}
+<div class="container fade-in">
+    <div class="card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h2>Code Comprehension Assessment ({{ language|upper }})</h2>
+                <p class="text-muted">Read each code snippet carefully and answer the questions. This measures reading comprehension, not writing ability.</p>
+            </div>
+            <div class="timer" style="font-size: 1.5em; font-family: var(--font-mono); font-weight: bold; background: var(--bg-main); padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border-subtle);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <span id="elapsed-time">00:00</span>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <h4 class="text-muted" style="margin-bottom: 20px;">Question <span id="current-q-num">1</span> of 3</h4>
+            
+            <form id="comprehension-form" action="{{ url_for('experiment.comprehension', language=language) }}" method="POST">
+                
+                <!-- Question 1 -->
+                <div class="question-container" id="q1-container" style="display: block;">
+                    <h3>What does this code do?</h3>
+                    <div style="margin: 20px 0;">
+                        <textarea id="editor-q1">
+{% if language == 'sql' %}
+SELECT student_name, email
+FROM Students
+WHERE status = 'Active';
+{% else %}
+active_students = [
+    {'name': s['student_name'], 'email': s['email']} 
+    for s in students 
+    if s['status'] == 'Active'
+]
+{% endif %}
+                        </textarea>
+                    </div>
+                    <div class="radio-card-group" style="display: flex; flex-direction: column; gap: 10px;">
+                        <label class="radio-card p-3 border rounded"><input type="radio" name="q1" value="a"> Selects all students and their emails</label>
+                        <label class="radio-card p-3 border rounded"><input type="radio" name="q1" value="b"> Gets names and emails of active students</label>
+                        <label class="radio-card p-3 border rounded"><input type="radio" name="q1" value="c"> Counts the active students</label>
+                        <label class="radio-card p-3 border rounded"><input type="radio" name="q1" value="d"> Updates student status to Active</label>
+                    </div>
+                    <div style="margin-top: 20px; text-align: right;">
+                        <button type="button" class="btn btn-primary" onclick="nextQuestion(1)">Next</button>
+                    </div>
+                </div>
+
+                <!-- Question 2 -->
+                <div class="question-container" id="q2-container" style="display: none;">
+                    <h3>What will be the output?</h3>
+                    <div style="margin: 20px 0;">
+                        <textarea id="editor-q2">
+{% if language == 'sql' %}
+SELECT COUNT(course_id)
+FROM Courses
+WHERE credits = 4;
+{% else %}
+four_credit_courses = [c for c in courses if c['credits'] == 4]
+print(len(four_credit_courses))
+{% endif %}
+                        </textarea>
+                    </div>
+                    <div class="radio-card-group" style="display: flex; flex-direction: column; gap: 10px;">
+                        <label class="radio-card p-3 border rounded"><input type="radio" name="q2" value="a"> A list of 4-credit courses</label>
+                        <label class="radio-card p-3 border rounded"><input type="radio" name="q2" value="b"> The total credits of all courses</label>
+                        <label class="radio-card p-3 border rounded"><input type="radio" name="q2" value="c"> The number of 4-credit courses</label>
+                        <label class="radio-card p-3 border rounded"><input type="radio" name="q2" value="d"> Course IDs of 4-credit courses</label>
+                    </div>
+                    <div style="margin-top: 20px; text-align: right;">
+                        <button type="button" class="btn btn-outline" onclick="prevQuestion(2)" style="margin-right: 10px;">Previous</button>
+                        <button type="button" class="btn btn-primary" onclick="nextQuestion(2)">Next</button>
+                    </div>
+                </div>
+
+                <!-- Question 3 -->
+                <div class="question-container" id="q3-container" style="display: none;">
+                    <h3>Identify the filtering condition</h3>
+                    <div style="margin: 20px 0;">
+                        <textarea id="editor-q3">
+{% if language == 'sql' %}
+SELECT student_id, grade
+FROM Enrollments
+WHERE grade >= 90
+ORDER BY grade DESC;
+{% else %}
+high_grades = [
+    {'id': e['student_id'], 'grade': e['grade']}
+    for e in enrollments
+    if e['grade'] >= 90
+]
+high_grades.sort(key=lambda x: x['grade'], reverse=True)
+{% endif %}
+                        </textarea>
+                    </div>
+                    <div class="radio-card-group" style="display: flex; flex-direction: column; gap: 10px;">
+                        <label class="radio-card p-3 border rounded"><input type="radio" name="q3" value="a"> Descending order</label>
+                        <label class="radio-card p-3 border rounded"><input type="radio" name="q3" value="b"> Grade >= 90</label>
+                        <label class="radio-card p-3 border rounded"><input type="radio" name="q3" value="c"> Selecting student_id and grade</label>
+                        <label class="radio-card p-3 border rounded"><input type="radio" name="q3" value="d"> Enrollments table</label>
+                    </div>
+                    <div style="margin-top: 20px; text-align: right;">
+                        <button type="button" class="btn btn-outline" onclick="prevQuestion(3)" style="margin-right: 10px;">Previous</button>
+                        <button type="submit" class="btn btn-success">Submit Assessment</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/sql/sql.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+
+<script>
+    var cmMode = '{{ language }}' === 'sql' ? 'text/x-sql' : 'python';
+    var cmOptions = {
+        mode: cmMode,
+        theme: 'monokai',
+        lineNumbers: true,
+        readOnly: true,
+        viewportMargin: Infinity
+    };
+    
+    CodeMirror.fromTextArea(document.getElementById('editor-q1'), cmOptions);
+    CodeMirror.fromTextArea(document.getElementById('editor-q2'), cmOptions);
+    CodeMirror.fromTextArea(document.getElementById('editor-q3'), cmOptions);
+
+    function nextQuestion(current) {
+        document.getElementById('q' + current + '-container').style.display = 'none';
+        document.getElementById('q' + (current + 1) + '-container').style.display = 'block';
+        document.getElementById('current-q-num').textContent = current + 1;
+    }
+    
+    function prevQuestion(current) {
+        document.getElementById('q' + current + '-container').style.display = 'none';
+        document.getElementById('q' + (current - 1) + '-container').style.display = 'block';
+        document.getElementById('current-q-num').textContent = current - 1;
+    }
+
+    // Timer logic
+    var startTime = Date.now();
+    var timerElement = document.getElementById('elapsed-time');
+    
+    setInterval(function() {
+        var elapsed = Math.floor((Date.now() - startTime) / 1000);
+        var minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+        var seconds = (elapsed % 60).toString().padStart(2, '0');
+        timerElement.textContent = minutes + ':' + seconds;
+    }, 1000);
+</script>
+{% endblock %}

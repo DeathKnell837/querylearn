@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}QueryLearn — SQL Readability & Productivity Study{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-bg-gradient"></div>
+    <div class="container hero-content">
+        <div class="hero-badge">Research Instrument</div>
+        <h1 class="hero-title">
+            Query<span class="text-gradient">Learn</span>
+        </h1>
+        <p class="hero-subtitle">
+            Evaluating SQL Readability and Productivity Among Novice Database Learners
+        </p>
+        <p class="hero-description">
+            An empirical investigation comparing Domain-Specific Languages (SQL) and General-Purpose Languages (Procedural Python) for database query comprehension and development.
+        </p>
+        <div class="hero-actions">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+                Start Evaluation
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </a>
+            <a href="{{ url_for('auth.researcher_login') }}" class="btn btn-outline btn-lg">
+                Researcher Portal
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="container">
+        <h2 class="section-title">Evaluation Architecture</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon" style="color: #38bdf8;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                </div>
+                <h3>6 Balanced Tasks</h3>
+                <p>Equivalent query constructs ranging from simple selections to relational multi-table joins and aggregations.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" style="color: #fbbf24;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                </div>
+                <h3>Automated Timing</h3>
+                <p>Precise measurement of task completion times, attempt counts, and edit frequencies within bounded intervals.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" style="color: #34d399;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                </div>
+                <h3>Hidden Test Oracles</h3>
+                <p>Solutions are verified against multiple test datasets to guarantee correctness across edge cases.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" style="color: #a78bfa;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                </div>
+                <h3>Code Interpretation</h3>
+                <p>Dedicated reading and prediction assessments to objectively measure semantic readability and mental overhead.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" style="color: #f472b6;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                </div>
+                <h3>Psychometric Survey</h3>
+                <p>Standardized 5-point Likert measures evaluating perceived syntax clarity, debugging friction, and learner preference.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" style="color: #60a5fa;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </div>
+                <h3>Anonymized Telemetry</h3>
+                <p>Strict participant anonymization with randomized counterbalanced assignment protocols.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

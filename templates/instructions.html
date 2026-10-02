@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}Language Reference Guide - QueryLearn{% endblock %}
+
+{% block content %}
+<div class="container fade-in">
+    <div class="card">
+        <div class="card-header">
+            <h2>Language Reference Guide</h2>
+            <p class="text-muted">Review the syntax for SQL and Python before starting the practice tasks.</p>
+        </div>
+        <div class="card-body">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('sql')">SQL Reference</button>
+                <button class="tab-btn" onclick="switchTab('python')">Python Reference</button>
+            </div>
+
+            <div id="sql-tab" class="tab-content" style="display: block;">
+                <h3>SQL Basic Syntax</h3>
+                <p>SQL is a declarative language used to query databases. The basic structure of a query involves selecting columns from tables and optionally filtering, grouping, or ordering the results.</p>
+                
+                <h4>SELECT and FROM</h4>
+                <div class="code-block">
+                    <span class="code-keyword">SELECT</span> student_name, year_level<br>
+                    <span class="code-keyword">FROM</span> Students;
+                </div>
+
+                <h4>WHERE (Filtering)</h4>
+                <div class="code-block">
+                    <span class="code-keyword">SELECT</span> *<br>
+                    <span class="code-keyword">FROM</span> Courses<br>
+                    <span class="code-keyword">WHERE</span> credits &gt; 3;
+                </div>
+
+                <h4>JOIN (Combining Tables)</h4>
+                <div class="code-block">
+                    <span class="code-keyword">SELECT</span> s.student_name, c.course_name<br>
+                    <span class="code-keyword">FROM</span> Students s<br>
+                    <span class="code-keyword">JOIN</span> Enrollments e <span class="code-keyword">ON</span> s.student_id = e.student_id<br>
+                    <span class="code-keyword">JOIN</span> Courses c <span class="code-keyword">ON</span> e.course_id = c.course_id;
+                </div>
+
+                <h4>GROUP BY and HAVING (Aggregation)</h4>
+                <div class="code-block">
+                    <span class="code-keyword">SELECT</span> student_id, <span class="code-keyword">COUNT</span>(course_id) <span class="code-keyword">AS</span> total_courses<br>
+                    <span class="code-keyword">FROM</span> Enrollments<br>
+                    <span class="code-keyword">GROUP BY</span> student_id<br>
+                    <span class="code-keyword">HAVING COUNT</span>(course_id) &gt; 2;
+                </div>
+
+                <h4>ORDER BY and LIMIT</h4>
+                <div class="code-block">
+                    <span class="code-keyword">SELECT</span> course_name, credits<br>
+                    <span class="code-keyword">FROM</span> Courses<br>
+                    <span class="code-keyword">ORDER BY</span> credits <span class="code-keyword">DESC</span><br>
+                    <span class="code-keyword">LIMIT</span> 5;
+                </div>
+            </div>
+
+            <div id="python-tab" class="tab-content" style="display: none;">
+                <h3>Python Data Processing</h3>
+                <p>In Python, you will process data represented as lists of dictionaries. Each dictionary corresponds to a row in a table.</p>
+                
+                <h4>List Comprehensions (Basic Select/Map)</h4>
+                <div class="code-block">
+                    <span class="code-comment"># Extracting names from a list of student dictionaries</span><br>
+                    names = [s[<span class="code-string">'student_name'</span>] <span class="code-keyword">for</span> s <span class="code-keyword">in</span> students]
+                </div>
+
+                <h4>Filtering with For Loops</h4>
+                <div class="code-block">
+                    <span class="code-comment"># Getting courses with more than 3 credits</span><br>
+                    heavy_courses = []<br>
+                    <span class="code-keyword">for</span> c <span class="code-keyword">in</span> courses:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">if</span> c[<span class="code-string">'credits'</span>] &gt; 3:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;heavy_courses.append(c)
+                </div>
+                
+                <h4>List Comprehensions with Filtering</h4>
+                <div class="code-block">
+                    <span class="code-comment"># Same as above, but more concise</span><br>
+                    heavy_courses = [c <span class="code-keyword">for</span> c <span class="code-keyword">in</span> courses <span class="code-keyword">if</span> c[<span class="code-string">'credits'</span>] &gt; 3]
+                </div>
+
+                <h4>Sorting with Lambda Functions</h4>
+                <div class="code-block">
+                    <span class="code-comment"># Sort courses by credits in descending order</span><br>
+                    sorted_courses = <span class="code-keyword">sorted</span>(courses, key=<span class="code-keyword">lambda</span> x: x[<span class="code-string">'credits'</span>], reverse=<span class="code-keyword">True</span>)
+                </div>
+
+                <h4>Aggregation Functions</h4>
+                <div class="code-block">
+                    <span class="code-comment"># Counting elements (len)</span><br>
+                    total_students = <span class="code-keyword">len</span>(students)<br><br>
+                    <span class="code-comment"># Summing values</span><br>
+                    total_credits = <span class="code-keyword">sum</span>(c[<span class="code-string">'credits'</span>] <span class="code-keyword">for</span> c <span class="code-keyword">in</span> courses)<br><br>
+                    <span class="code-comment"># Finding maximum</span><br>
+                    max_credits = <span class="code-keyword">max</span>(c[<span class="code-string">'credits'</span>] <span class="code-keyword">for</span> c <span class="code-keyword">in</span> courses)
+                </div>
+            </div>
+            
+            <div style="margin-top: 30px; text-align: center;">
+                <a href="{{ url_for('experiment.practice') }}" class="btn btn-primary btn-lg">I understand both languages -- Continue to Practice</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function switchTab(tabId) {
+        // Hide all tab contents
+        document.querySelectorAll('.tab-content').forEach(function(el) {
+            el.style.display = 'none';
+        });
+        // Remove active class from all buttons
+        document.querySelectorAll('.tab-btn').forEach(function(el) {
+            el.classList.remove('active');
+        });
+        
+        // Show selected tab content and activate button
+        document.getElementById(tabId + '-tab').style.display = 'block';
+        document.querySelector('button[onclick="switchTab(\'' + tabId + '\')"]').classList.add('active');
+    }
+</script>
+{% endblock %}

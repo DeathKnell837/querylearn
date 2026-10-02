@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Post-Task Feedback Survey ({{ language|upper }}) - QueryLearn{% endblock %}
+
+{% block content %}
+<div class="container fade-in">
+    <div class="card">
+        <div class="card-header">
+            <h2>Post-Task Feedback Survey ({{ language|upper }})</h2>
+            <p class="text-muted">Please rate your experience with {{ language|upper }} for the tasks you just completed.</p>
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('experiment.survey', language=language) }}" method="POST">
+                
+                <h3 style="margin-bottom: 20px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">Section 1: Experience Ratings</h3>
+                
+                <!-- Likert Items -->
+                {% set likert_items = [
+                    ('survey_likert_1', 'The syntax of ' ~ language|upper ~ ' was easy to read and understand.'),
+                    ('survey_likert_2', 'I found it straightforward to write correct ' ~ language|upper ~ ' code.'),
+                    ('survey_likert_3', 'I could predict the output of ' ~ language|upper ~ ' code without running it.'),
+                    ('survey_likert_4', 'Debugging errors in ' ~ language|upper ~ ' was not frustrating.'),
+                    ('survey_likert_5', 'I would prefer ' ~ language|upper ~ ' for future database query tasks.')
+                ] %}
+
+                {% for name, label in likert_items %}
+                <div class="form-group" style="margin-bottom: 25px;">
+                    <label class="form-label">{{ loop.index }}. {{ label }}</label>
+                    <div class="likert-group" style="display: flex; gap: 10px; margin-top: 10px;">
+                        <label class="likert-option" style="cursor:pointer;"><input type="radio" name="{{ name }}" value="1" required> SD(1)</label>
+                        <label class="likert-option" style="cursor:pointer;"><input type="radio" name="{{ name }}" value="2"> D(2)</label>
+                        <label class="likert-option" style="cursor:pointer;"><input type="radio" name="{{ name }}" value="3"> N(3)</label>
+                        <label class="likert-option" style="cursor:pointer;"><input type="radio" name="{{ name }}" value="4"> A(4)</label>
+                        <label class="likert-option" style="cursor:pointer;"><input type="radio" name="{{ name }}" value="5"> SA(5)</label>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <h3 style="margin-top: 40px; margin-bottom: 20px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">Section 2: Self-Assessment</h3>
+                
+                <div class="form-group" style="margin-bottom: 25px;">
+                    <label class="form-label">Mental effort required</label>
+                    <div class="likert-group" style="display: flex; gap: 10px; margin-top: 10px;">
+                        <label class="likert-option" style="cursor:pointer;"><input type="radio" name="survey_effort" value="1" required> Very Low(1)</label>
+                        <label class="likert-option" style="cursor:pointer;"><input type="radio" name="survey_effort" value="2"> Low(2)</label>
+                        <label class="likert-option" style="cursor:pointer;"><input type="radio" name="survey_effort" value="3"> Neutral(3)</label>
+                        <label class="likert-option" style="cursor:pointer;"><input type="radio" name="survey_effort" value="4"> High(4)</label>
+                        <label class="likert-option" style="cursor:pointer;"><input type="radio" name="survey_effort" value="5"> Very High(5)</label>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 25px;">
+                    <label class="form-label">Fatigue level after tasks</label>
+                    <div class="likert-group" style="display: flex; gap: 10px; margin-top: 10px;">
+                        <label class="likert-option" style="cursor:pointer;"><input type="radio" name="survey_fatigue" value="1" required> None(1)</label>
+                        <label class="likert-option" style="cursor:pointer;"><input type="radio" name="survey_fatigue" value="2"> Mild(2)</label>
+                        <label class="likert-option" style="cursor:pointer;"><input type="radio" name="survey_fatigue" value="3"> Moderate(3)</label>
+                        <label class="likert-option" style="cursor:pointer;"><input type="radio" name="survey_fatigue" value="4"> High(4)</label>
+                        <label class="likert-option" style="cursor:pointer;"><input type="radio" name="survey_fatigue" value="5"> Extreme(5)</label>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 40px; margin-bottom: 20px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">Section 3: Open-Ended</h3>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label class="form-label" for="survey_open_1">What was the most challenging aspect of using {{ language|upper }}?</label>
+                    <textarea class="form-control" name="survey_open_1" id="survey_open_1" rows="3" style="width: 100%; background: var(--bg-main); border: 1px solid var(--border-subtle); color: var(--text-white); padding: 10px; border-radius: 6px;"></textarea>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label class="form-label" for="survey_open_2">What did you find easiest about {{ language|upper }}?</label>
+                    <textarea class="form-control" name="survey_open_2" id="survey_open_2" rows="3" style="width: 100%; background: var(--bg-main); border: 1px solid var(--border-subtle); color: var(--text-white); padding: 10px; border-radius: 6px;"></textarea>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label class="form-label" for="survey_open_3">How would you compare {{ language|upper }} to the other language you used?</label>
+                    <textarea class="form-control" name="survey_open_3" id="survey_open_3" rows="3" style="width: 100%; background: var(--bg-main); border: 1px solid var(--border-subtle); color: var(--text-white); padding: 10px; border-radius: 6px;"></textarea>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 30px;">
+                    <label class="form-label" for="survey_open_4">Any additional comments or suggestions?</label>
+                    <textarea class="form-control" name="survey_open_4" id="survey_open_4" rows="3" style="width: 100%; background: var(--bg-main); border: 1px solid var(--border-subtle); color: var(--text-white); padding: 10px; border-radius: 6px;"></textarea>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary btn-lg">Submit Survey</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

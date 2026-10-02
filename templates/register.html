@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% block title %}Participant Registration — QueryLearn{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 680px; margin: 2rem auto; padding: 0 1rem;">
+    <div class="card" style="background: #131929; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-card); padding: 2.25rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);">
+        
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="width: 44px; height: 44px; background: var(--gradient-brand); border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0.85rem; color: #fff;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
+            </div>
+            <h2 style="font-size: 1.6rem; font-weight: 700; color: #ffffff; margin-bottom: 0.35rem;">Participant Registration</h2>
+            <p style="font-size: 0.9rem; color: #94a3b8;">Parallel and Distributed Computing — SQL vs. Python Case Study</p>
+        </div>
+
+        <!-- Multi-Step Progress Indicator -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; position: relative;">
+            <div style="position: absolute; top: 14px; left: 10%; right: 10%; height: 2px; background: rgba(255,255,255,0.1); z-index: 0;"></div>
+            
+            <div id="step-node-1" style="z-index: 1; text-align: center;">
+                <div style="width: 30px; height: 30px; border-radius: 50%; background: #3b82f6; color: #fff; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.35rem;">1</div>
+                <span style="font-size: 0.75rem; color: #cbd5e1; font-weight: 600;">Program</span>
+            </div>
+            <div id="step-node-2" style="z-index: 1; text-align: center;">
+                <div style="width: 30px; height: 30px; border-radius: 50%; background: #1e293b; border: 1px solid rgba(255,255,255,0.2); color: #94a3b8; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.35rem;">2</div>
+                <span style="font-size: 0.75rem; color: #64748b; font-weight: 600;">Experience</span>
+            </div>
+            <div id="step-node-3" style="z-index: 1; text-align: center;">
+                <div style="width: 30px; height: 30px; border-radius: 50%; background: #1e293b; border: 1px solid rgba(255,255,255,0.2); color: #94a3b8; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.35rem;">3</div>
+                <span style="font-size: 0.75rem; color: #64748b; font-weight: 600;">Consent</span>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.register') }}" id="reg-form">
+            <!-- STEP 1: Academic Background -->
+            <div id="step-1" class="reg-step">
+                <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    <div>
+                        <label style="display: block; font-size: 0.88rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.45rem;">Academic Degree Program</label>
+                        <select name="program" class="dash-search" style="width: 100%; padding: 0.75rem 1rem; border-radius: 8px;" required>
+                            <option value="BSCS">Bachelor of Science in Computer Science (BSCS)</option>
+                            <option value="BSIT">Bachelor of Science in Information Technology (BSIT)</option>
+                            <option value="BSIS">Bachelor of Science in Information Systems (BSIS)</option>
+                            <option value="Other">Other Computing / Engineering Program</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 0.88rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.45rem;">Current Year Level</label>
+                        <select name="year_level" class="dash-search" style="width: 100%; padding: 0.75rem 1rem; border-radius: 8px;" required>
+                            <option value="1">1st Year (Freshman)</option>
+                            <option value="2" selected>2nd Year (Sophomore)</option>
+                            <option value="3">3rd Year (Junior)</option>
+                            <option value="4">4th Year (Senior)</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+                        <button type="button" class="btn btn-primary" onclick="goToStep(2)">
+                            Next: Programming Experience &rarr;
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 2: Programming Experience -->
+            <div id="step-2" class="reg-step" style="display: none;">
+                <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    <div>
+                        <label style="display: block; font-size: 0.88rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.45rem;">SQL / Relational Database Experience</label>
+                        <select name="sql_exp" class="dash-search" style="width: 100%; padding: 0.75rem 1rem; border-radius: 8px;" required>
+                            <option value="none">None / Absolute Beginner (Never wrote SQL)</option>
+                            <option value="novice" selected>Novice (&lt; 6 months, basic queries)</option>
+                            <option value="intermediate">Intermediate (6–12 months, comfortable with JOINs)</option>
+                            <option value="proficient">Proficient (1+ year regular usage)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 0.88rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.45rem;">Python Programming Experience</label>
+                        <select name="python_exp" class="dash-search" style="width: 100%; padding: 0.75rem 1rem; border-radius: 8px;" required>
+                            <option value="none">None / Absolute Beginner</option>
+                            <option value="novice" selected>Novice (&lt; 6 months, basic loops and dictionaries)</option>
+                            <option value="intermediate">Intermediate (6–12 months)</option>
+                            <option value="proficient">Proficient (1+ year)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 0.88rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.45rem;">Have you completed or are currently taking a formal Database Course?</label>
+                        <div style="display: flex; gap: 1.5rem; margin-top: 0.25rem;">
+                            <label style="display: flex; align-items: center; gap: 0.45rem; color: #e2e8f0; font-size: 0.9rem; cursor: pointer;">
+                                <input type="radio" name="db_course" value="yes" checked> Yes
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.45rem; color: #e2e8f0; font-size: 0.9rem; cursor: pointer;">
+                                <input type="radio" name="db_course" value="no"> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 0.88rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.45rem;">Other Programming Languages (Optional)</label>
+                        <input type="text" name="other_languages" class="dash-search" placeholder="e.g. Java, C++, JavaScript" style="width: 100%; padding: 0.75rem 1rem; border-radius: 8px;">
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
+                        <button type="button" class="btn btn-outline" onclick="goToStep(1)">&larr; Back</button>
+                        <button type="button" class="btn btn-primary" onclick="goToStep(3)">Next: Ethics &amp; Consent &rarr;</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 3: Ethics & Informed Consent -->
+            <div id="step-3" class="reg-step" style="display: none;">
+                <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 1.25rem; font-size: 0.85rem; color: #94a3b8; line-height: 1.6; max-height: 200px; overflow-y: auto;">
+                        <h4 style="color: #ffffff; font-size: 0.95rem; margin-bottom: 0.5rem;">Participant Information &amp; Consent</h4>
+                        <p style="margin-bottom: 0.5rem;">You are invited to participate in a research case study investigating the relative readability and productivity benefits of Domain-Specific Languages (SQL) compared to General-Purpose Languages (procedural Python) among novice database learners.</p>
+                        <p style="margin-bottom: 0.5rem;">• <strong>Anonymity:</strong> You will be assigned a randomized Study ID. No personal identification (names, student numbers) will be stored or published.</p>
+                        <p style="margin-bottom: 0.5rem;">• <strong>Activities:</strong> You will complete short code interpretation questions, 6 programming tasks in two language conditions (8 minutes each maximum), and a post-task feedback questionnaire.</p>
+                        <p>• <strong>Voluntary:</strong> Your participation is completely voluntary and will not affect your academic grades.</p>
+                    </div>
+
+                    <div style="display: flex; align-items: flex-start; gap: 0.65rem; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 8px; padding: 0.85rem 1rem;">
+                        <input type="checkbox" name="consent" id="consent-check" value="1" required style="margin-top: 0.25rem; cursor: pointer;">
+                        <label for="consent-check" style="font-size: 0.88rem; color: #93c5fd; cursor: pointer;">
+                            I have read the research protocol and freely consent to participate in this evaluation.
+                        </label>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
+                        <button type="button" class="btn btn-outline" onclick="goToStep(2)">&larr; Back</button>
+                        <button type="submit" class="btn btn-primary" id="btn-submit-reg">
+                            Register &amp; Begin Experiment &rarr;
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function goToStep(stepNum) {
+        document.querySelectorAll('.reg-step').forEach(el => el.style.display = 'none');
+        document.getElementById('step-' + stepNum).style.display = 'block';
+
+        for (let i = 1; i <= 3; i++) {
+            const node = document.getElementById('step-node-' + i).children[0];
+            const text = document.getElementById('step-node-' + i).children[1];
+            if (i < stepNum) {
+                node.style.background = '#10b981';
+                node.style.borderColor = '#10b981';
+                node.style.color = '#fff';
+                node.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                text.style.color = '#cbd5e1';
+            } else if (i === stepNum) {
+                node.style.background = '#3b82f6';
+                node.style.borderColor = '#3b82f6';
+                node.style.color = '#fff';
+                node.textContent = i;
+                text.style.color = '#60a5fa';
+            } else {
+                node.style.background = '#1e293b';
+                node.style.borderColor = 'rgba(255,255,255,0.2)';
+                node.style.color = '#94a3b8';
+                node.textContent = i;
+                text.style.color = '#64748b';
+            }
+        }
+    }
+</script>
+{% endblock %}

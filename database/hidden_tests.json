@@ -1,0 +1,39 @@
+{
+  "A": {
+    "T1": {
+      "description": "IDs/names of BSCS year 1, ordered by student_id",
+      "tests": [
+        {"students": [{"student_id": 1, "student_name": "A", "program": "BSCS", "year_level": 1}], "courses": [], "enrollments": [], "expected_output": [[1, "A"]]},
+        {"students": [{"student_id": 2, "student_name": "B", "program": "BSIT", "year_level": 1}], "courses": [], "enrollments": [], "expected_output": []},
+        {"students": [{"student_id": 3, "student_name": "C", "program": "BSCS", "year_level": 1}, {"student_id": 1, "student_name": "A", "program": "BSCS", "year_level": 1}], "courses": [], "enrollments": [], "expected_output": [[1, "A"], [3, "C"]]}
+      ]
+    },
+    "T2": {
+      "description": "Top 3 C101 scores",
+      "tests": [
+        {"students": [], "courses": [], "enrollments": [], "expected_output": []},
+        {"students": [], "courses": [], "enrollments": [], "expected_output": []},
+        {"students": [], "courses": [], "enrollments": [], "expected_output": []}
+      ]
+    },
+    "T3": { "description": "Group/Count", "tests": [{}, {}, {}] },
+    "T4": { "description": "Join C101", "tests": [{}, {}, {}] },
+    "T5": { "description": "Having avg>=80", "tests": [{}, {}, {}] },
+    "T6": { "description": "Anti-join", "tests": [{}, {}, {}] }
+  },
+  "B": {
+    "T1": {
+      "description": "IDs/names of BSIT year 2",
+      "tests": [
+        {"students": [], "courses": [], "enrollments": [], "expected_output": []},
+        {"students": [], "courses": [], "enrollments": [], "expected_output": []},
+        {"students": [], "courses": [], "enrollments": [], "expected_output": []}
+      ]
+    },
+    "T2": { "description": "Top 3 C102 scores", "tests": [{}, {}, {}] },
+    "T3": { "description": "Group/Count", "tests": [{}, {}, {}] },
+    "T4": { "description": "Join C102", "tests": [{}, {}, {}] },
+    "T5": { "description": "Having avg>=85", "tests": [{}, {}, {}] },
+    "T6": { "description": "Anti-join", "tests": [{}, {}, {}] }
+  }
+}

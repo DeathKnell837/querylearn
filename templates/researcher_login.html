@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Researcher Access — QueryLearn{% endblock %}
+
+{% block content %}
+<div class="container" style="min-height: calc(100vh - 180px); display: flex; align-items: center; justify-content: center; padding: 2rem 1rem;">
+    <div class="card" style="max-width: 440px; width: 100%; background: #151e32; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-card); padding: 2.5rem 2rem; box-shadow: var(--shadow-lg);">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="width: 48px; height: 48px; background: var(--gradient-primary); border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem; box-shadow: var(--shadow-glow-blue);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            </div>
+            <h2 style="font-size: 1.6rem; font-weight: 700; color: #ffffff; margin-bottom: 0.35rem;">Researcher Portal</h2>
+            <p style="font-size: 0.9rem; color: #94a3b8;">Access the Case Study Analytics & Live Experiment Dashboard</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.researcher_login') }}" style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <div>
+                <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.4rem;">Username</label>
+                <input type="text" name="username" value="admin" class="dash-search" style="width: 100%; padding: 0.75rem 1rem;" required>
+            </div>
+
+            <div>
+                <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.4rem;">Password</label>
+                <input type="password" name="password" value="querylearn2026" class="dash-search" style="width: 100%; padding: 0.75rem 1rem;" required>
+            </div>
+
+            <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 8px; padding: 0.65rem 0.85rem; font-size: 0.8rem; color: #93c5fd; display: flex; align-items: center; gap: 0.5rem;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <span><strong>Default Credentials:</strong> admin / querylearn2026</span>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; justify-content: center; margin-top: 0.5rem;">
+                Sign In to Dashboard &rarr;
+            </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.5rem;">
+            <a href="{{ url_for('index') }}" style="font-size: 0.85rem; color: #64748b;">&larr; Back to Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Evaluation Complete - QueryLearn{% endblock %}
+
+{% block content %}
+<div class="container fade-in" style="display: flex; justify-content: center; align-items: center; min-height: 70vh;">
+    <div class="card text-center" style="max-width: 600px; width: 100%; padding: 40px 20px;">
+        <div style="margin-bottom: 30px; color: #4ade80;">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+        </div>
+        
+        <h2 style="margin-bottom: 20px;">Evaluation Complete</h2>
+        
+        <p style="font-size: 1.1em; margin-bottom: 30px; line-height: 1.6;">
+            Thank you for participating in this research case study.
+        </p>
+
+        <div style="background: var(--bg-main); border: 1px solid var(--border-subtle); border-radius: var(--radius-card); padding: 20px; margin-bottom: 30px;">
+            <h3 style="margin-top: 0; font-size: 1.2em; color: var(--text-muted);">Your Study ID</h3>
+            <div style="font-size: 2em; font-family: var(--font-mono); font-weight: bold; margin: 10px 0;">
+                {{ session.get('study_id', 'N/A') }}
+            </div>
+            <p style="margin-bottom: 0; font-size: 0.9em;" class="text-muted">Please save your Study ID for your records.</p>
+        </div>
+
+        <p class="text-muted" style="margin-bottom: 40px;">
+            Your responses have been recorded and will contribute to the analysis of SQL readability and productivity.
+        </p>
+
+        <a href="{{ url_for('index') }}" class="btn btn-outline btn-lg">Return to Home</a>
+    </div>
+</div>
+{% endblock %}
