@@ -33,7 +33,7 @@ def start():
     session['current_condition_step'] = 1
     session['current_language'] = first_lang
     session['current_form'] = first_form
-    session['current_session_id'] = 1
+    session['current_session_id'] = session.get('session_1_id', 1)
     
     # Send to comprehension test first as per protocol
     return redirect(url_for('experiment.comprehension', language=first_lang))
@@ -73,7 +73,8 @@ def comprehension(language):
 @experiment_bp.route('/task/<language>/<task_id>')
 def task(language, task_id):
     current_form = session.get('current_form', 'A')
-    task_num = int(task_id) if str(task_id).isdigit() else 1
+    clean_id = str(task_id).upper().replace('T', '').strip()
+    task_num = int(clean_id) if clean_id.isdigit() else 1
     task_obj = get_task(current_form, task_num)
     
     if not task_obj:
@@ -146,7 +147,7 @@ def break_page():
     session['current_condition_step'] = 2
     session['current_language'] = second_lang
     session['current_form'] = second_form
-    session['current_session_id'] = 2
+    session['current_session_id'] = session.get('session_2_id', 2)
     
     return render_template('break.html', next_language=second_lang)
 

@@ -7,27 +7,24 @@ import time
 
 def execute_python(code, data_variables, timeout=10):
     # Restricted execution wrapper
-    wrapper_code = f"""import sys
-import json
-import builtins
+    wrapper_header = (
+        "import sys\n"
+        "import json\n"
+        "import builtins\n\n"
+        f"students = {repr(data_variables.get('students', []))}\n"
+        f"courses = {repr(data_variables.get('courses', []))}\n"
+        f"enrollments = {repr(data_variables.get('enrollments', []))}\n\n"
+        "for _fn in ['open', 'exec', 'eval']:\n"
+        "    if hasattr(builtins, _fn):\n"
+        "        setattr(builtins, _fn, None)\n\n"
+        "# User code below\n"
+    )
+    wrapper_code = wrapper_header + code + "\n"
 
-# Pre-inject data
-students = {data_variables.get('students', [])}
-courses = {data_variables.get('courses', [])}
-enrollments = {data_variables.get('enrollments', [])}
-
-# Restrict builtins safely
-for _fn in ['open', 'exec', 'eval']:
-    if hasattr(builtins, _fn):
-        setattr(builtins, _fn, None)
-
-# User code below
-{code}
-"""
     fd, path = tempfile.mkstemp(suffix=".py")
+    os.close(fd)
     try:
         with open(path, 'w', encoding='utf-8') as f:
-            os.close(fd)
             f.write(wrapper_code)
         
         start_time = time.time()
@@ -42,7 +39,7 @@ for _fn in ['open', 'exec', 'eval']:
             return {
                 "output": result.stdout,
                 "error": result.stderr if result.returncode != 0 else None,
-                "execution_time": elapsed
+                "execution_time": round(elapsed, 4)
             }
         except subprocess.TimeoutExpired:
             return {
@@ -51,4 +48,8 @@ for _fn in ['open', 'exec', 'eval']:
                 "execution_time": timeout
             }
     finally:
-        os.remove(path)
+        if os.path.exists(path):
+            try:
+                os.remove(path)
+            except OSError:
+                pass

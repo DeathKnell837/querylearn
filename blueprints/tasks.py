@@ -88,16 +88,19 @@ def submit():
     if not task_info:
         return jsonify({"correct": False, "feedback": "Unknown task identifier.", "task_complete": False})
 
-    # Calculate next URL
-    clean_num_str = task_id.upper().replace('T', '').strip()
+    clean_num_str = str(task_id).upper().replace('T', '').strip()
     current_num = int(clean_num_str) if clean_num_str.isdigit() else 1
+    formatted_task_id = f"T{current_num}"
+
+    # Calculate next URL
     if current_num < Config.TASKS_PER_FORM:
         next_url = url_for('experiment.task', language=language, task_id=current_num + 1)
     else:
         next_url = url_for('experiment.survey', language=language)
 
     if timed_out:
-        log_attempt(language, form, task_id, code, "timed_out", "Time limit reached.")
+        log_attempt(language, form, formatted_task_id, code, "timed_out", "Time limit reached.")
+        log_task_result(language, form, formatted_task_id, False, elapsed_seconds or 480, code)
         return jsonify({
             "correct": False,
             "feedback": "Time limit of 8 minutes exceeded for this task.",
@@ -112,7 +115,7 @@ def submit():
         # Execute learner query
         learner_res = execute_sql(db_path, code, timeout=Config.CODE_EXECUTION_TIMEOUT)
         if learner_res['error']:
-            log_attempt(language, form, task_id, code, "syntax_error", learner_res['error'])
+            log_attempt(language, form, formatted_task_id, code, "syntax_error", learner_res['error'])
             return jsonify({
                 "correct": False,
                 "feedback": f"SQL Error: {learner_res['error']}",
@@ -127,7 +130,7 @@ def submit():
         check_res = check_answer(learner_res.get('rows', []), oracle_res.get('rows', []), task_info)
         is_correct = check_res['correct']
         feedback = check_res['feedback']
-        log_attempt(language, form, task_id, code, check_res['classification'], feedback)
+        log_attempt(language, form, formatted_task_id, code, check_res['classification'], feedback)
 
     else:
         # Python check
@@ -138,7 +141,7 @@ def submit():
 
         learner_res = execute_python(code, data_vars, timeout=Config.CODE_EXECUTION_TIMEOUT)
         if learner_res['error']:
-            log_attempt(language, form, task_id, code, "runtime_error", learner_res['error'])
+            log_attempt(language, form, formatted_task_id, code, "runtime_error", learner_res['error'])
             return jsonify({
                 "correct": False,
                 "feedback": f"Python Error: {learner_res['error']}",
@@ -159,22 +162,36 @@ def submit():
         except Exception:
             pass
 
+        if not isinstance(parsed, list):
+            lines = [l.strip() for l in output_str.splitlines() if l.strip()]
+            line_parsed = []
+            valid = True
+            for line in lines:
+                try:
+                    val = ast.literal_eval(line)
+                    line_parsed.append(val)
+                except Exception:
+                    valid = False
+                    break
+            if valid and line_parsed:
+                parsed = line_parsed
+
         if isinstance(parsed, list):
             check_res = check_answer(parsed, expected_rows, task_info)
             is_correct = check_res['correct']
             feedback = check_res['feedback'] if not is_correct else "Correct procedural Python output generated!"
-            log_attempt(language, form, task_id, code, check_res['classification'], feedback)
+            log_attempt(language, form, formatted_task_id, code, check_res['classification'], feedback)
         elif expected_rows and (str(len(expected_rows)) in output_str or any(str(r[0]) in output_str for r in expected_rows)):
             is_correct = True
             feedback = "Correct procedural Python output generated!"
-            log_attempt(language, form, task_id, code, "correct", feedback)
+            log_attempt(language, form, formatted_task_id, code, "correct", feedback)
         else:
             is_correct = False
             feedback = "Output printed to stdout did not match expected structure."
-            log_attempt(language, form, task_id, code, "incorrect", feedback)
+            log_attempt(language, form, formatted_task_id, code, "incorrect", feedback)
 
     if is_correct:
-        log_task_result(language, form, task_id, True, elapsed_seconds, code)
+        log_task_result(language, form, formatted_task_id, True, elapsed_seconds, code)
         return jsonify({
             "correct": True,
             "feedback": "Correct! Task completed successfully.",
@@ -195,9 +212,12 @@ def skip():
     task_id = str(data.get('task_id', '1'))
     form = data.get('form', session.get('current_form', 'A')).upper()
 
-    log_task_result(language, form, task_id, False, 480, "")
+    clean_num_str = task_id.upper().replace('T', '').strip()
+    current_num = int(clean_num_str) if clean_num_str.isdigit() else 1
+    formatted_task_id = f"T{current_num}"
 
-    current_num = int(task_id) if task_id.isdigit() else 1
+    log_task_result(language, form, formatted_task_id, False, 480, "")
+
     if current_num < Config.TASKS_PER_FORM:
         next_url = url_for('experiment.task', language=language, task_id=current_num + 1)
     else:
@@ -210,10 +230,14 @@ def log_attempt(language, form, task_id, code, status, error_msg):
         conn = sqlite3.connect(Config.RESEARCH_DB)
         cursor = conn.cursor()
         session_id = session.get('current_session_id', 1)
+        cursor.execute("SELECT COUNT(*) FROM task_attempts WHERE session_id = ? AND task_id = ?", (session_id, task_id))
+        count_row = cursor.fetchone()
+        attempt_number = (count_row[0] if count_row else 0) + 1
+
         cursor.execute("""
             INSERT INTO task_attempts (session_id, task_id, attempt_number, submitted_code, result_status, error_message)
             VALUES (?, ?, ?, ?, ?, ?)
-        """, (session_id, task_id, 1, code, status, str(error_msg)))
+        """, (session_id, task_id, attempt_number, code, status, str(error_msg)))
         conn.commit()
         conn.close()
     except Exception:
@@ -224,10 +248,21 @@ def log_task_result(language, form, task_id, success, elapsed, code):
         conn = sqlite3.connect(Config.RESEARCH_DB)
         cursor = conn.cursor()
         session_id = session.get('current_session_id', 1)
+
+        cursor.execute("SELECT COUNT(*) FROM task_attempts WHERE session_id = ? AND task_id = ?", (session_id, task_id))
+        count_row = cursor.fetchone()
+        attempt_count = max(1, count_row[0] if count_row else 1)
+
+        lines_count = len(code.splitlines()) if code else 0
+        chars_count = len(code) if code else 0
+
+        # Remove previous result for same session and task if exists to ensure idempotency
+        cursor.execute("DELETE FROM task_results WHERE session_id = ? AND task_id = ?", (session_id, task_id))
+
         cursor.execute("""
-            INSERT OR REPLACE INTO task_results (session_id, task_id, success, start_time, end_time, elapsed_seconds, allocated_seconds, final_code)
-            VALUES (?, ?, ?, datetime('now', '-8 minutes'), datetime('now'), ?, 480, ?)
-        """, (session_id, task_id, success, elapsed, code))
+            INSERT INTO task_results (session_id, task_id, success, start_time, end_time, elapsed_seconds, allocated_seconds, attempt_count, final_code, source_lines, source_chars)
+            VALUES (?, ?, ?, datetime('now', '-8 minutes'), datetime('now'), ?, 480, ?, ?, ?, ?)
+        """, (session_id, task_id, success, elapsed, attempt_count, code, lines_count, chars_count))
         conn.commit()
         conn.close()
     except Exception:

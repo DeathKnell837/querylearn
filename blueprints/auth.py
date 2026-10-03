@@ -49,6 +49,7 @@ def register():
             INSERT INTO sessions (participant_id, language, form, sequence_order)
             VALUES (?, ?, ?, 2)
         """, (participant_id, seq_info['second_language'].lower(), seq_info['second_form']))
+        session_2_id = cursor.lastrowid
 
         conn.commit()
         conn.close()
@@ -57,6 +58,8 @@ def register():
         session['participant_id'] = participant_id
         session['study_id'] = study_id
         session['sequence_id'] = sequence_id
+        session['session_1_id'] = session_1_id
+        session['session_2_id'] = session_2_id
         session['current_session_id'] = session_1_id
         session['current_language'] = seq_info['first_language'].lower()
         session['current_form'] = seq_info['first_form']

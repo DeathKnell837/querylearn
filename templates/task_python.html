@@ -174,7 +174,7 @@
     const LANGUAGE = "python";
     const FORM = "{{ current_form }}";
     let attempts = 1;
-    let timerSeconds = 323;
+    let timerSeconds = 480;
 
     const editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
         mode: 'text/x-python',
@@ -247,7 +247,7 @@
             const resp = await fetch('/api/run', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code: code, language: LANGUAGE, task_id: TASK_ID, form: FORM })
+                body: JSON.stringify({ code: code, language: LANGUAGE, task_id: TASK_NUM, form: FORM })
             });
             const data = await resp.json();
 
@@ -279,10 +279,10 @@
                 body: JSON.stringify({ 
                     code: code, 
                     language: LANGUAGE, 
-                    task_id: TASK_ID, 
+                    task_id: TASK_NUM, 
                     form: FORM,
                     timed_out: isTimeout,
-                    elapsed_seconds: 323 - timerSeconds
+                    elapsed_seconds: 480 - timerSeconds
                 })
             });
             const data = await resp.json();
@@ -311,10 +311,12 @@
             const resp = await fetch('/api/skip', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ task_id: TASK_ID, language: LANGUAGE, form: FORM })
+                body: JSON.stringify({ task_id: TASK_NUM, language: LANGUAGE, form: FORM })
             });
             const data = await resp.json();
-            window.location.href = data.next_task_url;
+            if (data.next_task_url) {
+                window.location.href = data.next_task_url;
+            }
         } catch (err) {
             alert(err.message);
         }
