@@ -56,7 +56,11 @@
         <header class="db-topbar">
             <h1 class="db-title">Task Telemetry Results</h1>
 
-            <div class="db-topbar-tools">
+            <div class="db-topbar-tools" style="display: flex; gap: 0.75rem; align-items: center;">
+                <div style="position: relative;">
+                    <input type="text" id="results-search" class="db-search" placeholder="Search by Study ID (e.g. P015)..." style="width: 260px; padding-left: 2.2rem;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); pointer-events: none;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </div>
                 <a href="{{ url_for('dashboard.export', type='results') }}" class="db-btn-run-gradient" style="padding: 0.5rem 1rem; font-size: 0.82rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                     Export CSV
@@ -69,30 +73,50 @@
         {% set success_rate = (success_count / total_results * 100)|round(1) if total_results > 0 else 0 %}
         {% set avg_time = (results|map(attribute='elapsed_seconds')|sum / total_results)|round(1) if total_results > 0 else 0 %}
 
-        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+        <div style="display: flex; gap: 1rem; margin-bottom: 1.25rem;">
             <div class="db-status-card" style="flex: 1;">
-                <div class="db-status-row"><span>Total Results</span><span style="color: white; font-weight: bold;">{{ total_results }}</span></div>
+                <div class="db-status-row"><span>Filtered Results</span><span id="kpi-total" style="color: white; font-weight: bold;">{{ total_results }}</span></div>
             </div>
             <div class="db-status-card" style="flex: 1;">
-                <div class="db-status-row"><span>Success Rate</span><span style="color: white; font-weight: bold;">{{ success_rate }}%</span></div>
+                <div class="db-status-row"><span>Success Rate</span><span id="kpi-rate" style="color: #10b981; font-weight: bold;">{{ success_rate }}%</span></div>
             </div>
             <div class="db-status-card" style="flex: 1;">
-                <div class="db-status-row"><span>Avg Time</span><span style="color: white; font-weight: bold;">{{ avg_time }}s</span></div>
+                <div class="db-status-row"><span>Avg Time</span><span id="kpi-time" style="color: #38bdf8; font-weight: bold;">{{ avg_time }}s</span></div>
             </div>
         </div>
 
-        <div style="margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center;">
-            <label style="color: #cbd5e1; font-size: 0.9rem;">Filter:</label>
-            <select style="background-color: #141b2c; border: 1px solid var(--border-subtle); color: #ffffff; padding: 0.4rem; border-radius: 4px;">
-                <option>All Languages</option>
-                <option>SQL</option>
-                <option>Python</option>
-            </select>
-            <select style="background-color: #141b2c; border: 1px solid var(--border-subtle); color: #ffffff; padding: 0.4rem; border-radius: 4px;">
-                <option>All Tasks</option>
-                <option>T1</option>
-                <option>T2</option>
-            </select>
+        <div style="margin-bottom: 1.25rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; background: #131929; border: 1px solid rgba(255,255,255,0.06); padding: 0.75rem 1rem; border-radius: 10px;">
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <label for="filter-language" style="color: #94a3b8; font-size: 0.85rem; font-weight: 500;">Language:</label>
+                <select id="filter-language" style="background-color: #0c101d; border: 1px solid var(--border-subtle); color: #ffffff; padding: 0.4rem 0.75rem; border-radius: 6px; font-size: 0.85rem; outline: none; cursor: pointer;">
+                    <option value="all">All Languages</option>
+                    <option value="sql">SQL</option>
+                    <option value="python">Python</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <label for="filter-task" style="color: #94a3b8; font-size: 0.85rem; font-weight: 500;">Task:</label>
+                <select id="filter-task" style="background-color: #0c101d; border: 1px solid var(--border-subtle); color: #ffffff; padding: 0.4rem 0.75rem; border-radius: 6px; font-size: 0.85rem; outline: none; cursor: pointer;">
+                    <option value="all">All Tasks</option>
+                    <option value="T1">T1</option>
+                    <option value="T2">T2</option>
+                    <option value="T3">T3</option>
+                    <option value="T4">T4</option>
+                    <option value="T5">T5</option>
+                    <option value="T6">T6</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <label for="filter-outcome" style="color: #94a3b8; font-size: 0.85rem; font-weight: 500;">Outcome:</label>
+                <select id="filter-outcome" style="background-color: #0c101d; border: 1px solid var(--border-subtle); color: #ffffff; padding: 0.4rem 0.75rem; border-radius: 6px; font-size: 0.85rem; outline: none; cursor: pointer;">
+                    <option value="all">All Outcomes</option>
+                    <option value="passed">Passed</option>
+                    <option value="failed">Failed</option>
+                </select>
+            </div>
+            <button id="filter-reset-btn" type="button" class="btn btn-outline btn-sm" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; margin-left: auto; cursor: pointer;">
+                Reset Filters
+            </button>
         </div>
 
         <div class="db-results-card" style="width: 100%;">
@@ -109,21 +133,31 @@
                         <th>Code Preview</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="telemetry-table-body">
                     {% for r in results %}
-                    <tr>
-                        <td><strong>{{ r.study_id }}</strong></td>
-                        <td style="text-transform: capitalize;">{{ r.language }}</td>
-                        <td>{{ r.form }}</td>
-                        <td>{{ r.task_id }}</td>
+                    <tr class="telemetry-row" 
+                        data-study-id="{{ r.study_id }}" 
+                        data-language="{{ r.language|lower }}" 
+                        data-task="{{ r.task_id }}" 
+                        data-outcome="{{ 'passed' if r.success else 'failed' }}" 
+                        data-time="{{ r.elapsed_seconds }}" 
+                        data-success="{{ 1 if r.success else 0 }}">
+                        <td><strong style="color: #60a5fa;">{{ r.study_id }}</strong></td>
+                        <td>
+                            <span style="font-weight: 600; color: {% if r.language|lower == 'sql' %}#38bdf8{% else %}#c084fc{% endif %}; text-transform: capitalize;">
+                                {{ r.language }}
+                            </span>
+                        </td>
+                        <td>Form {{ r.form }}</td>
+                        <td><span style="background: rgba(255,255,255,0.06); padding: 0.15rem 0.45rem; border-radius: 4px; font-family: var(--font-mono); font-size: 0.82rem;">{{ r.task_id }}</span></td>
                         <td>
                             {% if r.success %}
-                                <span style="background-color: #10b981; color: white; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600;">Passed</span>
+                                <span style="background-color: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600;">Passed</span>
                             {% else %}
-                                <span style="background-color: #ef4444; color: white; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600;">Failed</span>
+                                <span style="background-color: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600;">Failed</span>
                             {% endif %}
                         </td>
-                        <td>{{ r.elapsed_seconds }}</td>
+                        <td>{{ r.elapsed_seconds }}s</td>
                         <td>{{ r.attempt_count }}</td>
                         <td style="font-family: var(--font-mono); font-size: 0.85rem; color: #94a3b8; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                             {{ (r.code_submitted or '')[:50] }}...
@@ -131,7 +165,7 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="8" style="text-align: center; color: #64748b; padding: 1rem;">No telemetry results found.</td>
+                        <td colspan="8" style="text-align: center; color: #64748b; padding: 1.5rem;">No telemetry results found.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -140,6 +174,99 @@
 
     </main>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('results-search');
+    const langSelect = document.getElementById('filter-language');
+    const taskSelect = document.getElementById('filter-task');
+    const outcomeSelect = document.getElementById('filter-outcome');
+    const resetBtn = document.getElementById('filter-reset-btn');
+    const tableBody = document.getElementById('telemetry-table-body');
+    const rows = tableBody ? Array.from(tableBody.querySelectorAll('tr.telemetry-row')) : [];
+
+    const kpiTotal = document.getElementById('kpi-total');
+    const kpiRate = document.getElementById('kpi-rate');
+    const kpiTime = document.getElementById('kpi-time');
+
+    function applyFilters() {
+        const q = searchInput ? searchInput.value.trim().toLowerCase() : '';
+        const lang = langSelect ? langSelect.value.toLowerCase() : 'all';
+        const task = taskSelect ? taskSelect.value : 'all';
+        const outcome = outcomeSelect ? outcomeSelect.value : 'all';
+
+        let visibleCount = 0;
+        let successCount = 0;
+        let totalTime = 0;
+
+        rows.forEach(row => {
+            const rowStudyId = (row.dataset.studyId || '').toLowerCase();
+            const rowLang = (row.dataset.language || '').toLowerCase();
+            const rowTask = row.dataset.task || '';
+            const rowOutcome = row.dataset.outcome || '';
+            const rowTime = parseFloat(row.dataset.time || 0);
+            const isSuccess = parseInt(row.dataset.success || 0) === 1;
+
+            const matchesSearch = !q || rowStudyId.includes(q) || row.textContent.toLowerCase().includes(q);
+            const matchesLang = lang === 'all' || rowLang === lang;
+            const matchesTask = task === 'all' || rowTask === task;
+            const matchesOutcome = outcome === 'all' || rowOutcome === outcome;
+
+            if (matchesSearch && matchesLang && matchesTask && matchesOutcome) {
+                row.style.display = '';
+                visibleCount++;
+                if (isSuccess) successCount++;
+                totalTime += rowTime;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Update KPIs
+        if (kpiTotal) kpiTotal.textContent = visibleCount;
+        if (kpiRate) {
+            const rate = visibleCount > 0 ? ((successCount / visibleCount) * 100).toFixed(1) : 0;
+            kpiRate.textContent = rate + '%';
+        }
+        if (kpiTime) {
+            const avg = visibleCount > 0 ? (totalTime / visibleCount).toFixed(1) : 0;
+            kpiTime.textContent = avg + 's';
+        }
+
+        // Show/hide no match message
+        let noMatch = document.getElementById('no-telemetry-match');
+        if (visibleCount === 0 && rows.length > 0) {
+            if (!noMatch) {
+                noMatch = document.createElement('tr');
+                noMatch.id = 'no-telemetry-match';
+                noMatch.innerHTML = `<td colspan="8" style="text-align: center; color: #94a3b8; padding: 2rem;">No telemetry results matching current filter criteria.</td>`;
+                tableBody.appendChild(noMatch);
+            }
+            noMatch.style.display = '';
+        } else if (noMatch) {
+            noMatch.style.display = 'none';
+        }
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', applyFilters);
+        searchInput.addEventListener('keyup', applyFilters);
+    }
+    if (langSelect) langSelect.addEventListener('change', applyFilters);
+    if (taskSelect) taskSelect.addEventListener('change', applyFilters);
+    if (outcomeSelect) outcomeSelect.addEventListener('change', applyFilters);
+
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            if (searchInput) searchInput.value = '';
+            if (langSelect) langSelect.value = 'all';
+            if (taskSelect) taskSelect.value = 'all';
+            if (outcomeSelect) outcomeSelect.value = 'all';
+            applyFilters();
+        });
+    }
+});
+</script>
 
 </body>
 </html>

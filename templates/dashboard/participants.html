@@ -56,14 +56,28 @@
         <header class="db-topbar">
             <h1 class="db-title">Participant Registry</h1>
 
-            <div class="db-topbar-tools">
-                <input type="text" class="db-search" placeholder="Search participants...">
+            <div class="db-topbar-tools" style="display: flex; gap: 0.75rem; align-items: center;">
+                <div style="position: relative;">
+                    <input type="text" id="participant-search" class="db-search" placeholder="Search Study ID, program, seq..." style="width: 260px; padding-left: 2.2rem;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); pointer-events: none;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </div>
             </div>
         </header>
 
-        <div style="margin-bottom: 1rem; display: flex; gap: 1rem;">
-            <a href="{{ url_for('dashboard.export', type='participants') }}" class="db-btn-run-gradient" style="text-decoration: none; display: inline-block;">Export CSV</a>
-            <a href="{{ url_for('dashboard.export', type='all') }}" class="db-btn-run-gradient" style="text-decoration: none; display: inline-block;">Full Archive</a>
+        <div style="margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div style="display: flex; gap: 0.75rem;">
+                <a href="{{ url_for('dashboard.export', type='participants') }}" class="db-btn-run-gradient" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; font-size: 0.85rem;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Export CSV
+                </a>
+                <a href="{{ url_for('dashboard.export', type='all') }}" class="btn btn-outline btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.85rem;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>
+                    Full Archive (ZIP)
+                </a>
+            </div>
+            <div id="participant-count-badge" style="font-size: 0.85rem; color: #94a3b8;">
+                Showing <strong id="visible-count" style="color: #60a5fa;">{{ participants|length }}</strong> of {{ participants|length }} participants
+            </div>
         </div>
 
         <div class="db-results-card" style="width: 100%;">
@@ -81,21 +95,21 @@
                         <th>Registered</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="participant-table-body">
                     {% for p in participants %}
-                    <tr>
-                        <td><strong>{{ p.study_id }}</strong></td>
+                    <tr class="participant-row" data-study-id="{{ p.study_id }}" data-program="{{ p.program }}" data-status="{{ p.status }}">
+                        <td><strong style="color: #60a5fa;">{{ p.study_id }}</strong></td>
                         <td>{{ p.program }}</td>
                         <td>{{ p.year_level }}</td>
                         <td>
                             {% if p.sequence_id == 1 %}
-                                Seq 1 (SQL-A > Py-B)
+                                Seq 1 (SQL-A &gt; Py-B)
                             {% elif p.sequence_id == 2 %}
-                                Seq 2 (SQL-B > Py-A)
+                                Seq 2 (SQL-B &gt; Py-A)
                             {% elif p.sequence_id == 3 %}
-                                Seq 3 (Py-A > SQL-B)
+                                Seq 3 (Py-A &gt; SQL-B)
                             {% else %}
-                                Seq 4 (Py-B > SQL-A)
+                                Seq 4 (Py-B &gt; SQL-A)
                             {% endif %}
                         </td>
                         <td>{{ p.sql_exp }}/5</td>
@@ -114,7 +128,7 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="9" style="text-align: center; color: #64748b; padding: 1rem;">No participants found.</td>
+                        <td colspan="9" style="text-align: center; color: #64748b; padding: 1.5rem;">No participants found.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -123,6 +137,54 @@
 
     </main>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('participant-search');
+    const tableBody = document.getElementById('participant-table-body');
+    const rows = tableBody ? Array.from(tableBody.querySelectorAll('tr.participant-row')) : [];
+    const countBadge = document.getElementById('visible-count');
+
+    function filterParticipants() {
+        if (!searchInput) return;
+        const q = searchInput.value.trim().toLowerCase();
+        let visible = 0;
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            if (!q || text.includes(q)) {
+                row.style.display = '';
+                visible++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        if (countBadge) {
+            countBadge.textContent = visible;
+        }
+
+        let noMatch = document.getElementById('no-participant-match');
+        if (visible === 0 && rows.length > 0) {
+            if (!noMatch) {
+                noMatch = document.createElement('tr');
+                noMatch.id = 'no-participant-match';
+                noMatch.innerHTML = `<td colspan="9" style="text-align: center; color: #94a3b8; padding: 2rem;">No participants matching "<strong></strong>"</td>`;
+                tableBody.appendChild(noMatch);
+            }
+            noMatch.querySelector('strong').textContent = searchInput.value;
+            noMatch.style.display = '';
+        } else if (noMatch) {
+            noMatch.style.display = 'none';
+        }
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', filterParticipants);
+        searchInput.addEventListener('keyup', filterParticipants);
+    }
+});
+</script>
 
 </body>
 </html>
