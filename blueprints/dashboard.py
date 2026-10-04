@@ -1,4 +1,5 @@
 import sqlite3
+import statistics
 import time
 from flask import Blueprint, render_template, redirect, url_for, session, Response, request, flash, jsonify
 from config import Config
@@ -23,32 +24,20 @@ def overview():
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
-    # Total counts
-    cursor.execute("SELECT COUNT(*) FROM participants")
-    total_participants = cursor.fetchone()[0]
-
-    cursor.execute("SELECT COUNT(*) FROM participants WHERE status = 'completed'")
-    completed_participants = cursor.fetchone()[0]
-
-    cursor.execute("SELECT COUNT(*) FROM participants WHERE status = 'in_progress'")
-    in_progress_participants = cursor.fetchone()[0]
-
-    # Task performance comparison: SQL vs Python
+    # 1. Overall Language Stats (Success Rate)
     cursor.execute("""
         SELECT 
             s.language,
             COUNT(r.id) as total_attempts,
-            SUM(CASE WHEN r.success = 1 THEN 1 ELSE 0 END) as successful_tasks,
-            ROUND(AVG(r.elapsed_seconds), 1) as avg_duration_sec,
-            ROUND(AVG(r.attempt_count), 2) as avg_attempts
+            SUM(CASE WHEN r.success = 1 THEN 1 ELSE 0 END) as successful_tasks
         FROM task_results r
         JOIN sessions s ON r.session_id = s.id
         GROUP BY s.language
     """)
     lang_stats = {row['language']: dict(row) for row in cursor.fetchall()}
 
-    sql_stats = lang_stats.get('sql', {'successful_tasks': 0, 'total_attempts': 0, 'avg_duration_sec': 0, 'avg_attempts': 0})
-    py_stats = lang_stats.get('python', {'successful_tasks': 0, 'total_attempts': 0, 'avg_duration_sec': 0, 'avg_attempts': 0})
+    sql_stats = lang_stats.get('sql', {'successful_tasks': 0, 'total_attempts': 0})
+    py_stats = lang_stats.get('python', {'successful_tasks': 0, 'total_attempts': 0})
 
     sql_total = sql_stats['total_attempts'] or 1
     sql_success_pct = round((sql_stats['successful_tasks'] / sql_total) * 100, 1) if sql_stats['total_attempts'] else 0
@@ -56,7 +45,68 @@ def overview():
     py_total = py_stats['total_attempts'] or 1
     py_success_pct = round((py_stats['successful_tasks'] / py_total) * 100, 1) if py_stats['total_attempts'] else 0
 
-    # Task-by-Task Comparison (T1 to T6)
+    # 2. Median Duration per condition
+    cursor.execute("""
+        SELECT s.language, r.elapsed_seconds
+        FROM task_results r
+        JOIN sessions s ON r.session_id = s.id
+        WHERE r.elapsed_seconds IS NOT NULL
+    """)
+    all_time_rows = cursor.fetchall()
+    sql_durations = [r['elapsed_seconds'] for r in all_time_rows if r['language'] == 'sql']
+    py_durations = [r['elapsed_seconds'] for r in all_time_rows if r['language'] == 'python']
+
+    sql_median_time = round(statistics.median(sql_durations), 1) if sql_durations else 0.0
+    py_median_time = round(statistics.median(py_durations), 1) if py_durations else 0.0
+
+    # 3. Paired Successful-Task Time Ratio:
+    # Median Python time / Median SQL time calculated ONLY on tasks that the same participant answered correctly in both conditions
+    cursor.execute("""
+        SELECT r_sql.elapsed_seconds as sql_time, r_py.elapsed_seconds as py_time
+        FROM task_results r_sql
+        JOIN sessions s_sql ON r_sql.session_id = s_sql.id AND s_sql.language = 'sql'
+        JOIN task_results r_py ON r_sql.task_id = r_py.task_id
+        JOIN sessions s_py ON r_py.session_id = s_py.id AND s_py.language = 'python' AND s_py.participant_id = s_sql.participant_id
+        WHERE r_sql.success = 1 AND r_py.success = 1
+    """)
+    paired_rows = cursor.fetchall()
+    if paired_rows:
+        paired_sql_times = [r['sql_time'] for r in paired_rows if r['sql_time'] is not None]
+        paired_py_times = [r['py_time'] for r in paired_rows if r['py_time'] is not None]
+        med_paired_sql = statistics.median(paired_sql_times) if paired_sql_times else 0
+        med_paired_py = statistics.median(paired_py_times) if paired_py_times else 0
+        paired_time_ratio = round(med_paired_py / med_paired_sql, 2) if med_paired_sql > 0 else None
+        paired_task_count = len(paired_rows)
+    else:
+        paired_time_ratio = None
+        paired_task_count = 0
+
+    # 4. Correct Tasks per Hour (CT/h)
+    # Formula: 60 * (number of correct tasks) / (total task minutes)
+    # Correct task contributes its actual elapsed minutes (elapsed_seconds / 60)
+    # Unsuccessful / timed-out / abandoned contributes full 8-minute allocation (480s)
+    cursor.execute("""
+        SELECT s.language, r.success, r.elapsed_seconds
+        FROM task_results r
+        JOIN sessions s ON r.session_id = s.id
+    """)
+    ct_rows = cursor.fetchall()
+
+    def calc_ct_per_hour(lang):
+        l_rows = [r for r in ct_rows if r['language'] == lang]
+        if not l_rows:
+            return None
+        correct_count = sum(1 for r in l_rows if r['success'] == 1)
+        total_mins = sum(
+            (r['elapsed_seconds'] / 60.0) if (r['success'] == 1 and r['elapsed_seconds'] is not None) else (480.0 / 60.0)
+            for r in l_rows
+        )
+        return round(60.0 * correct_count / total_mins, 1) if total_mins > 0 else 0.0
+
+    sql_ct_per_hour = calc_ct_per_hour('sql')
+    py_ct_per_hour = calc_ct_per_hour('python')
+
+    # 5. Task-by-Task Comparison (T1 to T6)
     cursor.execute("""
         SELECT 
             r.task_id,
@@ -80,34 +130,18 @@ def overview():
         task_breakdown[tid][f"{lang}_time"] = row['avg_time']
         task_breakdown[tid][f"{lang}_attempts"] = row['avg_attempts']
 
-    # Recent participants
-    cursor.execute("""
-        SELECT p.*, 
-            (SELECT COUNT(*) FROM task_results tr JOIN sessions s ON tr.session_id = s.id WHERE s.participant_id = p.id AND tr.success = 1) as solved_tasks
-        FROM participants p 
-        ORDER BY p.id DESC LIMIT 10
-    """)
-    recent_participants = [dict(r) for r in cursor.fetchall()]
-
-    # Program demographics
-    cursor.execute("SELECT program, COUNT(*) as count FROM participants GROUP BY program")
-    program_counts = {row['program']: row['count'] for row in cursor.fetchall()}
-
     conn.close()
 
     metrics = {
-        "total_participants": total_participants,
-        "completed": completed_participants,
-        "in_progress": in_progress_participants,
         "sql_success_rate": sql_success_pct,
         "python_success_rate": py_success_pct,
-        "sql_avg_time": sql_stats['avg_duration_sec'],
-        "python_avg_time": py_stats['avg_duration_sec'],
-        "sql_avg_attempts": sql_stats['avg_attempts'],
-        "python_avg_attempts": py_stats['avg_attempts'],
-        "tasks": list(task_breakdown.values()),
-        "participants": recent_participants,
-        "program_counts": program_counts
+        "sql_median_time": sql_median_time,
+        "python_median_time": py_median_time,
+        "paired_time_ratio": paired_time_ratio,
+        "paired_task_count": paired_task_count,
+        "sql_ct_per_hour": sql_ct_per_hour,
+        "python_ct_per_hour": py_ct_per_hour,
+        "tasks": list(task_breakdown.values())
     }
 
     return render_template('dashboard/overview.html', m=metrics)
