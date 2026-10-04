@@ -89,6 +89,10 @@ def overview():
     """)
     recent_participants = [dict(r) for r in cursor.fetchall()]
 
+    # Program demographics
+    cursor.execute("SELECT program, COUNT(*) as count FROM participants GROUP BY program")
+    program_counts = {row['program']: row['count'] for row in cursor.fetchall()}
+
     conn.close()
 
     metrics = {
@@ -102,7 +106,8 @@ def overview():
         "sql_avg_attempts": sql_stats['avg_attempts'],
         "python_avg_attempts": py_stats['avg_attempts'],
         "tasks": list(task_breakdown.values()),
-        "participants": recent_participants
+        "participants": recent_participants,
+        "program_counts": program_counts
     }
 
     return render_template('dashboard/overview.html', m=metrics)

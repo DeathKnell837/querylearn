@@ -276,15 +276,38 @@
                             </div>
                         </div>
 
-                        <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.06);">
+                        <!-- Program Demographics -->
+                        {% if m.program_counts %}
+                        <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.06);">
+                            <div style="font-size: 0.75rem; color: #64748b; text-transform: uppercase; margin-bottom: 0.5rem;">Demographics</div>
+                            {% for prog, cnt in m.program_counts.items() %}
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; margin-bottom: 0.3rem;">
+                                <span style="color: #94a3b8;">{{ prog }}</span>
+                                <span style="font-weight: 600; color: #cbd5e1;">{{ cnt }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.06);">
                             <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; margin-bottom: 0.35rem;">
                                 <span>Data Collection</span>
                                 <span style="color: #10b981;">Active</span>
                             </div>
                             <div class="db-track" style="height: 4px; margin-bottom: 0;">
-                                <div class="db-fill" style="width: 80%; background: linear-gradient(90deg, #10b981, #06b6d4);"></div>
+                                {% set fill_pct = (m.completed / 16 * 100)|round(0) if m.total_participants > 0 else 0 %}
+                                <div class="db-fill" style="width: {{ fill_pct }}%; background: linear-gradient(90deg, #10b981, #06b6d4);"></div>
                             </div>
                         </div>
+
+                        {% if m.total_participants == 0 %}
+                        <form method="POST" action="{{ url_for('dashboard.seed_data') }}" style="margin-top: 0.75rem;">
+                            <button type="submit" class="db-btn-run-gradient" style="width: 100%; padding: 0.5rem; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 0.4rem; cursor: pointer; border: none;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+                                Seed Pilot Data (16 participants)
+                            </button>
+                        </form>
+                        {% endif %}
                     </div>
                 </div>
             </div>
