@@ -42,7 +42,7 @@
 
     <div class="card text-center" style="background: transparent; border: none;">
         <div class="card-body">
-            <a href="{{ url_for('experiment.readiness') }}" id="btn-ready" class="btn btn-success btn-lg" style="opacity: 0.5; pointer-events: none;">Ready for Evaluation</a>
+            <button type="button" id="btn-ready" class="btn btn-success btn-lg" style="opacity: 0.5; pointer-events: none;" onclick="completePractice()">Ready for Evaluation</button>
             <p class="text-muted" style="margin-top: 10px; font-size: 0.9em;">Please attempt both practice tasks to continue.</p>
         </div>
     </div>
@@ -132,6 +132,23 @@
             checkReadiness();
         } catch (err) {
             outputDiv.innerHTML = '<span style="color: #ef4444;">Execution failed: ' + err.message + '</span>';
+        }
+    }
+
+    async function completePractice() {
+        try {
+            const resp = await fetch('{{ url_for("experiment.practice_complete") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await resp.json();
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            } else {
+                window.location.href = '{{ url_for("experiment.readiness") }}';
+            }
+        } catch (err) {
+            window.location.href = '{{ url_for("experiment.readiness") }}';
         }
     }
 </script>

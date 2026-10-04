@@ -1,39 +1,1038 @@
 {
   "A": {
     "T1": {
-      "description": "IDs/names of BSCS year 1, ordered by student_id",
+      "description": "Select BSCS 1st year students",
       "tests": [
-        {"students": [{"student_id": 1, "student_name": "A", "program": "BSCS", "year_level": 1}], "courses": [], "enrollments": [], "expected_output": [[1, "A"]]},
-        {"students": [{"student_id": 2, "student_name": "B", "program": "BSIT", "year_level": 1}], "courses": [], "enrollments": [], "expected_output": []},
-        {"students": [{"student_id": 3, "student_name": "C", "program": "BSCS", "year_level": 1}, {"student_id": 1, "student_name": "A", "program": "BSCS", "year_level": 1}], "courses": [], "enrollments": [], "expected_output": [[1, "A"], [3, "C"]]}
+        {
+          "students": [
+            {
+              "student_id": 1,
+              "student_name": "A",
+              "program": "BSIT",
+              "year_level": 1
+            },
+            {
+              "student_id": 2,
+              "student_name": "B",
+              "program": "BSCS",
+              "year_level": 2
+            }
+          ],
+          "courses": [],
+          "enrollments": [],
+          "expected_output": []
+        },
+        {
+          "students": [
+            {
+              "student_id": 1,
+              "student_name": "A",
+              "program": "BSCS",
+              "year_level": 1
+            },
+            {
+              "student_id": 2,
+              "student_name": "B",
+              "program": "BSCS",
+              "year_level": 1
+            },
+            {
+              "student_id": 3,
+              "student_name": "C",
+              "program": "BSCS",
+              "year_level": 3
+            }
+          ],
+          "courses": [],
+          "enrollments": [],
+          "expected_output": [
+            [
+              1,
+              "A"
+            ],
+            [
+              2,
+              "B"
+            ]
+          ]
+        },
+        {
+          "students": [
+            {
+              "student_id": 3,
+              "student_name": "X",
+              "program": "BSCS",
+              "year_level": 1
+            },
+            {
+              "student_id": 1,
+              "student_name": "Y",
+              "program": "BSCE",
+              "year_level": 1
+            }
+          ],
+          "courses": [],
+          "enrollments": [],
+          "expected_output": [
+            [
+              3,
+              "X"
+            ]
+          ]
+        }
       ]
     },
     "T2": {
-      "description": "Top 3 C101 scores",
+      "description": "Top 3 scores for C101",
       "tests": [
-        {"students": [], "courses": [], "enrollments": [], "expected_output": []},
-        {"students": [], "courses": [], "enrollments": [], "expected_output": []},
-        {"students": [], "courses": [], "enrollments": [], "expected_output": []}
+        {
+          "students": [],
+          "courses": [],
+          "enrollments": [
+            {
+              "student_id": 2,
+              "course_id": "C101",
+              "score": 90.0
+            },
+            {
+              "student_id": 1,
+              "course_id": "C101",
+              "score": 90.0
+            },
+            {
+              "student_id": 4,
+              "course_id": "C101",
+              "score": 95.0
+            },
+            {
+              "student_id": 3,
+              "course_id": "C101",
+              "score": 85.0
+            }
+          ],
+          "expected_output": [
+            [
+              4,
+              95.0
+            ],
+            [
+              1,
+              90.0
+            ],
+            [
+              2,
+              90.0
+            ]
+          ]
+        },
+        {
+          "students": [],
+          "courses": [],
+          "enrollments": [
+            {
+              "student_id": 1,
+              "course_id": "C101",
+              "score": null
+            },
+            {
+              "student_id": 2,
+              "course_id": "C101",
+              "score": null
+            }
+          ],
+          "expected_output": []
+        },
+        {
+          "students": [],
+          "courses": [],
+          "enrollments": [
+            {
+              "student_id": 1,
+              "course_id": "C101",
+              "score": 80
+            },
+            {
+              "student_id": 2,
+              "course_id": "C101",
+              "score": 85
+            }
+          ],
+          "expected_output": [
+            [
+              2,
+              85.0
+            ],
+            [
+              1,
+              80.0
+            ]
+          ]
+        }
       ]
     },
-    "T3": { "description": "Group/Count", "tests": [{}, {}, {}] },
-    "T4": { "description": "Join C101", "tests": [{}, {}, {}] },
-    "T5": { "description": "Having avg>=80", "tests": [{}, {}, {}] },
-    "T6": { "description": "Anti-join", "tests": [{}, {}, {}] }
+    "T3": {
+      "description": "Count students per program",
+      "tests": [
+        {
+          "students": [
+            {
+              "student_id": 1,
+              "student_name": "A",
+              "program": "BSCS",
+              "year_level": 1
+            },
+            {
+              "student_id": 2,
+              "student_name": "B",
+              "program": "BSCS",
+              "year_level": 2
+            }
+          ],
+          "courses": [],
+          "enrollments": [],
+          "expected_output": [
+            [
+              "BSCS",
+              2
+            ]
+          ]
+        },
+        {
+          "students": [
+            {
+              "student_id": 1,
+              "student_name": "A",
+              "program": "BSCS",
+              "year_level": 1
+            },
+            {
+              "student_id": 2,
+              "student_name": "B",
+              "program": "BSIT",
+              "year_level": 2
+            },
+            {
+              "student_id": 3,
+              "student_name": "C",
+              "program": "BSCE",
+              "year_level": 1
+            },
+            {
+              "student_id": 4,
+              "student_name": "D",
+              "program": "BSEE",
+              "year_level": 1
+            }
+          ],
+          "courses": [],
+          "enrollments": [],
+          "expected_output": [
+            [
+              "BSCE",
+              1
+            ],
+            [
+              "BSCS",
+              1
+            ],
+            [
+              "BSEE",
+              1
+            ],
+            [
+              "BSIT",
+              1
+            ]
+          ]
+        },
+        {
+          "students": [],
+          "courses": [],
+          "enrollments": [],
+          "expected_output": []
+        }
+      ]
+    },
+    "T4": {
+      "description": "Students in C101",
+      "tests": [
+        {
+          "students": [
+            {
+              "student_id": 1,
+              "student_name": "A",
+              "program": "BSCS",
+              "year_level": 1
+            }
+          ],
+          "courses": [
+            {
+              "course_id": "C101",
+              "course_name": "Intro to CS"
+            },
+            {
+              "course_id": "C102",
+              "course_name": "DB"
+            }
+          ],
+          "enrollments": [
+            {
+              "student_id": 1,
+              "course_id": "C102",
+              "score": 90
+            }
+          ],
+          "expected_output": []
+        },
+        {
+          "students": [
+            {
+              "student_id": 1,
+              "student_name": "A",
+              "program": "BSCS",
+              "year_level": 1
+            },
+            {
+              "student_id": 2,
+              "student_name": "B",
+              "program": "BSIT",
+              "year_level": 2
+            }
+          ],
+          "courses": [
+            {
+              "course_id": "C101",
+              "course_name": "Intro to CS"
+            }
+          ],
+          "enrollments": [
+            {
+              "student_id": 1,
+              "course_id": "C101",
+              "score": 90
+            },
+            {
+              "student_id": 2,
+              "course_id": "C101",
+              "score": 85
+            }
+          ],
+          "expected_output": [
+            [
+              1,
+              "A",
+              "Intro to CS"
+            ],
+            [
+              2,
+              "B",
+              "Intro to CS"
+            ]
+          ]
+        },
+        {
+          "students": [
+            {
+              "student_id": 1,
+              "student_name": "A",
+              "program": "BSCS",
+              "year_level": 1
+            }
+          ],
+          "courses": [
+            {
+              "course_id": "C101",
+              "course_name": "Intro to CS"
+            },
+            {
+              "course_id": "C102",
+              "course_name": "DB"
+            }
+          ],
+          "enrollments": [
+            {
+              "student_id": 1,
+              "course_id": "C101",
+              "score": 90
+            },
+            {
+              "student_id": 1,
+              "course_id": "C102",
+              "score": 85
+            }
+          ],
+          "expected_output": [
+            [
+              1,
+              "A",
+              "Intro to CS"
+            ]
+          ]
+        }
+      ]
+    },
+    "T5": {
+      "description": "Average score >= 80",
+      "tests": [
+        {
+          "students": [],
+          "courses": [],
+          "enrollments": [
+            {
+              "student_id": 1,
+              "course_id": "C101",
+              "score": 85
+            },
+            {
+              "student_id": 2,
+              "course_id": "C101",
+              "score": null
+            }
+          ],
+          "expected_output": [
+            [
+              "C101",
+              85.0
+            ]
+          ]
+        },
+        {
+          "students": [],
+          "courses": [],
+          "enrollments": [
+            {
+              "student_id": 1,
+              "course_id": "C101",
+              "score": 79
+            },
+            {
+              "student_id": 2,
+              "course_id": "C102",
+              "score": 70
+            }
+          ],
+          "expected_output": []
+        },
+        {
+          "students": [],
+          "courses": [],
+          "enrollments": [
+            {
+              "student_id": 1,
+              "course_id": "C101",
+              "score": 80
+            },
+            {
+              "student_id": 2,
+              "course_id": "C101",
+              "score": 80
+            }
+          ],
+          "expected_output": [
+            [
+              "C101",
+              80.0
+            ]
+          ]
+        }
+      ]
+    },
+    "T6": {
+      "description": "Unenrolled students",
+      "tests": [
+        {
+          "students": [
+            {
+              "student_id": 1,
+              "student_name": "A",
+              "program": "BSCS",
+              "year_level": 1
+            }
+          ],
+          "courses": [],
+          "enrollments": [
+            {
+              "student_id": 1,
+              "course_id": "C101",
+              "score": 90
+            }
+          ],
+          "expected_output": []
+        },
+        {
+          "students": [
+            {
+              "student_id": 1,
+              "student_name": "A",
+              "program": "BSCS",
+              "year_level": 1
+            },
+            {
+              "student_id": 2,
+              "student_name": "B",
+              "program": "BSIT",
+              "year_level": 2
+            }
+          ],
+          "courses": [],
+          "enrollments": [],
+          "expected_output": [
+            [
+              1,
+              "A"
+            ],
+            [
+              2,
+              "B"
+            ]
+          ]
+        },
+        {
+          "students": [
+            {
+              "student_id": 1,
+              "student_name": "A",
+              "program": "BSCS",
+              "year_level": 1
+            },
+            {
+              "student_id": 2,
+              "student_name": "B",
+              "program": "BSIT",
+              "year_level": 2
+            }
+          ],
+          "courses": [],
+          "enrollments": [
+            {
+              "student_id": 1,
+              "course_id": "C101",
+              "score": 90
+            }
+          ],
+          "expected_output": [
+            [
+              2,
+              "B"
+            ]
+          ]
+        }
+      ]
+    }
   },
   "B": {
     "T1": {
-      "description": "IDs/names of BSIT year 2",
+      "description": "Select BSIT 2nd year students",
       "tests": [
-        {"students": [], "courses": [], "enrollments": [], "expected_output": []},
-        {"students": [], "courses": [], "enrollments": [], "expected_output": []},
-        {"students": [], "courses": [], "enrollments": [], "expected_output": []}
+        {
+          "students": [
+            {
+              "student_id": 1,
+              "student_name": "A",
+              "program": "BSCS",
+              "year_level": 2
+            },
+            {
+              "student_id": 2,
+              "student_name": "B",
+              "program": "BSIT",
+              "year_level": 1
+            }
+          ],
+          "courses": [],
+          "enrollments": [],
+          "expected_output": []
+        },
+        {
+          "students": [
+            {
+              "student_id": 1,
+              "student_name": "A",
+              "program": "BSIT",
+              "year_level": 2
+            },
+            {
+              "student_id": 2,
+              "student_name": "B",
+              "program": "BSIT",
+              "year_level": 2
+            }
+          ],
+          "courses": [],
+          "enrollments": [],
+          "expected_output": [
+            [
+              1,
+              "A"
+            ],
+            [
+              2,
+              "B"
+            ]
+          ]
+        },
+        {
+          "students": [
+            {
+              "student_id": 5,
+              "student_name": "X",
+              "program": "BSIT",
+              "year_level": 2
+            },
+            {
+              "student_id": 4,
+              "student_name": "Y",
+              "program": "BSCE",
+              "year_level": 2
+            }
+          ],
+          "courses": [],
+          "enrollments": [],
+          "expected_output": [
+            [
+              5,
+              "X"
+            ]
+          ]
+        }
       ]
     },
-    "T2": { "description": "Top 3 C102 scores", "tests": [{}, {}, {}] },
-    "T3": { "description": "Group/Count", "tests": [{}, {}, {}] },
-    "T4": { "description": "Join C102", "tests": [{}, {}, {}] },
-    "T5": { "description": "Having avg>=85", "tests": [{}, {}, {}] },
-    "T6": { "description": "Anti-join", "tests": [{}, {}, {}] }
+    "T2": {
+      "description": "Top 3 scores for C102",
+      "tests": [
+        {
+          "students": [],
+          "courses": [],
+          "enrollments": [
+            {
+              "student_id": 2,
+              "course_id": "C102",
+              "score": 92.0
+            },
+            {
+              "student_id": 1,
+              "course_id": "C102",
+              "score": 92.0
+            },
+            {
+              "student_id": 4,
+              "course_id": "C102",
+              "score": 96.0
+            },
+            {
+              "student_id": 3,
+              "course_id": "C102",
+              "score": 88.0
+            }
+          ],
+          "expected_output": [
+            [
+              4,
+              96.0
+            ],
+            [
+              1,
+              92.0
+            ],
+            [
+              2,
+              92.0
+            ]
+          ]
+        },
+        {
+          "students": [],
+          "courses": [],
+          "enrollments": [
+            {
+              "student_id": 1,
+              "course_id": "C102",
+              "score": null
+            },
+            {
+              "student_id": 2,
+              "course_id": "C102",
+              "score": null
+            }
+          ],
+          "expected_output": []
+        },
+        {
+          "students": [],
+          "courses": [],
+          "enrollments": [
+            {
+              "student_id": 1,
+              "course_id": "C102",
+              "score": 82
+            },
+            {
+              "student_id": 2,
+              "course_id": "C102",
+              "score": 86
+            }
+          ],
+          "expected_output": [
+            [
+              2,
+              86.0
+            ],
+            [
+              1,
+              82.0
+            ]
+          ]
+        }
+      ]
+    },
+    "T3": {
+      "description": "Count students per program",
+      "tests": [
+        {
+          "students": [
+            {
+              "student_id": 1,
+              "student_name": "A",
+              "program": "BSIT",
+              "year_level": 1
+            },
+            {
+              "student_id": 2,
+              "student_name": "B",
+              "program": "BSIT",
+              "year_level": 2
+            }
+          ],
+          "courses": [],
+          "enrollments": [],
+          "expected_output": [
+            [
+              "BSIT",
+              2
+            ]
+          ]
+        },
+        {
+          "students": [
+            {
+              "student_id": 1,
+              "student_name": "A",
+              "program": "BSCS",
+              "year_level": 1
+            },
+            {
+              "student_id": 2,
+              "student_name": "B",
+              "program": "BSIT",
+              "year_level": 2
+            },
+            {
+              "student_id": 3,
+              "student_name": "C",
+              "program": "BSCE",
+              "year_level": 1
+            },
+            {
+              "student_id": 4,
+              "student_name": "D",
+              "program": "BSEE",
+              "year_level": 1
+            }
+          ],
+          "courses": [],
+          "enrollments": [],
+          "expected_output": [
+            [
+              "BSCE",
+              1
+            ],
+            [
+              "BSCS",
+              1
+            ],
+            [
+              "BSEE",
+              1
+            ],
+            [
+              "BSIT",
+              1
+            ]
+          ]
+        },
+        {
+          "students": [],
+          "courses": [],
+          "enrollments": [],
+          "expected_output": []
+        }
+      ]
+    },
+    "T4": {
+      "description": "Students in C102",
+      "tests": [
+        {
+          "students": [
+            {
+              "student_id": 1,
+              "student_name": "A",
+              "program": "BSCS",
+              "year_level": 1
+            }
+          ],
+          "courses": [
+            {
+              "course_id": "C102",
+              "course_name": "DB"
+            },
+            {
+              "course_id": "C101",
+              "course_name": "Intro to CS"
+            }
+          ],
+          "enrollments": [
+            {
+              "student_id": 1,
+              "course_id": "C101",
+              "score": 90
+            }
+          ],
+          "expected_output": []
+        },
+        {
+          "students": [
+            {
+              "student_id": 1,
+              "student_name": "A",
+              "program": "BSCS",
+              "year_level": 1
+            },
+            {
+              "student_id": 2,
+              "student_name": "B",
+              "program": "BSIT",
+              "year_level": 2
+            }
+          ],
+          "courses": [
+            {
+              "course_id": "C102",
+              "course_name": "DB"
+            }
+          ],
+          "enrollments": [
+            {
+              "student_id": 1,
+              "course_id": "C102",
+              "score": 90
+            },
+            {
+              "student_id": 2,
+              "course_id": "C102",
+              "score": 85
+            }
+          ],
+          "expected_output": [
+            [
+              1,
+              "A",
+              "DB"
+            ],
+            [
+              2,
+              "B",
+              "DB"
+            ]
+          ]
+        },
+        {
+          "students": [
+            {
+              "student_id": 1,
+              "student_name": "A",
+              "program": "BSCS",
+              "year_level": 1
+            }
+          ],
+          "courses": [
+            {
+              "course_id": "C102",
+              "course_name": "DB"
+            },
+            {
+              "course_id": "C101",
+              "course_name": "Intro to CS"
+            }
+          ],
+          "enrollments": [
+            {
+              "student_id": 1,
+              "course_id": "C102",
+              "score": 90
+            },
+            {
+              "student_id": 1,
+              "course_id": "C101",
+              "score": 85
+            }
+          ],
+          "expected_output": [
+            [
+              1,
+              "A",
+              "DB"
+            ]
+          ]
+        }
+      ]
+    },
+    "T5": {
+      "description": "Average score >= 85",
+      "tests": [
+        {
+          "students": [],
+          "courses": [],
+          "enrollments": [
+            {
+              "student_id": 1,
+              "course_id": "C102",
+              "score": 90
+            },
+            {
+              "student_id": 2,
+              "course_id": "C102",
+              "score": null
+            }
+          ],
+          "expected_output": [
+            [
+              "C102",
+              90.0
+            ]
+          ]
+        },
+        {
+          "students": [],
+          "courses": [],
+          "enrollments": [
+            {
+              "student_id": 1,
+              "course_id": "C101",
+              "score": 84
+            },
+            {
+              "student_id": 2,
+              "course_id": "C102",
+              "score": 80
+            }
+          ],
+          "expected_output": []
+        },
+        {
+          "students": [],
+          "courses": [],
+          "enrollments": [
+            {
+              "student_id": 1,
+              "course_id": "C102",
+              "score": 85
+            },
+            {
+              "student_id": 2,
+              "course_id": "C102",
+              "score": 85
+            }
+          ],
+          "expected_output": [
+            [
+              "C102",
+              85.0
+            ]
+          ]
+        }
+      ]
+    },
+    "T6": {
+      "description": "Unenrolled students",
+      "tests": [
+        {
+          "students": [
+            {
+              "student_id": 1,
+              "student_name": "A",
+              "program": "BSCS",
+              "year_level": 1
+            }
+          ],
+          "courses": [],
+          "enrollments": [
+            {
+              "student_id": 1,
+              "course_id": "C102",
+              "score": 90
+            }
+          ],
+          "expected_output": []
+        },
+        {
+          "students": [
+            {
+              "student_id": 1,
+              "student_name": "A",
+              "program": "BSCS",
+              "year_level": 1
+            },
+            {
+              "student_id": 2,
+              "student_name": "B",
+              "program": "BSIT",
+              "year_level": 2
+            }
+          ],
+          "courses": [],
+          "enrollments": [],
+          "expected_output": [
+            [
+              1,
+              "A"
+            ],
+            [
+              2,
+              "B"
+            ]
+          ]
+        },
+        {
+          "students": [
+            {
+              "student_id": 1,
+              "student_name": "A",
+              "program": "BSCS",
+              "year_level": 1
+            },
+            {
+              "student_id": 2,
+              "student_name": "B",
+              "program": "BSIT",
+              "year_level": 2
+            }
+          ],
+          "courses": [],
+          "enrollments": [
+            {
+              "student_id": 2,
+              "course_id": "C102",
+              "score": 90
+            }
+          ],
+          "expected_output": [
+            [
+              1,
+              "A"
+            ]
+          ]
+        }
+      ]
+    }
   }
 }

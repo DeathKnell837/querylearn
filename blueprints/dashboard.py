@@ -173,64 +173,157 @@ def participants():
 @dashboard_bp.route('/results')
 @require_researcher
 def results():
+    page = request.args.get('page', 1, type=int)
+    if page < 1:
+        page = 1
+    per_page = 50
+    offset = (page - 1) * per_page
+
+    language = request.args.get('language', '').strip().lower()
+    task = request.args.get('task', '').strip().upper()
+    search = request.args.get('search', '').strip()
+
     conn = sqlite3.connect(Config.RESEARCH_DB)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
-    cursor.execute("""
+
+    # Build WHERE conditions
+    conditions = []
+    params = []
+
+    if language and language != 'all':
+        conditions.append("s.language = ?")
+        params.append(language)
+
+    if task and task != 'all':
+        clean_task = task if task.startswith('T') else f"T{task}"
+        conditions.append("r.task_id = ?")
+        params.append(clean_task)
+
+    if search:
+        conditions.append("p.study_id LIKE ?")
+        params.append(f"%{search}%")
+
+    where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+
+    # 1. Compute summary stats on ALL matching rows (not just the 50 paginated rows)
+    count_sql = f"""
+        SELECT 
+            COUNT(r.id) as total_matching,
+            SUM(CASE WHEN r.success = 1 THEN 1 ELSE 0 END) as success_count
+        FROM task_results r
+        JOIN sessions s ON r.session_id = s.id
+        JOIN participants p ON s.participant_id = p.id
+        {where_clause}
+    """
+    cursor.execute(count_sql, params)
+    stat_row = cursor.fetchone()
+    total_matching = stat_row['total_matching'] or 0
+    success_count = stat_row['success_count'] or 0
+    success_rate = round((success_count / total_matching * 100), 1) if total_matching > 0 else 0.0
+
+    # Compute median duration across ALL matching rows
+    cursor.execute(f"""
+        SELECT r.elapsed_seconds
+        FROM task_results r
+        JOIN sessions s ON r.session_id = s.id
+        JOIN participants p ON s.participant_id = p.id
+        {where_clause}
+    """, params)
+    time_rows = [row['elapsed_seconds'] for row in cursor.fetchall() if row['elapsed_seconds'] is not None]
+    median_time = round(statistics.median(time_rows), 1) if time_rows else 0.0
+
+    total_pages = max(1, (total_matching + per_page - 1) // per_page)
+
+    # 2. Fetch paginated records (50 rows/page)
+    data_sql = f"""
         SELECT r.*, p.study_id, s.language, s.form
         FROM task_results r
         JOIN sessions s ON r.session_id = s.id
         JOIN participants p ON s.participant_id = p.id
-        ORDER BY r.id DESC LIMIT 100
-    """)
+        {where_clause}
+        ORDER BY r.id DESC
+        LIMIT ? OFFSET ?
+    """
+    cursor.execute(data_sql, params + [per_page, offset])
     results_list = [dict(r) for r in cursor.fetchall()]
     conn.close()
-    return render_template('dashboard/results.html', results=results_list)
+
+    summary_stats = {
+        "total_results": total_matching,
+        "success_rate": success_rate,
+        "median_time": median_time,
+        "avg_time": median_time
+    }
+
+    return render_template(
+        'dashboard/results.html',
+        results=results_list,
+        stats=summary_stats,
+        page=page,
+        total_pages=total_pages,
+        total_count=total_matching,
+        selected_lang=language,
+        selected_task=task,
+        search_query=search
+    )
 
 @dashboard_bp.route('/analytics')
 @dashboard_bp.route('/charts')
 @require_researcher
 def charts():
-    """Comparative Analytics & Benchmarks combined page."""
+    """Comparative Analytics & Benchmarks combined page — uses medians."""
     conn = sqlite3.connect(Config.RESEARCH_DB)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
-    # Task-by-Task metrics for charts
+    # Fetch raw rows for median computation in Python
     cursor.execute("""
-        SELECT 
-            r.task_id,
-            s.language,
-            ROUND(AVG(CASE WHEN r.success = 1 THEN 100.0 ELSE 0.0 END), 1) as success_rate,
-            ROUND(AVG(r.elapsed_seconds), 1) as avg_time,
-            ROUND(AVG(r.attempt_count), 1) as avg_attempts
+        SELECT r.task_id, s.language, r.success, r.elapsed_seconds, r.attempt_count
         FROM task_results r
         JOIN sessions s ON r.session_id = s.id
-        GROUP BY r.task_id, s.language
         ORDER BY r.task_id ASC
     """)
-    task_rows = cursor.fetchall()
-    task_breakdown = {}
-    for row in task_rows:
+    raw_task_rows = cursor.fetchall()
+
+    from collections import defaultdict
+    task_groups = defaultdict(lambda: {'success': [], 'times': [], 'attempts': []})
+    lang_times = defaultdict(list)
+    lang_success = defaultdict(list)
+    all_tasks = set()
+
+    for row in raw_task_rows:
         tid = row['task_id']
         lang = row['language']
-        if tid not in task_breakdown:
-            task_breakdown[tid] = {'task_id': tid}
-        task_breakdown[tid][f"{lang}_success"] = row['success_rate']
-        task_breakdown[tid][f"{lang}_time"] = row['avg_time']
-        task_breakdown[tid][f"{lang}_attempts"] = row['avg_attempts']
+        all_tasks.add(tid)
+        task_groups[(tid, lang)]['success'].append(1 if row['success'] else 0)
+        if row['elapsed_seconds'] is not None:
+            task_groups[(tid, lang)]['times'].append(row['elapsed_seconds'])
+            lang_times[lang].append(row['elapsed_seconds'])
+        if row['attempt_count'] is not None:
+            task_groups[(tid, lang)]['attempts'].append(row['attempt_count'])
+        lang_success[lang].append(1 if row['success'] else 0)
 
-    # Aggregate stats
-    cursor.execute("""
-        SELECT s.language,
-            ROUND(AVG(CASE WHEN r.success = 1 THEN 100.0 ELSE 0.0 END), 1) as success_rate,
-            ROUND(AVG(r.elapsed_seconds), 1) as avg_time,
-            ROUND(AVG(r.attempt_count), 2) as avg_attempts
-        FROM task_results r
-        JOIN sessions s ON r.session_id = s.id
-        GROUP BY s.language
-    """)
-    lang_stats = {row['language']: dict(row) for row in cursor.fetchall()}
+    task_breakdown = {}
+    for tid in sorted(list(all_tasks)):
+        task_breakdown[tid] = {'task_id': tid}
+        for lang in ['sql', 'python']:
+            group = task_groups.get((tid, lang), {'success': [], 'times': [], 'attempts': []})
+            s_list = group['success']
+            t_list = group['times']
+            a_list = group['attempts']
+            succ_pct = round((sum(s_list) / len(s_list)) * 100, 1) if s_list else 0.0
+            med_time = round(statistics.median(t_list), 1) if t_list else 0.0
+            avg_att = round(sum(a_list) / len(a_list), 1) if a_list else 0.0
+            task_breakdown[tid][f"{lang}_success"] = succ_pct
+            task_breakdown[tid][f"{lang}_time"] = med_time  # median
+            task_breakdown[tid][f"{lang}_attempts"] = avg_att
+
+    # Aggregate medians
+    sql_med_time = round(statistics.median(lang_times['sql']), 1) if lang_times['sql'] else 0
+    py_med_time = round(statistics.median(lang_times['python']), 1) if lang_times['python'] else 0
+    sql_succ_rate = round((sum(lang_success['sql']) / len(lang_success['sql'])) * 100, 1) if lang_success['sql'] else 0
+    py_succ_rate = round((sum(lang_success['python']) / len(lang_success['python'])) * 100, 1) if lang_success['python'] else 0
 
     # Fetch Benchmarks records
     cursor.execute("SELECT * FROM benchmarks ORDER BY measured_at DESC, dataset_size ASC")
@@ -238,17 +331,15 @@ def charts():
 
     conn.close()
 
-    sql_stats = lang_stats.get('sql', {})
-    py_stats = lang_stats.get('python', {})
-
     metrics = {
         "tasks": list(task_breakdown.values()),
-        "sql_success_rate": sql_stats.get('success_rate', 0),
-        "python_success_rate": py_stats.get('success_rate', 0),
-        "sql_avg_time": sql_stats.get('avg_time', 0),
-        "python_avg_time": py_stats.get('avg_time', 0),
-        "sql_avg_attempts": sql_stats.get('avg_attempts', 0),
-        "python_avg_attempts": py_stats.get('avg_attempts', 0),
+        "sql_success_rate": sql_succ_rate,
+        "python_success_rate": py_succ_rate,
+        "sql_median_time": sql_med_time,
+        "python_median_time": py_med_time,
+        # Keep avg_time keys for backward compat with charts template
+        "sql_avg_time": sql_med_time,
+        "python_avg_time": py_med_time,
     }
 
     grouped = {}

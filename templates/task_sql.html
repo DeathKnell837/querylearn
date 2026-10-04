@@ -44,7 +44,7 @@
             <!-- Timer Pill (Orange) -->
             <div id="timer-pill" class="ws-timer-pill">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                <span id="timer-text">05:23 remaining</span>
+                <span id="timer-text">{{ "%02d:%02d"|format((remaining_seconds|default(480)) // 60, (remaining_seconds|default(480)) % 60) }} remaining</span>
             </div>
 
             <!-- Centered Progress Group -->
@@ -215,7 +215,8 @@
     const LANGUAGE = "sql";
     const FORM = "{{ current_form }}";
     let attempts = 1;
-    let timerSeconds = 480;
+    let timerSeconds = {{ remaining_seconds | default(480) }};
+    let isSubmitting = false;
 
     // Init CodeMirror
     const editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
@@ -263,6 +264,15 @@
         }, 3200);
     }
 
+    // Initial timer display check
+    if (timerSeconds <= 60) {
+        document.getElementById('timer-pill').classList.add('urgent');
+    }
+    if (timerSeconds <= 0) {
+        showToast("Time expired! Submitting task...", true);
+        submitCode(true);
+    }
+
     // Countdown Timer
     const timerInterval = setInterval(() => {
         timerSeconds--;
@@ -307,8 +317,16 @@
         }
     }
 
-    // Submit Answer
+    // Submit Answer with in-flight lock
     async function submitCode(isTimeout = false) {
+        if (isSubmitting) return;
+        isSubmitting = true;
+        const btnSubmit = document.getElementById('btn-submit');
+        if (btnSubmit) {
+            btnSubmit.disabled = true;
+            btnSubmit.style.opacity = '0.5';
+        }
+
         const code = editor.getValue();
         attempts++;
         document.getElementById('attempt-num').textContent = attempts;
@@ -339,10 +357,21 @@
                     setTimeout(() => {
                         window.location.href = data.next_task_url;
                     }, 1400);
+                } else {
+                    isSubmitting = false;
+                    if (btnSubmit) {
+                        btnSubmit.disabled = false;
+                        btnSubmit.style.opacity = '1';
+                    }
                 }
             }
         } catch (err) {
             showToast("Error submitting answer: " + err.message, true);
+            isSubmitting = false;
+            if (btnSubmit) {
+                btnSubmit.disabled = false;
+                btnSubmit.style.opacity = '1';
+            }
         }
     }
 

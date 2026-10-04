@@ -16,6 +16,10 @@ def register():
         other_languages = request.form.get('other_languages', '')
         consent = bool(request.form.get('consent'))
 
+        # Get balanced sequence 1-4
+        sequence_id = get_next_sequence(Config.RESEARCH_DB, python_exp)
+        seq_info = get_sequence_details(sequence_id)
+
         conn = sqlite3.connect(Config.RESEARCH_DB)
         cursor = conn.cursor()
 
@@ -23,10 +27,6 @@ def register():
         cursor.execute("SELECT COUNT(*) FROM participants")
         count = cursor.fetchone()[0] + 1
         study_id = f"P{count:03d}"
-
-        # Get balanced sequence 1-4
-        sequence_id = get_next_sequence(Config.RESEARCH_DB, python_exp)
-        seq_info = get_sequence_details(sequence_id)
 
         # Insert participant
         cursor.execute("""
@@ -75,8 +75,8 @@ def researcher_login():
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
 
-        # Check against database or default credentials
-        if (username == Config.DEFAULT_RESEARCHER and password == Config.DEFAULT_PASSWORD) or username == 'admin':
+        # Check against default credentials
+        if username == Config.DEFAULT_RESEARCHER and password == Config.DEFAULT_PASSWORD:
             session['is_researcher'] = True
             session['researcher_name'] = username
             return redirect(url_for('dashboard.overview'))

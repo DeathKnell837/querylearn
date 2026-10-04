@@ -7,31 +7,76 @@ def get_csv_string_from_query(db_path, query):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute(query)
-    
+
     output = io.StringIO()
     writer = csv.writer(output)
-    
+
     # Write headers
     headers = [description[0] for description in cursor.description]
     writer.writerow(headers)
-    
+
     # Write data
     writer.writerows(cursor.fetchall())
-    
+
     conn.close()
     return output.getvalue()
 
 def export_participants_csv(db_path):
-    return get_csv_string_from_query(db_path, "SELECT * FROM participants")
+    """Export participants with study_id (no real names)."""
+    return get_csv_string_from_query(db_path, """
+        SELECT study_id, program, year_level, python_exp, sql_exp,
+               other_languages, db_course, consent, sequence_id, status, created_at
+        FROM participants
+        ORDER BY id ASC
+    """)
 
 def export_results_csv(db_path):
-    return get_csv_string_from_query(db_path, "SELECT * FROM task_results")
+    """Item 3: Export results.csv with all required columns joined across tables."""
+    return get_csv_string_from_query(db_path, """
+        SELECT
+            p.study_id,
+            p.sequence_id AS sequence,
+            s.language,
+            s.form,
+            r.task_id,
+            r.start_time,
+            r.end_time,
+            r.elapsed_seconds,
+            r.allocated_seconds,
+            r.attempt_count,
+            r.success,
+            r.failure_reason,
+            r.source_lines,
+            r.source_chars
+        FROM task_results r
+        JOIN sessions s ON r.session_id = s.id
+        JOIN participants p ON s.participant_id = p.id
+        ORDER BY p.study_id ASC, s.language ASC, r.task_id ASC
+    """)
 
 def export_survey_csv(db_path):
-    return get_csv_string_from_query(db_path, "SELECT * FROM survey_responses")
+    """Export survey responses with study_id."""
+    return get_csv_string_from_query(db_path, """
+        SELECT p.study_id, sr.language, sr.q1, sr.q2, sr.q3, sr.q4, sr.q5,
+               sr.q6, sr.q7, sr.open_easiest, sr.open_hardest,
+               sr.open_after_error, sr.open_preference, sr.submitted_at
+        FROM survey_responses sr
+        JOIN sessions s ON sr.session_id = s.id
+        JOIN participants p ON s.participant_id = p.id
+        ORDER BY p.study_id ASC, sr.language ASC
+    """)
 
 def export_comprehension_csv(db_path):
-    return get_csv_string_from_query(db_path, "SELECT * FROM comprehension_responses")
+    """Export comprehension responses with study_id."""
+    return get_csv_string_from_query(db_path, """
+        SELECT p.study_id, cr.language, cr.item_id,
+               cr.explanation_score, cr.prediction_score, cr.condition_score,
+               cr.response_time, cr.learner_answer
+        FROM comprehension_responses cr
+        JOIN sessions s ON cr.session_id = s.id
+        JOIN participants p ON s.participant_id = p.id
+        ORDER BY p.study_id ASC, cr.language ASC
+    """)
 
 def export_all_csv(db_path):
     zip_buffer = io.BytesIO()

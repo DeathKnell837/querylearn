@@ -93,9 +93,7 @@
         }
         
         if (valid) {
-            // Both correct, redirect to experiment start or submit form
-            // Since requirements say redirect to url_for('experiment.start') on both correct:
-            window.location.href = "{{ url_for('experiment.start') }}";
+            document.getElementById('readiness-form').submit();
         }
     }
 </script>
