@@ -3,198 +3,134 @@
 {% block title %}Code Comprehension Assessment ({{ language|upper }}) - QueryLearn{% endblock %}
 
 {% block content %}
-<div class="container fade-in" style="max-width: 860px; margin: 0 auto; padding: 2rem 1rem;">
-    <div class="card" style="background: #131929; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; overflow: hidden;">
+<div class="container fade-in" style="max-width: 880px; margin: 0 auto; padding: 2rem 1rem;">
+    <div class="card" style="background: #131929; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+        
+        <!-- Header -->
         <div class="card-header" style="background: #0d1220; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding: 1.25rem 1.75rem; display: flex; justify-content: space-between; align-items: center;">
             <div>
-                <h2 style="font-size: 1.25rem; font-weight: 700; color: #f8fafc; margin: 0 0 0.35rem 0;">
-                    Code Comprehension Assessment (<span style="color: {% if language == 'sql' %}#38bdf8{% else %}#a78bfa{% endif %};">{{ language|upper }}</span>)
+                <div style="display: flex; align-items: center; gap: 0.65rem; margin-bottom: 0.35rem;">
+                    <span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">
+                        Form {{ current_form }} &bull; {{ item.family }}
+                    </span>
+                    <span class="badge" style="background: {% if language == 'sql' %}rgba(56, 189, 248, 0.15){% else %}rgba(168, 85, 247, 0.15){% endif %}; color: {% if language == 'sql' %}#38bdf8{% else %}#c084fc{% endif %}; border: 1px solid {% if language == 'sql' %}rgba(56, 189, 248, 0.3){% else %}rgba(168, 85, 247, 0.3){% endif %}; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">
+                        {{ language|upper }}
+                    </span>
+                </div>
+                <h2 style="font-size: 1.25rem; font-weight: 700; color: #f8fafc; margin: 0;">
+                    Code Comprehension Assessment: Item {{ item_num }} of {{ total_items }}
                 </h2>
-                <p style="margin: 0; font-size: 0.86rem; color: #94a3b8;">
-                    Read each code snippet carefully and answer the multiple-choice question.
-                </p>
             </div>
-            <div class="timer" style="font-size: 1.15rem; font-family: var(--font-mono, monospace); font-weight: 700; background: #080c14; color: #38bdf8; padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.25); display: flex; align-items: center; gap: 8px;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                <span id="elapsed-time">00:00</span>
+            
+            <!-- Countdown Timer -->
+            <div id="timer-box" class="timer" style="font-size: 1.15rem; font-family: var(--font-mono, monospace); font-weight: 700; background: #080c14; color: #38bdf8; padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.25); display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span id="countdown-display">{{ "%02d:%02d"|format(remaining_seconds // 60, remaining_seconds % 60) }}</span>
             </div>
         </div>
         
         <div class="card-body" style="padding: 1.75rem;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+            
+            <!-- Progress indicator dots -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.06);">
                 <span style="font-size: 0.85rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">
-                    Question <span id="current-q-num" style="color: #f8fafc;">1</span> of 3
+                    Item {{ item_num }} of {{ total_items }}
                 </span>
                 <div style="display: flex; gap: 6px;">
-                    <span id="q-dot-1" style="width: 24px; height: 6px; border-radius: 3px; background: #3b82f6;"></span>
-                    <span id="q-dot-2" style="width: 24px; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.15);"></span>
-                    <span id="q-dot-3" style="width: 24px; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.15);"></span>
+                    {% for i in range(1, total_items + 1) %}
+                    <span style="width: 28px; height: 6px; border-radius: 3px; background: {% if i == item_num %}#3b82f6{% elif i < item_num %}#10b981{% else %}rgba(255,255,255,0.12){% endif %};"></span>
+                    {% endfor %}
                 </div>
             </div>
-            
-            <form id="comprehension-form" action="{{ url_for('experiment.comprehension', language=language) }}" method="POST">
-                
-                <!-- Question 1 -->
-                <div class="question-container" id="q1-container" style="display: block;">
-                    <h3 style="font-size: 1.1rem; font-weight: 600; color: #f8fafc; margin-bottom: 1rem;">
-                        1. What does this code do?
-                    </h3>
 
-                    <!-- Native Styled Code Snippet Window -->
-                    <div class="comp-code-window">
-                        <div class="comp-code-bar">
-                            <span class="comp-dot red"></span>
-                            <span class="comp-dot yellow"></span>
-                            <span class="comp-dot green"></span>
-                            <span class="comp-tab">{% if language == 'sql' %}query.sql{% else %}solution.py{% endif %}</span>
-                        </div>
-                        <div class="comp-code-content">
-{% if language == 'sql' %}
-<div class="comp-line"><span class="line-no">1</span><span class="kw">SELECT</span> student_name, program</div>
-<div class="comp-line"><span class="line-no">2</span><span class="kw">FROM</span> Students</div>
-<div class="comp-line"><span class="line-no">3</span><span class="kw">WHERE</span> year_level = 1;</div>
-{% else %}
-<div class="comp-line"><span class="line-no">1</span>first_year_students = [</div>
-<div class="comp-line"><span class="line-no">2</span>    {<span class="str">'name'</span>: s[<span class="str">'student_name'</span>], <span class="str">'program'</span>: s[<span class="str">'program'</span>]}</div>
-<div class="comp-line"><span class="line-no">3</span>    <span class="kw">for</span> s <span class="kw">in</span> students</div>
-<div class="comp-line"><span class="line-no">4</span>    <span class="kw">if</span> s[<span class="str">'year_level'</span>] == 1</div>
-<div class="comp-line"><span class="line-no">5</span>]</div>
-{% endif %}
-                        </div>
+            <!-- Schema Context Note -->
+            <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.84rem; color: #94a3b8; display: flex; align-items: center; gap: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                <span><strong>Database Context:</strong> {{ item.schema_context }}</span>
+            </div>
+
+            <!-- Native Code Window Display -->
+            <div class="comp-code-window">
+                <div class="comp-code-bar">
+                    <span class="comp-dot red"></span>
+                    <span class="comp-dot yellow"></span>
+                    <span class="comp-dot green"></span>
+                    <span class="comp-tab">{% if language == 'sql' %}query.sql{% else %}solution.py{% endif %}</span>
+                </div>
+                <div class="comp-code-content">
+                    <pre style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; line-height: 1.65; color: #e2e8f0;"><code>{% if language == 'sql' %}{{ item.sql_code }}{% else %}{{ item.python_code }}{% endif %}</code></pre>
+                </div>
+            </div>
+
+            <!-- Comprehension Form -->
+            <form id="comp-form" action="{{ url_for('experiment.comprehension', language=language) }}" method="POST">
+                <input type="hidden" name="item_id" value="{{ item.item_id }}">
+                <input type="hidden" name="timed_out" id="timed_out_field" value="0">
+                <input type="hidden" name="response_time_seconds" id="response_time_field" value="0">
+
+                <!-- Part 1: Code Explanation (2 pts, 1 pt, 0 pts) -->
+                <div style="margin-top: 1.75rem; background: #0d1220; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.5rem;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+                        <h3 style="font-size: 1.05rem; font-weight: 700; color: #f8fafc; margin: 0;">
+                            Part 1: Code Explanation
+                        </h3>
+                        <span style="font-size: 0.78rem; font-weight: 600; color: #94a3b8; background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 6px;">
+                            Multiple Choice
+                        </span>
                     </div>
+                    <p style="font-size: 0.92rem; color: #cbd5e1; margin-bottom: 1.25rem;">
+                        {{ item.explanation.prompt }}
+                    </p>
 
-                    <div class="radio-card-group" style="display: flex; flex-direction: column; gap: 10px; margin-top: 1.25rem;">
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        {% for opt in item.explanation.options %}
                         <label class="comp-option">
-                            <input type="radio" name="q1" value="a" required>
-                            <span>Selects all students and their programs</span>
+                            <input type="radio" name="explanation_choice" value="{{ opt.id }}" required>
+                            <span class="opt-text">{{ opt.text }}</span>
                         </label>
-                        <label class="comp-option">
-                            <input type="radio" name="q1" value="b">
-                            <span>Gets names and programs of 1st year students</span>
-                        </label>
-                        <label class="comp-option">
-                            <input type="radio" name="q1" value="c">
-                            <span>Counts the 1st year students</span>
-                        </label>
-                        <label class="comp-option">
-                            <input type="radio" name="q1" value="d">
-                            <span>Updates student year level to 1</span>
-                        </label>
-                    </div>
-
-                    <div style="margin-top: 1.5rem; text-align: right;">
-                        <button type="button" class="btn btn-primary" onclick="nextQuestion(1)">Next &rarr;</button>
+                        {% endfor %}
                     </div>
                 </div>
 
-                <!-- Question 2 -->
-                <div class="question-container" id="q2-container" style="display: none;">
-                    <h3 style="font-size: 1.1rem; font-weight: 600; color: #f8fafc; margin-bottom: 1rem;">
-                        2. What will be the output?
-                    </h3>
-
-                    <!-- Native Styled Code Snippet Window -->
-                    <div class="comp-code-window">
-                        <div class="comp-code-bar">
-                            <span class="comp-dot red"></span>
-                            <span class="comp-dot yellow"></span>
-                            <span class="comp-dot green"></span>
-                            <span class="comp-tab">{% if language == 'sql' %}query.sql{% else %}solution.py{% endif %}</span>
-                        </div>
-                        <div class="comp-code-content">
-{% if language == 'sql' %}
-<div class="comp-line"><span class="line-no">1</span><span class="kw">SELECT</span> <span class="kw">COUNT</span>(course_id)</div>
-<div class="comp-line"><span class="line-no">2</span><span class="kw">FROM</span> Enrollments</div>
-<div class="comp-line"><span class="line-no">3</span><span class="kw">WHERE</span> score &gt;= 85;</div>
-{% else %}
-<div class="comp-line"><span class="line-no">1</span>high_scores = [</div>
-<div class="comp-line"><span class="line-no">2</span>    e <span class="kw">for</span> e <span class="kw">in</span> enrollments</div>
-<div class="comp-line"><span class="line-no">3</span>    <span class="kw">if</span> e[<span class="str">'score'</span>] <span class="kw">is not</span> None <span class="kw">and</span> e[<span class="str">'score'</span>] &gt;= 85</div>
-<div class="comp-line"><span class="line-no">4</span>]</div>
-<div class="comp-line"><span class="line-no">5</span><span class="kw">print</span>(len(high_scores))</div>
-{% endif %}
-                        </div>
+                <!-- Part 2: Output Prediction (1 pt, 0 pts) -->
+                <div style="margin-top: 1.5rem; background: #0d1220; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.5rem;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+                        <h3 style="font-size: 1.05rem; font-weight: 700; color: #f8fafc; margin: 0;">
+                            Part 2: Output Prediction
+                        </h3>
+                        <span style="font-size: 0.78rem; font-weight: 600; color: #94a3b8; background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 6px;">
+                            Multiple Choice
+                        </span>
                     </div>
+                    <p style="font-size: 0.92rem; color: #cbd5e1; margin-bottom: 1.25rem;">
+                        {{ item.prediction.prompt }}
+                    </p>
 
-                    <div class="radio-card-group" style="display: flex; flex-direction: column; gap: 10px; margin-top: 1.25rem;">
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        {% for opt in item.prediction.options %}
                         <label class="comp-option">
-                            <input type="radio" name="q2" value="a" required>
-                            <span>A list of courses with score 85</span>
+                            <input type="radio" name="prediction_choice" value="{{ opt.id }}" required>
+                            <span class="opt-text" style="font-family: var(--font-mono, monospace); font-size: 0.9rem;">{{ opt.text }}</span>
                         </label>
-                        <label class="comp-option">
-                            <input type="radio" name="q2" value="b">
-                            <span>The total score of all enrollments</span>
-                        </label>
-                        <label class="comp-option">
-                            <input type="radio" name="q2" value="c">
-                            <span>The number of enrollments with score 85 or higher</span>
-                        </label>
-                        <label class="comp-option">
-                            <input type="radio" name="q2" value="d">
-                            <span>Course IDs of top scorers</span>
-                        </label>
-                    </div>
-
-                    <div style="margin-top: 1.5rem; display: flex; justify-content: space-between;">
-                        <button type="button" class="btn btn-outline" onclick="prevQuestion(2)">&larr; Previous</button>
-                        <button type="button" class="btn btn-primary" onclick="nextQuestion(2)">Next &rarr;</button>
+                        {% endfor %}
                     </div>
                 </div>
 
-                <!-- Question 3 -->
-                <div class="question-container" id="q3-container" style="display: none;">
-                    <h3 style="font-size: 1.1rem; font-weight: 600; color: #f8fafc; margin-bottom: 1rem;">
-                        3. Identify the filtering condition
-                    </h3>
-
-                    <!-- Native Styled Code Snippet Window -->
-                    <div class="comp-code-window">
-                        <div class="comp-code-bar">
-                            <span class="comp-dot red"></span>
-                            <span class="comp-dot yellow"></span>
-                            <span class="comp-dot green"></span>
-                            <span class="comp-tab">{% if language == 'sql' %}query.sql{% else %}solution.py{% endif %}</span>
-                        </div>
-                        <div class="comp-code-content">
-{% if language == 'sql' %}
-<div class="comp-line"><span class="line-no">1</span><span class="kw">SELECT</span> student_id, score</div>
-<div class="comp-line"><span class="line-no">2</span><span class="kw">FROM</span> Enrollments</div>
-<div class="comp-line"><span class="line-no">3</span><span class="kw">WHERE</span> score &gt;= 90</div>
-<div class="comp-line"><span class="line-no">4</span><span class="kw">ORDER BY</span> score <span class="kw">DESC</span>;</div>
-{% else %}
-<div class="comp-line"><span class="line-no">1</span>high_scores = [</div>
-<div class="comp-line"><span class="line-no">2</span>    {<span class="str">'id'</span>: e[<span class="str">'student_id'</span>], <span class="str">'score'</span>: e[<span class="str">'score'</span>]}</div>
-<div class="comp-line"><span class="line-no">3</span>    <span class="kw">for</span> e <span class="kw">in</span> enrollments</div>
-<div class="comp-line"><span class="line-no">4</span>    <span class="kw">if</span> e[<span class="str">'score'</span>] <span class="kw">is not</span> None <span class="kw">and</span> e[<span class="str">'score'</span>] &gt;= 90</div>
-<div class="comp-line"><span class="line-no">5</span>]</div>
-<div class="comp-line"><span class="line-no">6</span>high_scores.sort(key=<span class="kw">lambda</span> x: x[<span class="str">'score'</span>], reverse=True)</div>
-{% endif %}
-                        </div>
+                <!-- Action Button -->
+                <div style="margin-top: 2rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="font-size: 0.8rem; color: #64748b;">
+                        Item will auto-submit when the 3-minute timer reaches 00:00.
                     </div>
-
-                    <div class="radio-card-group" style="display: flex; flex-direction: column; gap: 10px; margin-top: 1.25rem;">
-                        <label class="comp-option">
-                            <input type="radio" name="q3" value="a" required>
-                            <span>Descending order</span>
-                        </label>
-                        <label class="comp-option">
-                            <input type="radio" name="q3" value="b">
-                            <span>Score &gt;= 90</span>
-                        </label>
-                        <label class="comp-option">
-                            <input type="radio" name="q3" value="c">
-                            <span>Selecting student_id and score</span>
-                        </label>
-                        <label class="comp-option">
-                            <input type="radio" name="q3" value="d">
-                            <span>Enrollments table</span>
-                        </label>
-                    </div>
-
-                    <div style="margin-top: 1.5rem; display: flex; justify-content: space-between;">
-                        <button type="button" class="btn btn-outline" onclick="prevQuestion(3)">&larr; Previous</button>
-                        <button type="submit" class="btn btn-success">Submit Assessment</button>
-                    </div>
+                    <button type="submit" id="submit-btn" class="btn btn-primary" style="padding: 0.75rem 1.75rem; font-weight: 600; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+                        {% if item_num == total_items %}
+                        <span>Submit &amp; Finish Assessment</span>
+                        {% else %}
+                        <span>Next Item &rarr;</span>
+                        {% endif %}
+                    </button>
                 </div>
 
             </form>
@@ -209,7 +145,7 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     overflow: hidden;
-    margin: 1rem 0 1.25rem 0;
+    margin: 1rem 0 1.5rem 0;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
 }
 
@@ -242,106 +178,120 @@
 
 .comp-code-content {
     padding: 1.25rem 1.5rem;
-    font-family: 'JetBrains Mono', 'Fira Code', monospace;
-    font-size: 0.95rem;
-    line-height: 1.7;
-    color: #e2e8f0;
     overflow-x: auto;
 }
-
-.comp-line {
-    display: flex;
-    gap: 1.25rem;
-    white-space: pre;
-}
-
-.line-no {
-    color: #475569;
-    user-select: none;
-    min-width: 18px;
-    text-align: right;
-    font-size: 0.85rem;
-}
-
-/* Syntax Highlighting */
-.kw { color: #818cf8; font-weight: 600; }
-.str { color: #34d399; }
 
 /* Radio Options */
 .comp-option {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 12px;
     padding: 12px 16px;
-    background: #0f1626;
+    background: #141b2c;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 8px;
     cursor: pointer;
     color: #cbd5e1;
     font-size: 0.92rem;
+    line-height: 1.5;
     transition: all 0.2s ease;
 }
 
 .comp-option:hover {
-    background: #141d33;
+    background: #1a233a;
     border-color: rgba(59, 130, 246, 0.4);
     color: #f8fafc;
 }
 
 .comp-option input[type="radio"] {
     accent-color: #3b82f6;
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
     cursor: pointer;
+    flex-shrink: 0;
 }
 
-.comp-option input[type="radio"]:checked + span {
+.comp-option input[type="radio"]:checked ~ .opt-text {
     color: #60a5fa;
     font-weight: 600;
+}
+
+.comp-option:has(input[type="radio"]:checked) {
+    background: rgba(59, 130, 246, 0.12);
+    border-color: #3b82f6;
 }
 </style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    function updateProgress(qNum) {
-        document.getElementById('current-q-num').textContent = qNum;
-        for (let i = 1; i <= 3; i++) {
-            const dot = document.getElementById('q-dot-' + i);
-            if (dot) {
-                dot.style.background = (i <= qNum) ? '#3b82f6' : 'rgba(255, 255, 255, 0.15)';
-            }
-        }
-    }
+(function() {
+    let remaining = {{ remaining_seconds }};
+    const startTime = Date.now();
+    const timerBox = document.getElementById('timer-box');
+    const timerDisplay = document.getElementById('countdown-display');
+    const form = document.getElementById('comp-form');
+    const timedOutInput = document.getElementById('timed_out_field');
+    const responseTimeInput = document.getElementById('response_time_field');
 
-    function nextQuestion(current) {
-        // Validate that current question has a selection
-        const selected = document.querySelector('input[name="q' + current + '"]:checked');
-        if (!selected) {
-            alert('Please select an answer before continuing.');
+    function updateTimer() {
+        if (remaining <= 0) {
+            timerDisplay.textContent = '00:00';
+            timerBox.style.color = '#ef4444';
+            timerBox.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+            timedOutInput.value = '1';
+            responseTimeInput.value = '180.0';
+            
+            // Remove required attribute on timeout so form can auto-submit cleanly
+            document.querySelectorAll('input[type="radio"]').forEach(r => r.removeAttribute('required'));
+            form.submit();
             return;
         }
 
-        document.getElementById('q' + current + '-container').style.display = 'none';
-        document.getElementById('q' + (current + 1) + '-container').style.display = 'block';
-        updateProgress(current + 1);
-    }
-    
-    function prevQuestion(current) {
-        document.getElementById('q' + current + '-container').style.display = 'none';
-        document.getElementById('q' + (current - 1) + '-container').style.display = 'block';
-        updateProgress(current - 1);
+        const mins = Math.floor(remaining / 60).toString().padStart(2, '0');
+        const secs = (remaining % 60).toString().padStart(2, '0');
+        timerDisplay.textContent = mins + ':' + secs;
+
+        if (remaining <= 30) {
+            timerBox.style.color = '#ef4444';
+            timerBox.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+        } else if (remaining <= 60) {
+            timerBox.style.color = '#f59e0b';
+            timerBox.style.borderColor = 'rgba(245, 158, 11, 0.5)';
+        }
+
+        remaining--;
     }
 
-    // Timer logic
-    const startTime = Date.now();
-    const timerElement = document.getElementById('elapsed-time');
-    
-    setInterval(function() {
-        const elapsed = Math.floor((Date.now() - startTime) / 1000);
-        const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
-        const seconds = (elapsed % 60).toString().padStart(2, '0');
-        timerElement.textContent = minutes + ':' + seconds;
+    // Run immediately and every 1s
+    updateTimer();
+    const interval = setInterval(function() {
+        if (remaining < 0) {
+            clearInterval(interval);
+        } else {
+            updateTimer();
+        }
     }, 1000);
+
+    // Form submit handler
+    form.addEventListener('submit', function(e) {
+        if (timedOutInput.value === '1') {
+            return; // allow submit on timeout
+        }
+
+        const expSelected = document.querySelector('input[name="explanation_choice"]:checked');
+        const predSelected = document.querySelector('input[name="prediction_choice"]:checked');
+
+        if (!expSelected || !predSelected) {
+            e.preventDefault();
+            alert('Please select an option for both Part 1 and Part 2 before submitting.');
+            return;
+        }
+
+        const elapsedSecs = ((Date.now() - startTime) / 1000).toFixed(1);
+        responseTimeInput.value = Math.min(180.0, parseFloat(elapsedSecs));
+    });
+})();
 </script>
 {% endblock %}

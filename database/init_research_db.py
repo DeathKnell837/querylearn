@@ -70,16 +70,19 @@ def init_research_db(db_path):
         assistance TEXT,
         FOREIGN KEY (session_id) REFERENCES sessions(id)
     );
-
     CREATE TABLE IF NOT EXISTS comprehension_responses (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        study_id TEXT,
         session_id INTEGER,
         item_id TEXT,
         language TEXT,
+        form TEXT,
         explanation_score REAL,
         prediction_score REAL,
         condition_score REAL,
         response_time REAL,
+        response_time_seconds REAL,
+        timed_out INTEGER DEFAULT 0,
         learner_answer TEXT,
         FOREIGN KEY (session_id) REFERENCES sessions(id)
     );
@@ -124,7 +127,33 @@ def init_research_db(db_path):
         
     conn.commit()
     conn.close()
+    migrate_research_db(db_path)
     print(f"Research DB initialized at {db_path}")
+
+def migrate_research_db(db_path):
+    """Safely adds missing columns to research.db without affecting existing data."""
+    if not os.path.exists(db_path):
+        return
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    try:
+        cursor.execute("PRAGMA table_info(comprehension_responses)")
+        existing_cols = {col[1] for col in cursor.fetchall()}
+        if existing_cols:
+            if 'study_id' not in existing_cols:
+                cursor.execute("ALTER TABLE comprehension_responses ADD COLUMN study_id TEXT")
+            if 'form' not in existing_cols:
+                cursor.execute("ALTER TABLE comprehension_responses ADD COLUMN form TEXT")
+            if 'response_time_seconds' not in existing_cols:
+                cursor.execute("ALTER TABLE comprehension_responses ADD COLUMN response_time_seconds REAL")
+            if 'timed_out' not in existing_cols:
+                cursor.execute("ALTER TABLE comprehension_responses ADD COLUMN timed_out INTEGER DEFAULT 0")
+            conn.commit()
+    except Exception as e:
+        print(f"Migration notice: {e}")
+    finally:
+        conn.close()
 
 if __name__ == "__main__":
     init_research_db(os.path.join(os.path.dirname(__file__), "research.db"))
+

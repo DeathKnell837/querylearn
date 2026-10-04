@@ -67,15 +67,23 @@ def export_survey_csv(db_path):
     """)
 
 def export_comprehension_csv(db_path):
-    """Export comprehension responses with study_id."""
+    """Export per-item comprehension responses with study_id, session_id, item_id, language, form, scores, and response time."""
     return get_csv_string_from_query(db_path, """
-        SELECT p.study_id, cr.language, cr.item_id,
-               cr.explanation_score, cr.prediction_score, cr.condition_score,
-               cr.response_time, cr.learner_answer
+        SELECT 
+            COALESCE(cr.study_id, p.study_id) AS study_id,
+            cr.session_id,
+            cr.item_id,
+            cr.language,
+            COALESCE(cr.form, s.form) AS form,
+            COALESCE(cr.explanation_score, 0) AS explanation_score,
+            COALESCE(cr.prediction_score, 0) AS prediction_score,
+            (COALESCE(cr.explanation_score, 0) + COALESCE(cr.prediction_score, 0)) AS total_score,
+            COALESCE(cr.response_time_seconds, cr.response_time, 0) AS response_time_seconds,
+            COALESCE(cr.timed_out, 0) AS timed_out
         FROM comprehension_responses cr
         JOIN sessions s ON cr.session_id = s.id
         JOIN participants p ON s.participant_id = p.id
-        ORDER BY p.study_id ASC, cr.language ASC
+        ORDER BY p.study_id ASC, s.id ASC, cr.item_id ASC
     """)
 
 def export_all_csv(db_path):

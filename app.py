@@ -15,11 +15,13 @@ def create_app():
     app.config.from_object(Config)
 
     # --- Initialize databases if they don't exist ---
-    from database.init_research_db import init_research_db
+    from database.init_research_db import init_research_db, migrate_research_db
     from database.init_experiment_db import init_experiment_db
 
     if not os.path.exists(app.config['RESEARCH_DB']):
         init_research_db(app.config['RESEARCH_DB'])
+    else:
+        migrate_research_db(app.config['RESEARCH_DB'])
     if not os.path.exists(app.config['EXPERIMENT_A_DB']):
         init_experiment_db(app.config['EXPERIMENT_A_DB'], 'A')
     if not os.path.exists(app.config['EXPERIMENT_B_DB']):

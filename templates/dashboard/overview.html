@@ -138,6 +138,26 @@
                         </div>
                     </div>
 
+                    <!-- Tile 5: Median Comprehension Score -->
+                    <div style="background: #0d1220; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem;">
+                        <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.35rem; font-weight: 600;">Median Comprehension Score</div>
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                            <span style="font-size: 1.15rem; font-weight: 700; color: #38bdf8;">
+                                {% if m.sql_median_comp is not none %}{{ m.sql_median_comp }} / 18{% else %}-- / 18{% endif %}
+                            </span>
+                            <span style="font-size: 0.8rem; color: #64748b; font-weight: 600;">SQL</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 0.25rem;">
+                            <span style="font-size: 1.15rem; font-weight: 700; color: #c084fc;">
+                                {% if m.python_median_comp is not none %}{{ m.python_median_comp }} / 18{% else %}-- / 18{% endif %}
+                            </span>
+                            <span style="font-size: 0.8rem; color: #64748b; font-weight: 600;">Python</span>
+                        </div>
+                        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.35rem;">
+                            Out of 18 pts (excludes legacy 3-item pilot data)
+                        </div>
+                    </div>
+
                 </div>
 
                 <div style="display: flex; justify-content: flex-end;">

@@ -1,12 +1,19 @@
 import sqlite3
 import datetime
 from functools import wraps
-from flask import Blueprint, render_template, redirect, url_for, session, request, jsonify, flash
+from flask import Blueprint, render_template, redirect, url_for, session, request, jsonify, flash, current_app
 from services.task_catalog import get_task, SCHEMA_METADATA
 from services.sequence_manager import get_sequence_details
+from services.comprehension_items import get_item, grade_item
 from config import Config
 
 experiment_bp = Blueprint('experiment', __name__, url_prefix='/experiment')
+
+def get_research_db_path():
+    try:
+        return current_app.config.get('RESEARCH_DB', Config.RESEARCH_DB)
+    except RuntimeError:
+        return Config.RESEARCH_DB
 
 
 def participant_required(f):
@@ -130,7 +137,7 @@ def task(language, task_id):
     remaining_seconds = Config.TASK_TIMEOUT_SECONDS
     if session_id:
         try:
-            conn = sqlite3.connect(Config.RESEARCH_DB)
+            conn = sqlite3.connect(get_research_db_path())
             cursor = conn.cursor()
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS task_timers (
@@ -175,41 +182,129 @@ def task(language, task_id):
 @experiment_bp.route('/comprehension/<language>', methods=['GET', 'POST'])
 @participant_required
 def comprehension(language):
-    """Item 5: Comprehension questions assessed after condition tasks."""
+    """Comprehension assessment: 6 items (C1 to C6), one per task family."""
     # Ensure participant completed all 6 tasks before comprehension
     if session.get('highest_unlocked_task', 1) < 7:
         task_id = session.get('highest_unlocked_task', 1)
         return redirect(url_for('experiment.task', language=language, task_id=min(6, task_id)))
 
-    if request.method == 'POST':
-        sess_id = session.get('current_session_id')
-        q1 = request.form.get('q1', '')
-        q2 = request.form.get('q2', '')
-        q3 = request.form.get('q3', '')
+    sess_id = session.get('current_session_id')
+    if not sess_id:
+        step = session.get('current_condition_step', 1)
+        sess_id = session.get(f'session_{step}_id')
+        session['current_session_id'] = sess_id
 
-        # Grade questions (q1 correct is 'b', q2 is 'c', q3 is 'b')
-        score_1 = 1.0 if q1 == 'b' else 0.0
-        score_2 = 1.0 if q2 == 'c' else 0.0
-        score_3 = 1.0 if q3 == 'b' else 0.0
+    current_form = session.get('current_form', 'A')
+    study_id = session.get('study_id', 'UNKNOWN')
 
-        if sess_id:
-            try:
-                conn = sqlite3.connect(Config.RESEARCH_DB)
-                c = conn.cursor()
-                c.execute("""
-                    INSERT INTO comprehension_responses
-                    (session_id, item_id, language, explanation_score, prediction_score, condition_score, learner_answer)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
-                """, (sess_id, f"comp_{language}", language, score_1, score_2, score_3, f"q1:{q1},q2:{q2},q3:{q3}"))
-                conn.commit()
-                conn.close()
-            except Exception:
-                pass
+    # Query completed comprehension items for this session
+    completed_item_ids = []
+    if sess_id:
+        try:
+            conn = sqlite3.connect(get_research_db_path())
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT item_id FROM comprehension_responses WHERE session_id = ? AND item_id IN ('C1','C2','C3','C4','C5','C6') ORDER BY id ASC",
+                (sess_id,)
+            )
+            completed_item_ids = [r[0] for r in cursor.fetchall()]
+            conn.close()
+        except Exception:
+            pass
 
+    # If all 6 items completed, advance to survey
+    if len(completed_item_ids) >= 6:
         session['comprehension_completed'] = True
         return redirect(url_for('experiment.survey', language=language))
 
-    return render_template('comprehension.html', language=language)
+    current_item_num = len(completed_item_ids) + 1
+    current_item_id = f"C{current_item_num}"
+
+    timer_key = f"comp_{sess_id}_{current_item_id}_start"
+    started_str = session.get(timer_key)
+    now = datetime.datetime.now()
+    if not started_str:
+        started_str = now.isoformat()
+        session[timer_key] = started_str
+        remaining_seconds = 180
+    else:
+        try:
+            started = datetime.datetime.fromisoformat(started_str)
+            elapsed = (now - started).total_seconds()
+            remaining_seconds = max(0, int(180 - elapsed))
+        except Exception:
+            remaining_seconds = 180
+
+    if request.method == 'POST':
+        submitted_item_id = request.form.get('item_id', current_item_id)
+        exp_choice = request.form.get('explanation_choice', '')
+        pred_choice = request.form.get('prediction_choice', '')
+        is_timed_out = 1 if request.form.get('timed_out') in ('1', 'true', 'True') else 0
+        resp_time_param = request.form.get('response_time_seconds')
+
+        # Calculate response time
+        try:
+            started = datetime.datetime.fromisoformat(session.get(timer_key, now.isoformat()))
+            server_elapsed = round((now - started).total_seconds(), 1)
+        except Exception:
+            server_elapsed = 0.0
+
+        try:
+            resp_time = float(resp_time_param) if resp_time_param else server_elapsed
+        except (ValueError, TypeError):
+            resp_time = server_elapsed
+
+        resp_time = max(0.0, min(180.0, resp_time))
+        if resp_time >= 180.0 or is_timed_out:
+            is_timed_out = 1
+
+        # Grade item: 2/1/0 for explanation, 1/0 for prediction
+        exp_score, pred_score, total_score = grade_item(current_form, submitted_item_id, exp_choice, pred_choice)
+
+        if sess_id:
+            try:
+                conn = sqlite3.connect(get_research_db_path())
+                c = conn.cursor()
+                # Check for existing row to prevent duplicate insert on double submit
+                c.execute("SELECT id FROM comprehension_responses WHERE session_id = ? AND item_id = ?", (sess_id, submitted_item_id))
+                if not c.fetchone():
+                    c.execute("""
+                        INSERT INTO comprehension_responses
+                        (study_id, session_id, item_id, language, form, explanation_score, prediction_score, condition_score, response_time, response_time_seconds, timed_out, learner_answer)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (
+                        study_id, sess_id, submitted_item_id, language, current_form,
+                        exp_score, pred_score, total_score,
+                        resp_time, resp_time, is_timed_out,
+                        f"exp:{exp_choice},pred:{pred_choice}"
+                    ))
+                    conn.commit()
+                conn.close()
+            except Exception as e:
+                print(f"Error saving comprehension response: {e}")
+
+        # Clear timer for submitted item
+        session.pop(timer_key, None)
+
+        # Check if condition complete
+        if submitted_item_id == 'C6' or current_item_num >= 6:
+            session['comprehension_completed'] = True
+            return redirect(url_for('experiment.survey', language=language))
+        else:
+            return redirect(url_for('experiment.comprehension', language=language))
+
+    # GET request: load current item definition
+    item_data = get_item(current_form, current_item_id, randomize=True, seed=f"{study_id}_{current_item_id}")
+
+    return render_template(
+        'comprehension.html',
+        language=language,
+        current_form=current_form,
+        item=item_data,
+        item_num=current_item_num,
+        total_items=6,
+        remaining_seconds=remaining_seconds
+    )
 
 
 @experiment_bp.route('/survey/<language>', methods=['GET', 'POST'])
@@ -246,7 +341,7 @@ def survey(language):
 
         if sess_id:
             try:
-                conn = sqlite3.connect(Config.RESEARCH_DB)
+                conn = sqlite3.connect(get_research_db_path())
                 c = conn.cursor()
                 c.execute("""
                     INSERT INTO survey_responses 

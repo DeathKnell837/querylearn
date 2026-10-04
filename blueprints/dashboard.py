@@ -1,13 +1,19 @@
 import sqlite3
 import statistics
 import time
-from flask import Blueprint, render_template, redirect, url_for, session, Response, request, flash, jsonify
+from flask import Blueprint, render_template, redirect, url_for, session, Response, request, flash, jsonify, current_app
 from config import Config
 from services.export_service import export_participants_csv, export_results_csv, export_survey_csv, export_comprehension_csv, export_all_csv
 from services.pilot_data_seeder import seed_pilot_data
 from services.benchmark_runner import run_benchmark
 
 dashboard_bp = Blueprint('dashboard', __name__, url_prefix='/dashboard')
+
+def get_research_db_path():
+    try:
+        return current_app.config.get('RESEARCH_DB', Config.RESEARCH_DB)
+    except RuntimeError:
+        return Config.RESEARCH_DB
 
 def require_researcher(f):
     def wrapper(*args, **kwargs):
@@ -20,7 +26,7 @@ def require_researcher(f):
 @dashboard_bp.route('/')
 @require_researcher
 def overview():
-    conn = sqlite3.connect(Config.RESEARCH_DB)
+    conn = sqlite3.connect(get_research_db_path())
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
@@ -143,6 +149,28 @@ def overview():
             task_breakdown[tid][f"{lang}_time"] = med_time
             task_breakdown[tid][f"{lang}_attempts"] = avg_att
 
+    # 6. Comprehension Score Medians (out of 18)
+    # Exclude legacy 3-item pilot data by requiring complete 6-item protocol (C1 to C6)
+    cursor.execute("""
+        SELECT 
+            s.language,
+            cr.session_id,
+            SUM(COALESCE(cr.explanation_score, 0) + COALESCE(cr.prediction_score, 0)) AS total_score,
+            COUNT(cr.id) AS item_count
+        FROM comprehension_responses cr
+        JOIN sessions s ON cr.session_id = s.id
+        WHERE cr.item_id IN ('C1', 'C2', 'C3', 'C4', 'C5', 'C6')
+        GROUP BY cr.session_id, s.language
+        HAVING COUNT(cr.id) = 6
+    """)
+    comp_rows = cursor.fetchall()
+    sql_comp_scores = [r['total_score'] for r in comp_rows if r['language'] == 'sql']
+    py_comp_scores = [r['total_score'] for r in comp_rows if r['language'] == 'python']
+
+    sql_median_comp = round(statistics.median(sql_comp_scores), 1) if sql_comp_scores else None
+    python_median_comp = round(statistics.median(py_comp_scores), 1) if py_comp_scores else None
+    comp_session_count = len(comp_rows)
+
     conn.close()
 
     metrics = {
@@ -154,6 +182,9 @@ def overview():
         "paired_task_count": paired_task_count,
         "sql_ct_per_hour": sql_ct_per_hour,
         "python_ct_per_hour": py_ct_per_hour,
+        "sql_median_comp": sql_median_comp,
+        "python_median_comp": python_median_comp,
+        "comp_session_count": comp_session_count,
         "tasks": list(task_breakdown.values())
     }
 
@@ -162,7 +193,7 @@ def overview():
 @dashboard_bp.route('/participants')
 @require_researcher
 def participants():
-    conn = sqlite3.connect(Config.RESEARCH_DB)
+    conn = sqlite3.connect(get_research_db_path())
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM participants ORDER BY id DESC")
@@ -183,7 +214,7 @@ def results():
     task = request.args.get('task', '').strip().upper()
     search = request.args.get('search', '').strip()
 
-    conn = sqlite3.connect(Config.RESEARCH_DB)
+    conn = sqlite3.connect(get_research_db_path())
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
@@ -273,7 +304,7 @@ def results():
 @require_researcher
 def charts():
     """Comparative Analytics & Benchmarks combined page — uses medians."""
-    conn = sqlite3.connect(Config.RESEARCH_DB)
+    conn = sqlite3.connect(get_research_db_path())
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
@@ -390,7 +421,7 @@ res = res[:3]
         py_res = run_benchmark("T2", "python", py_ref, sizes=[1000, 10000, 100000])
 
         # Save to research database
-        conn = sqlite3.connect(Config.RESEARCH_DB)
+        conn = sqlite3.connect(get_research_db_path())
         cursor = conn.cursor()
         for r in sql_res:
             cursor.execute("""
@@ -420,20 +451,20 @@ def seed_data():
 @require_researcher
 def export(type):
     if type == 'participants':
-        csv_data = export_participants_csv(Config.RESEARCH_DB)
+        csv_data = export_participants_csv(get_research_db_path())
         return Response(csv_data, mimetype="text/csv", headers={"Content-Disposition": "attachment;filename=participants_telemetry.csv"})
     elif type == 'results':
-        csv_data = export_results_csv(Config.RESEARCH_DB)
+        csv_data = export_results_csv(get_research_db_path())
         return Response(csv_data, mimetype="text/csv", headers={"Content-Disposition": "attachment;filename=task_results_telemetry.csv"})
     elif type == 'survey':
-        csv_data = export_survey_csv(Config.RESEARCH_DB)
+        csv_data = export_survey_csv(get_research_db_path())
         return Response(csv_data, mimetype="text/csv", headers={"Content-Disposition": "attachment;filename=survey_responses.csv"})
     elif type == 'comprehension':
-        csv_data = export_comprehension_csv(Config.RESEARCH_DB)
+        csv_data = export_comprehension_csv(get_research_db_path())
         return Response(csv_data, mimetype="text/csv", headers={"Content-Disposition": "attachment;filename=comprehension_responses.csv"})
     elif type == 'all':
-        zip_bytes = export_all_csv(Config.RESEARCH_DB)
+        zip_bytes = export_all_csv(get_research_db_path())
         return Response(zip_bytes, mimetype="application/zip", headers={"Content-Disposition": "attachment;filename=querylearn_case_study_dataset.zip"})
     else:
-        csv_data = export_participants_csv(Config.RESEARCH_DB)
+        csv_data = export_participants_csv(get_research_db_path())
         return Response(csv_data, mimetype="text/csv", headers={"Content-Disposition": "attachment;filename=participants.csv"})
