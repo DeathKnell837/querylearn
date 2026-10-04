@@ -57,12 +57,13 @@
                 </div>
             </div>
 
-            <!-- Topbar Right Profile -->
+            <!-- Topbar Right -->
             <div class="ws-topbar-right">
-                <button class="ws-bell-btn" title="Notifications">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                </button>
-                <div class="ws-avatar">P</div>
+                {% if study_id or session.get('study_id') %}
+                    <span style="font-size: 0.8rem; font-weight: 600; color: #94a3b8; background: rgba(255,255,255,0.06); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);">
+                        ID: {{ study_id or session.get('study_id') }}
+                    </span>
+                {% endif %}
             </div>
         </header>
 
@@ -70,16 +71,43 @@
         <main class="ws-body">
             <!-- Columns: Left Task Card & Right Code Editor -->
             <div class="ws-columns">
-                <!-- Left Task Card (Clean Crisp White Surface) -->
+                <!-- Left Task Card -->
                 <div class="ws-task-card">
-                    <h2 class="ws-task-title">Task {{ current_task_num }} of 6: {{ task.title }}</h2>
-                    <p class="ws-task-intro">{{ task.instruction }}</p>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem;">
+                        <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #8b5cf6; background: rgba(139,92,246,0.12); padding: 3px 8px; border-radius: 4px;">Python Condition</span>
+                        <span style="font-size: 0.8rem; color: #64748b;">Task {{ current_task_num }} of 6</span>
+                    </div>
 
-                    <ul class="ws-task-bullets">
-                        {% for req in task.requirements %}
-                            <li>{{ req }}</li>
-                        {% endfor %}
-                    </ul>
+                    <h2 class="ws-task-title" style="margin-bottom: 0.75rem; font-size: 1.25rem;">{{ task.title }}</h2>
+                    
+                    <!-- Goal Description -->
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.85rem;">
+                        <div style="font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: #94a3b8; margin-bottom: 0.25rem; letter-spacing: 0.04em;">Task Goal</div>
+                        <p class="ws-task-intro" style="margin: 0; color: #f8fafc; font-size: 0.92rem; line-height: 1.5;">{{ task.instruction }}</p>
+                    </div>
+
+                    <!-- Requirements -->
+                    <div style="margin-bottom: 0.85rem;">
+                        <div style="font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: #94a3b8; margin-bottom: 0.4rem; letter-spacing: 0.04em;">Required Output</div>
+                        <ul class="ws-task-bullets" style="margin: 0; padding-left: 1.2rem;">
+                            {% for req in task.requirements %}
+                                <li style="margin-bottom: 0.3rem; color: #cbd5e1; font-size: 0.85rem;">{{ req }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <!-- Clear Step-by-Step Instructions -->
+                    <div style="background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.22); border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem;">
+                        <div style="font-weight: 700; font-size: 0.8rem; color: #a78bfa; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem; text-transform: uppercase; letter-spacing: 0.04em;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            How to Complete This Task:
+                        </div>
+                        <ol style="margin: 0; padding-left: 1.2rem; font-size: 0.82rem; color: #cbd5e1; line-height: 1.55;">
+                            <li><strong style="color: #ffffff;">Write:</strong> Type your procedural Python code in the editor on the right using the pre-injected variables (<code>students</code>, <code>courses</code>, <code>enrollments</code>).</li>
+                            <li><strong style="color: #34d399;">Test (Run Python):</strong> Click the green <strong>Run Python</strong> button (or press Ctrl+Enter) to preview your console output below.</li>
+                            <li><strong style="color: #8b5cf6;">Submit:</strong> When your code prints the requested tuples/records, click the blue <strong>Submit Answer</strong> button to verify and proceed.</li>
+                        </ol>
+                    </div>
 
                     <!-- Collapsible Table Schema -->
                     <div class="ws-schema-box">
@@ -124,7 +152,7 @@
                         </div>
                     </div>
 
-                    <div class="ws-editor-subbar">std &gt; = python3</div>
+                    <div class="ws-editor-subbar">Python Editor &mdash; Write your procedural code below</div>
 
                     <div class="ws-editor-textarea">
                         <textarea id="code-editor">{{ task.python_starter }}</textarea>
