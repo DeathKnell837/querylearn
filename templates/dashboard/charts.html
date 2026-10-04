@@ -5,11 +5,125 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visual Analytics — QueryLearn Case Study</title>
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 1024px) {
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .analytics-card {
+            background: #131929;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .analytics-card:hover {
+            border-color: rgba(99, 102, 241, 0.25);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+        }
+        .analytics-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.25rem;
+        }
+        .analytics-card-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #f8fafc;
+            margin: 0 0 0.25rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .analytics-card-sub {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin: 0;
+        }
+        .analytics-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.3rem 0.65rem;
+            border-radius: 9999px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        .pill-green {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+        }
+        .pill-blue {
+            background: rgba(14, 165, 233, 0.12);
+            border: 1px solid rgba(14, 165, 233, 0.3);
+            color: #38bdf8;
+        }
+        .pill-purple {
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: #c084fc;
+        }
+        .pill-amber {
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #fbbf24;
+        }
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        @media (max-width: 1024px) {
+            .kpi-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        .kpi-box {
+            background: #111726;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 12px;
+            padding: 1.15rem 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+        .kpi-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .kpi-val {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #f8fafc;
+            line-height: 1.1;
+        }
+        .kpi-desc {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+    </style>
 </head>
 <body>
 
@@ -39,6 +153,10 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
                 <span>Task Telemetry</span>
             </a>
+            <a href="{{ url_for('dashboard.charts') }}" class="db-nav-link active">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                <span>Visual Analytics</span>
+            </a>
             <a href="{{ url_for('dashboard.benchmarks') }}" class="db-nav-link">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                 <span>Engine Benchmarks</span>
@@ -57,63 +175,150 @@
     </aside>
 
     <!-- Main Viewport -->
-    <main class="db-main">
+    <main class="db-main" style="padding: 1.5rem 2rem;">
         <!-- Topbar -->
-        <header class="db-topbar">
-            <h1 class="db-title">Visual Analytics</h1>
+        <header class="db-topbar" style="margin-bottom: 1.5rem;">
+            <div>
+                <h1 class="db-title" style="margin-bottom: 0.25rem;">Visual Analytics</h1>
+                <p style="margin: 0; font-size: 0.86rem; color: #94a3b8;">
+                    Comparative telemetry & productivity metrics between declarative SQL and procedural Python
+                </p>
+            </div>
 
             <div class="db-topbar-tools">
-                <div class="db-user">
-                    <div class="db-user-avatar">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                    </div>
-                </div>
+                <span class="analytics-pill pill-blue">
+                    <span style="width: 7px; height: 7px; border-radius: 50%; background: #38bdf8; display: inline-block;"></span>
+                    Telemetry Live
+                </span>
             </div>
         </header>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
-            <div class="db-editor-card" style="padding: 1.5rem;">
-                <h3 style="color: white; margin-bottom: 1rem;">Success Rate Comparison</h3>
+        <!-- KPI Summary Strip -->
+        <div class="kpi-row">
+            <div class="kpi-box">
+                <span class="kpi-label">SQL Success Rate</span>
+                <span class="kpi-val" style="color: #10b981;">{{ m.sql_success_rate }}%</span>
+                <span class="kpi-desc">Across all evaluated tasks</span>
+            </div>
+            <div class="kpi-box">
+                <span class="kpi-label">Python Success Rate</span>
+                <span class="kpi-val" style="color: #c084fc;">{{ m.python_success_rate }}%</span>
+                <span class="kpi-desc">Across all evaluated tasks</span>
+            </div>
+            <div class="kpi-box">
+                <span class="kpi-label">SQL Avg Duration</span>
+                <span class="kpi-val" style="color: #38bdf8;">{{ m.sql_avg_time }}s</span>
+                <span class="kpi-desc">vs Python {{ m.python_avg_time }}s</span>
+            </div>
+            <div class="kpi-box">
+                <span class="kpi-label">Average Attempts</span>
+                <span class="kpi-val" style="color: #fbbf24;">{{ m.sql_avg_attempts }}</span>
+                <span class="kpi-desc">SQL retries vs Python {{ m.python_avg_attempts }}</span>
+            </div>
+        </div>
+
+        <!-- 2x2 Analytics Grid -->
+        <div class="analytics-grid">
+            
+            <!-- Chart 1: Success Rate Comparison -->
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3 class="analytics-card-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            Task Success Rate Comparison
+                        </h3>
+                        <p class="analytics-card-sub">Percentage of correct submissions per task (T1 &ndash; T6)</p>
+                    </div>
+                    <span class="analytics-pill pill-green">
+                        {% if m.sql_success_rate >= m.python_success_rate %}
+                            SQL +{{ (m.sql_success_rate - m.python_success_rate)|round(1) }}%
+                        {% else %}
+                            Python +{{ (m.python_success_rate - m.sql_success_rate)|round(1) }}%
+                        {% endif %}
+                    </span>
+                </div>
                 <div style="position: relative; height: 260px; width: 100%;">
                     <canvas id="successChart"></canvas>
                 </div>
             </div>
             
-            <div class="db-editor-card" style="padding: 1.5rem;">
-                <h3 style="color: white; margin-bottom: 1rem;">Mean Duration Comparison</h3>
+            <!-- Chart 2: Mean Duration Comparison -->
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3 class="analytics-card-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            Mean Completion Duration
+                        </h3>
+                        <p class="analytics-card-sub">Average elapsed seconds spent solving each task</p>
+                    </div>
+                    <span class="analytics-pill pill-blue">Lower is Faster</span>
+                </div>
                 <div style="position: relative; height: 260px; width: 100%;">
                     <canvas id="durationChart"></canvas>
                 </div>
             </div>
             
-            <div class="db-editor-card" style="padding: 1.5rem;">
-                <h3 style="color: white; margin-bottom: 1rem;">Overall Success Rate</h3>
+            <!-- Chart 3: Overall Cohort Success Share -->
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3 class="analytics-card-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 10 10"></path></svg>
+                            Overall Accuracy Distribution
+                        </h3>
+                        <p class="analytics-card-sub">Total correct outcomes: SQL vs Python</p>
+                    </div>
+                    <span class="analytics-pill pill-purple">Cohort Aggregate</span>
+                </div>
                 <div style="position: relative; height: 260px; width: 100%;">
                     <canvas id="overallSuccessChart"></canvas>
                 </div>
             </div>
             
-            <div class="db-editor-card" style="padding: 1.5rem;">
-                <h3 style="color: white; margin-bottom: 1rem;">Attempt Distribution</h3>
+            <!-- Chart 4: Attempt Distribution -->
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3 class="analytics-card-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+                            Attempt & Debugging Distribution
+                        </h3>
+                        <p class="analytics-card-sub">Average attempts required before reaching solution</p>
+                    </div>
+                    <span class="analytics-pill pill-amber">Error Overhead</span>
+                </div>
                 <div style="position: relative; height: 260px; width: 100%;">
                     <canvas id="attemptChart"></canvas>
                 </div>
             </div>
         </div>
         
-        <p style="text-align: center; color: #64748b; font-size: 0.9rem;">Charts render from live database telemetry</p>
+        <p style="text-align: center; color: #475569; font-size: 0.82rem; margin-top: 1rem;">
+            &bull; Telemetry rendered in real-time from participant experiment sessions &bull;
+        </p>
 
     </main>
 </div>
 
 <script>
+    // Global Chart.js styling
     Chart.defaults.color = '#94a3b8';
-    Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.font.size = 12;
 
     const tasks = {{ m.tasks | tojson }};
     const labels = tasks.map(t => t.task_id);
     
-    // 1. Success Rate Comparison
+    // Shared grid options
+    const gridOptions = {
+        color: 'rgba(255, 255, 255, 0.05)',
+        tickColor: 'transparent',
+        drawBorder: false
+    };
+
+    // 1. Success Rate Comparison (Emerald Cyan vs Electric Violet)
     new Chart(document.getElementById('successChart'), {
         type: 'bar',
         data: {
@@ -122,54 +327,126 @@
                 {
                     label: 'SQL Success (%)',
                     data: tasks.map(t => t.sql_success || 0),
-                    backgroundColor: '#3b82f6'
+                    backgroundColor: '#10b981',
+                    hoverBackgroundColor: '#059669',
+                    borderRadius: 6,
+                    borderSkipped: false
                 },
                 {
                     label: 'Python Success (%)',
                     data: tasks.map(t => t.python_success || 0),
-                    backgroundColor: '#8b5cf6'
+                    backgroundColor: '#8b5cf6',
+                    hoverBackgroundColor: '#7c3aed',
+                    borderRadius: 6,
+                    borderSkipped: false
                 }
             ]
         },
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 16 }
+                },
+                tooltip: {
+                    backgroundColor: '#0b0f19',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1,
+                    padding: 10,
+                    callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw}%` }
+                }
+            },
+            scales: {
+                x: { grid: { display: false } },
+                y: { beginAtZero: true, max: 100, grid: gridOptions, ticks: { callback: v => v + '%' } }
+            }
+        }
     });
 
-    // 2. Mean Duration Comparison
+    // 2. Mean Duration Comparison (Sky Blue vs Sunset Amber)
     new Chart(document.getElementById('durationChart'), {
         type: 'bar',
         data: {
             labels: labels,
             datasets: [
                 {
-                    label: 'SQL Time (s)',
+                    label: 'SQL Duration (s)',
                     data: tasks.map(t => t.sql_time || 0),
-                    backgroundColor: '#3b82f6'
+                    backgroundColor: '#0ea5e9',
+                    hoverBackgroundColor: '#0284c7',
+                    borderRadius: 6,
+                    borderSkipped: false
                 },
                 {
-                    label: 'Python Time (s)',
+                    label: 'Python Duration (s)',
                     data: tasks.map(t => t.python_time || 0),
-                    backgroundColor: '#8b5cf6'
+                    backgroundColor: '#f59e0b',
+                    hoverBackgroundColor: '#d97706',
+                    borderRadius: 6,
+                    borderSkipped: false
                 }
             ]
         },
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 16 }
+                },
+                tooltip: {
+                    backgroundColor: '#0b0f19',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1,
+                    padding: 10,
+                    callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw}s` }
+                }
+            },
+            scales: {
+                x: { grid: { display: false } },
+                y: { beginAtZero: true, grid: gridOptions, ticks: { callback: v => v + 's' } }
+            }
+        }
     });
     
-    // 3. Overall Success Rate
+    // 3. Overall Success Rate (Doughnut with Vibrant Rings)
     new Chart(document.getElementById('overallSuccessChart'), {
         type: 'doughnut',
         data: {
-            labels: ['SQL', 'Python'],
+            labels: ['SQL Success', 'Python Success'],
             datasets: [{
                 data: [{{ m.sql_success_rate }}, {{ m.python_success_rate }}],
-                backgroundColor: ['#3b82f6', '#8b5cf6'],
-                borderWidth: 0
+                backgroundColor: ['#06b6d4', '#d946ef'],
+                hoverBackgroundColor: ['#0891b2', '#c026d3'],
+                borderWidth: 0,
+                borderRadius: 6,
+                spacing: 5
             }]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '72%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 16 }
+                },
+                tooltip: {
+                    backgroundColor: '#0b0f19',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1,
+                    padding: 10,
+                    callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}%` }
+                }
+            }
+        }
     });
 
-    // 4. Attempt Distribution
+    // 4. Attempt Distribution (Teal vs Coral Rose)
     new Chart(document.getElementById('attemptChart'), {
         type: 'bar',
         data: {
@@ -178,16 +455,42 @@
                 {
                     label: 'SQL Attempts',
                     data: tasks.map(t => t.sql_attempts || 0),
-                    backgroundColor: '#3b82f6'
+                    backgroundColor: '#14b8a6',
+                    hoverBackgroundColor: '#0d9488',
+                    borderRadius: 6,
+                    borderSkipped: false
                 },
                 {
                     label: 'Python Attempts',
                     data: tasks.map(t => t.python_attempts || 0),
-                    backgroundColor: '#8b5cf6'
+                    backgroundColor: '#f43f5e',
+                    hoverBackgroundColor: '#e11d48',
+                    borderRadius: 6,
+                    borderSkipped: false
                 }
             ]
         },
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 16 }
+                },
+                tooltip: {
+                    backgroundColor: '#0b0f19',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1,
+                    padding: 10,
+                    callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw} attempts` }
+                }
+            },
+            scales: {
+                x: { grid: { display: false } },
+                y: { beginAtZero: true, grid: gridOptions, ticks: { stepSize: 1 } }
+            }
+        }
     });
 </script>
 

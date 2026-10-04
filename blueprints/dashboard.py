@@ -170,19 +170,28 @@ def charts():
     # Aggregate stats
     cursor.execute("""
         SELECT s.language,
-            ROUND(AVG(CASE WHEN r.success = 1 THEN 100.0 ELSE 0.0 END), 1) as success_rate
+            ROUND(AVG(CASE WHEN r.success = 1 THEN 100.0 ELSE 0.0 END), 1) as success_rate,
+            ROUND(AVG(r.elapsed_seconds), 1) as avg_time,
+            ROUND(AVG(r.attempt_count), 2) as avg_attempts
         FROM task_results r
         JOIN sessions s ON r.session_id = s.id
         GROUP BY s.language
     """)
-    lang_agg = {row['language']: row['success_rate'] for row in cursor.fetchall()}
+    lang_stats = {row['language']: dict(row) for row in cursor.fetchall()}
 
     conn.close()
 
+    sql_stats = lang_stats.get('sql', {})
+    py_stats = lang_stats.get('python', {})
+
     metrics = {
         "tasks": list(task_breakdown.values()),
-        "sql_success_rate": lang_agg.get('sql', 0),
-        "python_success_rate": lang_agg.get('python', 0),
+        "sql_success_rate": sql_stats.get('success_rate', 0),
+        "python_success_rate": py_stats.get('success_rate', 0),
+        "sql_avg_time": sql_stats.get('avg_time', 0),
+        "python_avg_time": py_stats.get('avg_time', 0),
+        "sql_avg_attempts": sql_stats.get('avg_attempts', 0),
+        "python_avg_attempts": py_stats.get('avg_attempts', 0),
     }
     return render_template('dashboard/charts.html', m=metrics)
 
