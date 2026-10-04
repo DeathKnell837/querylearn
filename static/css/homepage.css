@@ -545,9 +545,9 @@
 }
 
 /* Syntax Highlighting Tokens */
-.hp-syn-kw { color: #c084fc; font-weight: 600; }    /* Keywords: SELECT, for, in, if */
-.hp-syn-str { color: #34d399; }                     /* Strings: 'BSCS' */
-.hp-syn-num { color: #fbbf24; }                     /* Numbers: 1 */
+.hp-syn-kw { color: #c084fc; font-weight: 600; }    /* Keywords */
+.hp-syn-str { color: #34d399; }                     /* Strings */
+.hp-syn-num { color: #fbbf24; }                     /* Numbers */
 .hp-syn-fn { color: #60a5fa; }                      /* Functions: append, sort */
 .hp-syn-comm { color: #64748b; font-style: italic; } /* Comments */
 .hp-syn-prop { color: #93c5fd; }                    /* Properties/columns */
