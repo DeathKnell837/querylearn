@@ -589,8 +589,8 @@ body {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background-color: #ffffff;
-  color: #10b981;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -809,12 +809,14 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  background-color: #ffffff;
-  color: #0f172a;
+  background-color: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
   padding: 0.4rem 0.9rem;
   border-radius: var(--radius-pill);
   font-size: 0.88rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 /* Widget 2: Your Progress Card */
