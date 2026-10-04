@@ -491,7 +491,7 @@ body {
   box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
 }
 
-/* Bottom Results Panel (Crisp Light Spreadsheet Style matching Reference 1) */
+/* Bottom Results Panel — Dark Theme */
 .ws-results-panel {
   background-color: #131929;
   border: 1px solid var(--border-subtle);
@@ -505,16 +505,16 @@ body {
 .ws-results-title {
   font-size: 1.05rem;
   font-weight: 600;
-  color: #ffffff;
+  color: #f8fafc;
   margin-bottom: 0.85rem;
 }
 
 .ws-results-table-wrap {
-  background-color: #ffffff;
+  background-color: #0b0f19;
   border-radius: 8px;
   overflow-x: auto;
   max-height: 220px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .ws-results-table {
@@ -522,26 +522,36 @@ body {
   border-collapse: collapse;
   text-align: left;
   font-size: 0.88rem;
-  color: #1e293b;
+  color: #e2e8f0;
 }
 
 .ws-results-table th {
-  background-color: #f1f5f9;
-  color: #334155;
+  background-color: #0f1626;
+  color: #94a3b8;
   font-weight: 600;
   padding: 0.65rem 1rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   white-space: nowrap;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .ws-results-table td {
   padding: 0.6rem 1rem;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
   white-space: nowrap;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85rem;
 }
 
 .ws-results-table tr:nth-child(even) {
-  background-color: #f8fafc;
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.ws-results-table tbody tr:hover {
+  background-color: rgba(59, 130, 246, 0.06);
 }
 
 /* Floating Toast Pill (Matching Reference 1 exactly) */
