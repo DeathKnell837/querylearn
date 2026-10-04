@@ -106,29 +106,42 @@ def overview():
     sql_ct_per_hour = calc_ct_per_hour('sql')
     py_ct_per_hour = calc_ct_per_hour('python')
 
-    # 5. Task-by-Task Comparison (T1 to T6)
+    # 5. Task-by-Task Comparison (T1 to T6) with Medians
     cursor.execute("""
-        SELECT 
-            r.task_id,
-            s.language,
-            ROUND(AVG(CASE WHEN r.success = 1 THEN 100.0 ELSE 0.0 END), 1) as success_rate,
-            ROUND(AVG(r.elapsed_seconds), 1) as avg_time,
-            ROUND(AVG(r.attempt_count), 1) as avg_attempts
+        SELECT r.task_id, s.language, r.success, r.elapsed_seconds, r.attempt_count
         FROM task_results r
         JOIN sessions s ON r.session_id = s.id
-        GROUP BY r.task_id, s.language
         ORDER BY r.task_id ASC
     """)
-    task_rows = cursor.fetchall()
-    task_breakdown = {}
-    for row in task_rows:
+    raw_task_rows = cursor.fetchall()
+    from collections import defaultdict
+    task_groups = defaultdict(lambda: {'success': [], 'times': [], 'attempts': []})
+    all_tasks = set()
+    for row in raw_task_rows:
         tid = row['task_id']
         lang = row['language']
-        if tid not in task_breakdown:
-            task_breakdown[tid] = {'task_id': tid}
-        task_breakdown[tid][f"{lang}_success"] = row['success_rate']
-        task_breakdown[tid][f"{lang}_time"] = row['avg_time']
-        task_breakdown[tid][f"{lang}_attempts"] = row['avg_attempts']
+        all_tasks.add(tid)
+        task_groups[(tid, lang)]['success'].append(1 if row['success'] else 0)
+        if row['elapsed_seconds'] is not None:
+            task_groups[(tid, lang)]['times'].append(row['elapsed_seconds'])
+        if row['attempt_count'] is not None:
+            task_groups[(tid, lang)]['attempts'].append(row['attempt_count'])
+
+    task_breakdown = {}
+    for tid in sorted(list(all_tasks)):
+        task_breakdown[tid] = {'task_id': tid}
+        for lang in ['sql', 'python']:
+            group = task_groups.get((tid, lang), {'success': [], 'times': [], 'attempts': []})
+            s_list = group['success']
+            t_list = group['times']
+            a_list = group['attempts']
+            succ_pct = round((sum(s_list) / len(s_list)) * 100, 1) if s_list else 0.0
+            med_time = round(statistics.median(t_list), 1) if t_list else 0.0
+            avg_att = round(sum(a_list) / len(a_list), 1) if a_list else 0.0
+            task_breakdown[tid][f"{lang}_success"] = succ_pct
+            task_breakdown[tid][f"{lang}_median_time"] = med_time
+            task_breakdown[tid][f"{lang}_time"] = med_time
+            task_breakdown[tid][f"{lang}_attempts"] = avg_att
 
     conn.close()
 
