@@ -1,0 +1,851 @@
+/* ==========================================================================
+   QueryLearn — Homepage Redesign & Animation System
+   Academic Research Instrument Aesthetic (Dark Theme: Blue / Purple)
+   ========================================================================== */
+
+/* --- Document Root & Body for Homepage --- */
+.hp-body {
+  background-color: #0c101d;
+  color: #cbd5e1;
+  font-family: var(--font-sans, 'Inter', -apple-system, BlinkMacSystemFont, sans-serif);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   Header: Sticky, Full-Width, Far-Left Logo (24-32px), Far-Right Ghost Portal
+   ========================================================================== */
+.hp-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  height: 64px;
+  background: rgba(12, 16, 29, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.hp-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  padding: 0 28px; /* Matches dashboard sidebar left padding (~24-32px) */
+  box-sizing: border-box;
+}
+
+.hp-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+}
+
+.hp-brand-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(6, 182, 212, 0.3);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hp-brand:hover .hp-brand-icon {
+  transform: scale(1.05);
+}
+
+.hp-brand-text {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+}
+
+.hp-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.hp-ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.42rem 0.95rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-decoration: none;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.hp-ghost-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   Hero Section: Grid pattern, floating gradient orbs, staggered slide-up
+   ========================================================================== */
+.hp-hero {
+  position: relative;
+  padding: 4.5rem 1.5rem 3.5rem;
+  text-align: center;
+  overflow: hidden;
+  background: #0c101d;
+}
+
+/* Background canvas with floating orbs and grid pattern */
+.hp-hero-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.hp-grid-pattern {
+  position: absolute;
+  inset: -48px 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at 50% 30%, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.2) 65%, transparent 85%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 30%, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.2) 65%, transparent 85%);
+  animation: hpGridDrift 30s linear infinite;
+  will-change: transform;
+}
+
+@keyframes hpGridDrift {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(48px); }
+}
+
+/* Soft floating gradient orbs (transform-only motion) */
+.hp-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.hp-orb-1 {
+  top: -120px;
+  left: 20%;
+  width: 540px;
+  height: 540px;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.18) 0%, rgba(59, 130, 246, 0.1) 45%, transparent 70%);
+  filter: blur(80px);
+  animation: hpOrbDrift1 18s ease-in-out infinite alternate;
+}
+
+.hp-orb-2 {
+  top: 40px;
+  right: 18%;
+  width: 580px;
+  height: 580px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, rgba(99, 102, 241, 0.08) 45%, transparent 70%);
+  filter: blur(90px);
+  animation: hpOrbDrift2 22s ease-in-out infinite alternate;
+}
+
+@keyframes hpOrbDrift1 {
+  0% { transform: translate(-30px, -20px) scale(0.96); }
+  100% { transform: translate(40px, 35px) scale(1.06); }
+}
+
+@keyframes hpOrbDrift2 {
+  0% { transform: translate(35px, 25px) scale(1.05); }
+  100% { transform: translate(-30px, -25px) scale(0.94); }
+}
+
+.hp-radial-fade {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, transparent 40%, #0c101d 85%);
+}
+
+.hp-hero-container {
+  position: relative;
+  z-index: 1;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+/* Staggered on-load animation classes (transform and opacity only) */
+.hp-stagger {
+  opacity: 0;
+  animation: hpSlideUpFade 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.hp-stagger-1 { animation-delay: 0.06s; }
+.hp-stagger-2 { animation-delay: 0.16s; }
+.hp-stagger-3 { animation-delay: 0.26s; }
+.hp-stagger-4 { animation-delay: 0.36s; }
+.hp-stagger-5 { animation-delay: 0.46s; }
+.hp-stagger-6 { animation-delay: 0.58s; }
+
+@keyframes hpSlideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hero Badge */
+.hp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 1rem;
+  border-radius: 9999px;
+  background: rgba(139, 92, 246, 0.12);
+  color: #a78bfa;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 12px rgba(139, 92, 246, 0.12);
+}
+
+.hp-badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #a78bfa;
+  box-shadow: 0 0 8px #a78bfa;
+}
+
+/* Hero Title with animated gradient shift on 'Learn' */
+.hp-title {
+  font-size: 3.6rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -1.2px;
+  line-height: 1.12;
+  margin: 0 0 1.25rem;
+}
+
+.hp-title-gradient {
+  background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 30%, #3b82f6 65%, #06b6d4 100%);
+  background-size: 250% 250%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+  animation: hpGradientShift 7s ease-in-out infinite alternate;
+}
+
+@keyframes hpGradientShift {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+/* Hero Subtitle & Description */
+.hp-subtitle {
+  font-size: 1.25rem;
+  color: #cbd5e1;
+  max-width: 680px;
+  margin: 0 auto 1.1rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.hp-description {
+  font-size: 0.98rem;
+  color: #94a3b8;
+  max-width: 720px;
+  margin: 0 auto 2.25rem;
+  line-height: 1.7;
+}
+
+/* Hero Buttons with lift & glow on hover */
+.hp-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.1rem;
+  flex-wrap: wrap;
+  margin-bottom: 3.5rem;
+}
+
+.hp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.82rem 1.85rem;
+  border-radius: 9px;
+  font-weight: 600;
+  font-size: 0.96rem;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+  will-change: transform;
+}
+
+.hp-btn-primary {
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+}
+
+.hp-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.48), 0 0 16px rgba(6, 182, 212, 0.32);
+}
+
+.hp-arrow-icon {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.hp-btn-primary:hover .hp-arrow-icon {
+  transform: translateX(5px);
+}
+
+.hp-btn-outline {
+  background: rgba(255, 255, 255, 0.03);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.hp-btn-outline:hover {
+  transform: translateY(-2px);
+  background: rgba(139, 92, 246, 0.08);
+  border-color: rgba(139, 92, 246, 0.45);
+  box-shadow: 0 8px 22px rgba(139, 92, 246, 0.22);
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   Hero Visual: Code Comparison Card (Dark Code Editor Window)
+   ========================================================================== */
+.hp-hero-visual {
+  max-width: 860px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.hp-editor-window {
+  background: #0f1422;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), 0 0 30px rgba(59, 130, 246, 0.1);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hp-editor-window:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65), 0 0 36px rgba(139, 92, 246, 0.14);
+}
+
+/* Editor Header Bar */
+.hp-editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 1rem;
+  background: #090d18;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.hp-editor-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 60px;
+}
+
+.hp-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.hp-dot-red { background: #ef4444; }
+.hp-dot-yellow { background: #f59e0b; }
+.hp-dot-green { background: #10b981; }
+
+.hp-editor-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.hp-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.hp-tab:hover {
+  color: #cbd5e1;
+}
+
+.hp-tab.active {
+  color: #ffffff;
+  background: #1e293b;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.hp-tab-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  letter-spacing: 0.3px;
+}
+
+.hp-tab-badge-sql {
+  background: rgba(56, 189, 248, 0.18);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.hp-tab-badge-py {
+  background: rgba(167, 139, 250, 0.18);
+  color: #a78bfa;
+  border: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+.hp-editor-tag {
+  font-size: 0.76rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Task Description Ribbon inside editor */
+.hp-editor-taskbar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 1.25rem;
+  background: rgba(15, 23, 42, 0.7);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 0.82rem;
+}
+
+.hp-taskbar-label {
+  font-weight: 700;
+  color: #38bdf8;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.5px;
+}
+
+.hp-taskbar-desc {
+  color: #94a3b8;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 0.8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Code area with line numbers */
+.hp-editor-body {
+  display: flex;
+  min-height: 180px;
+  padding: 1.1rem 1.25rem;
+  background: #0a0e19;
+  font-family: var(--font-mono, 'JetBrains Mono', Consolas, monospace);
+  font-size: 0.88rem;
+  line-height: 1.65;
+  overflow-x: auto;
+}
+
+.hp-line-numbers {
+  display: flex;
+  flex-direction: column;
+  padding-right: 1.25rem;
+  margin-right: 1.25rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  color: #475569;
+  user-select: none;
+  text-align: right;
+  min-width: 24px;
+}
+
+.hp-code-content {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  color: #e2e8f0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  white-space: pre;
+  flex-grow: 1;
+}
+
+#hp-typed-code {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* Blinking cursor (opacity-only animation) */
+.hp-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 1.15em;
+  background: #38bdf8;
+  vertical-align: text-bottom;
+  margin-left: 2px;
+  border-radius: 1px;
+  animation: hpCursorBlink 0.9s infinite;
+  will-change: opacity;
+}
+
+@keyframes hpCursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Syntax Highlighting Tokens */
+.hp-syn-kw { color: #c084fc; font-weight: 600; }    /* Keywords: SELECT, for, in, if */
+.hp-syn-str { color: #34d399; }                     /* Strings: 'BSCS' */
+.hp-syn-num { color: #fbbf24; }                     /* Numbers: 1 */
+.hp-syn-fn { color: #60a5fa; }                      /* Functions: append, sort */
+.hp-syn-comm { color: #64748b; font-style: italic; } /* Comments */
+.hp-syn-prop { color: #93c5fd; }                    /* Properties/columns */
+
+/* Editor Footer Status Bar */
+.hp-editor-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 1.25rem;
+  background: #090d18;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.hp-footer-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.hp-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+}
+
+.hp-footer-mode {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  color: #94a3b8;
+}
+
+/* ==========================================================================
+   Evaluation Architecture Section & Feature Cards (Scroll Reveal + Hover)
+   ========================================================================= */
+.hp-features-section {
+  position: relative;
+  padding: 4.5rem 1.5rem 5.5rem;
+  background: #0c101d;
+  z-index: 1;
+}
+
+.hp-features-container {
+  max-width: 1140px;
+  margin: 0 auto;
+}
+
+.hp-section-header {
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+
+.hp-section-title {
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  margin: 0 0 0.75rem;
+}
+
+.hp-section-sub {
+  font-size: 1rem;
+  color: #94a3b8;
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+.hp-features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.75rem;
+}
+
+/* Feature Card (Scroll Reveal + Hover Lift + Glowing Border) */
+.hp-feature-card {
+  background: linear-gradient(180deg, rgba(19, 25, 41, 0.85) 0%, rgba(15, 20, 34, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 2rem 1.75rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  
+  /* Scroll reveal initial state (transform and opacity only) */
+  opacity: 0;
+  transform: translateY(28px);
+  transition: 
+    opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+  will-change: transform, opacity;
+}
+
+/* Revealed state triggered by IntersectionObserver */
+.hp-feature-card.hp-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger transition delays for scroll reveal */
+.hp-features-grid .hp-feature-card:nth-child(1) { transition-delay: 0.04s; }
+.hp-features-grid .hp-feature-card:nth-child(2) { transition-delay: 0.12s; }
+.hp-features-grid .hp-feature-card:nth-child(3) { transition-delay: 0.20s; }
+.hp-features-grid .hp-feature-card:nth-child(4) { transition-delay: 0.08s; }
+.hp-features-grid .hp-feature-card:nth-child(5) { transition-delay: 0.16s; }
+.hp-features-grid .hp-feature-card:nth-child(6) { transition-delay: 0.24s; }
+
+/* Hover effects: gentle lift, glowing border, small icon animation */
+.hp-feature-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45), 0 0 24px rgba(99, 102, 241, 0.16);
+}
+
+.hp-feature-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.35rem;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.25s ease, background 0.25s ease;
+  will-change: transform;
+}
+
+.hp-feature-card:hover .hp-feature-icon {
+  transform: scale(1.12) rotate(-4deg);
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.hp-feature-card h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 0.65rem;
+  letter-spacing: -0.2px;
+}
+
+.hp-feature-card p {
+  font-size: 0.92rem;
+  color: #94a3b8;
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ==========================================================================
+   Academic Footer
+   ========================================================================== */
+.hp-footer {
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.85rem;
+  color: #64748b;
+  background: #090d18;
+}
+
+.hp-footer-inner {
+  max-width: 1140px;
+  margin: 0 auto;
+}
+
+/* ==========================================================================
+   Responsive Adaptations (375px to Large Desktop)
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .hp-features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .hp-header-inner {
+    padding: 0 20px;
+  }
+
+  .hp-hero {
+    padding: 3.5rem 1.25rem 2.5rem;
+  }
+
+  .hp-title {
+    font-size: 2.6rem;
+    letter-spacing: -0.8px;
+  }
+
+  .hp-subtitle {
+    font-size: 1.12rem;
+  }
+
+  .hp-description {
+    font-size: 0.92rem;
+    margin-bottom: 2rem;
+  }
+
+  .hp-features-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .hp-features-section {
+    padding: 3.5rem 1.25rem 4rem;
+  }
+
+  .hp-editor-taskbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .hp-taskbar-desc {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 480px) {
+  .hp-header-inner {
+    padding: 0 16px;
+  }
+
+  .hp-brand-text {
+    font-size: 1.1rem;
+  }
+
+  .hp-ghost-btn {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.78rem;
+  }
+
+  .hp-title {
+    font-size: 2.15rem;
+  }
+
+  .hp-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.85rem;
+  }
+
+  .hp-btn {
+    width: 100%;
+  }
+
+  .hp-editor-header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .hp-editor-tag {
+    display: none;
+  }
+
+  .hp-editor-body {
+    font-size: 0.78rem;
+    padding: 0.85rem;
+  }
+}
+
+/* ==========================================================================
+   Accessibility: prefers-reduced-motion
+   Turn off all animations, transitions, and loops for users requesting it
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .hp-stagger {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .hp-feature-card {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .hp-grid-pattern,
+  .hp-orb-1,
+  .hp-orb-2,
+  .hp-title-gradient {
+    animation: none !important;
+  }
+
+  .hp-cursor {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+}
