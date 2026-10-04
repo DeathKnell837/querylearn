@@ -3,7 +3,7 @@ import statistics
 import time
 from flask import Blueprint, render_template, redirect, url_for, session, Response, request, flash, jsonify
 from config import Config
-from services.export_service import export_participants_csv, export_results_csv, export_all_csv
+from services.export_service import export_participants_csv, export_results_csv, export_survey_csv, export_comprehension_csv, export_all_csv
 from services.pilot_data_seeder import seed_pilot_data
 from services.benchmark_runner import run_benchmark
 
@@ -425,6 +425,12 @@ def export(type):
     elif type == 'results':
         csv_data = export_results_csv(Config.RESEARCH_DB)
         return Response(csv_data, mimetype="text/csv", headers={"Content-Disposition": "attachment;filename=task_results_telemetry.csv"})
+    elif type == 'survey':
+        csv_data = export_survey_csv(Config.RESEARCH_DB)
+        return Response(csv_data, mimetype="text/csv", headers={"Content-Disposition": "attachment;filename=survey_responses.csv"})
+    elif type == 'comprehension':
+        csv_data = export_comprehension_csv(Config.RESEARCH_DB)
+        return Response(csv_data, mimetype="text/csv", headers={"Content-Disposition": "attachment;filename=comprehension_responses.csv"})
     elif type == 'all':
         zip_bytes = export_all_csv(Config.RESEARCH_DB)
         return Response(zip_bytes, mimetype="application/zip", headers={"Content-Disposition": "attachment;filename=querylearn_case_study_dataset.zip"})

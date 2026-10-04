@@ -221,27 +221,38 @@ def survey(language):
 
     if request.method == 'POST':
         sess_id = session.get('current_session_id')
-        q1 = int(request.form.get('survey_likert_1', 3))
-        q2 = int(request.form.get('survey_likert_2', 3))
-        q3 = int(request.form.get('survey_likert_3', 3))
-        q4 = int(request.form.get('survey_likert_4', 3))
-        q5 = int(request.form.get('survey_likert_5', 3))
-        q6 = int(request.form.get('survey_effort', 3))
-        q7 = int(request.form.get('survey_fatigue', 3))
-        open_hardest = request.form.get('survey_open_1', '')
-        open_easiest = request.form.get('survey_open_2', '')
-        open_pref = request.form.get('survey_open_3', '')
-        open_other = request.form.get('survey_open_4', '')
+        
+        def parse_score(val):
+            if val is None or str(val).strip().lower() in ('na', 'null', 'none', ''):
+                return None
+            try:
+                iv = int(val)
+                return iv if 1 <= iv <= 5 else None
+            except (ValueError, TypeError):
+                return None
+
+        q1 = parse_score(request.form.get('survey_likert_1'))
+        q2 = parse_score(request.form.get('survey_likert_2'))
+        q3 = parse_score(request.form.get('survey_likert_3'))
+        q4 = parse_score(request.form.get('survey_likert_4'))
+        q5 = parse_score(request.form.get('survey_likert_5'))
+        q6 = parse_score(request.form.get('survey_effort'))
+        q7 = parse_score(request.form.get('survey_fatigue'))
+        
+        open_easiest = request.form.get('open_easiest') or request.form.get('survey_open_2') or ''
+        open_hardest = request.form.get('open_hardest') or request.form.get('survey_open_1') or ''
+        open_after_error = request.form.get('open_after_error') or request.form.get('survey_open_4') or ''
+        open_pref = request.form.get('open_preference') or request.form.get('survey_open_3') or ''
 
         if sess_id:
             try:
                 conn = sqlite3.connect(Config.RESEARCH_DB)
                 c = conn.cursor()
                 c.execute("""
-                    INSERT INTO survey_responses
+                    INSERT INTO survey_responses 
                     (session_id, language, q1, q2, q3, q4, q5, q6, q7, open_easiest, open_hardest, open_after_error, open_preference)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (sess_id, language, q1, q2, q3, q4, q5, q6, q7, open_easiest, open_hardest, open_other, open_pref))
+                """, (sess_id, language, q1, q2, q3, q4, q5, q6, q7, open_easiest, open_hardest, open_after_error, open_pref))
 
                 step = session.get('current_condition_step', 1)
                 if step >= 2:
@@ -261,7 +272,7 @@ def survey(language):
         else:
             return redirect(url_for('experiment.complete'))
 
-    return render_template('survey.html', language=language)
+    return render_template('survey.html', language=language, condition_step=session.get('current_condition_step', 1))
 
 
 @experiment_bp.route('/break')

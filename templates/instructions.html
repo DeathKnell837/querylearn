@@ -3,104 +3,150 @@
 {% block title %}Language Reference Guide - QueryLearn{% endblock %}
 
 {% block content %}
-<div class="container fade-in">
-    <div class="card">
-        <div class="card-header">
-            <h2>Language Reference Guide</h2>
-            <p class="text-muted">Review the syntax for SQL and Python before starting the practice tasks.</p>
+<div class="container fade-in" style="max-width: 920px; margin: 2rem auto; padding: 0 1rem;">
+    <div class="card" style="background: #131929; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-card); padding: 2.25rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);">
+        <div class="card-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 1.25rem; margin-bottom: 1.75rem;">
+            <h2 style="font-size: 1.5rem; font-weight: 700; color: #ffffff; margin-bottom: 0.35rem;">Language Reference Guide</h2>
+            <p style="font-size: 0.9rem; color: #94a3b8; margin: 0;">Review equivalent query and data-processing patterns for SQL and procedural Python before starting the practice tasks.</p>
         </div>
         <div class="card-body">
-            <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('sql')">SQL Reference</button>
-                <button class="tab-btn" onclick="switchTab('python')">Python Reference</button>
+            <div class="tabs" style="display: flex; gap: 0.5rem; margin-bottom: 1.75rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.75rem;">
+                <button class="tab-btn active" onclick="switchTab('sql')" id="tab-btn-sql" style="padding: 0.6rem 1.25rem; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; color: #60a5fa; font-weight: 600; font-size: 0.9rem; cursor: pointer;">SQL Reference</button>
+                <button class="tab-btn" onclick="switchTab('python')" id="tab-btn-python" style="padding: 0.6rem 1.25rem; background: transparent; border: 1px solid transparent; border-radius: 8px; color: #94a3b8; font-weight: 600; font-size: 0.9rem; cursor: pointer;">Python Reference</button>
             </div>
 
+            <!-- SQL TAB -->
             <div id="sql-tab" class="tab-content" style="display: block;">
-                <h3>SQL Basic Syntax</h3>
-                <p>SQL is a declarative language used to query databases. The basic structure of a query involves selecting columns from tables and optionally filtering, grouping, or ordering the results.</p>
-                
-                <h4>SELECT and FROM</h4>
-                <div class="code-block">
-                    <span class="code-keyword">SELECT</span> student_name, year_level<br>
-                    <span class="code-keyword">FROM</span> Students;
+                <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+                    <p style="font-size: 0.88rem; color: #cbd5e1; margin: 0; line-height: 1.6;">
+                        <strong>Illustrative Schema:</strong> The examples below use a sample university catalog with two tables: 
+                        <code style="color: #60a5fa; background: #0c101d; padding: 2px 6px; border-radius: 4px;">Departments (dept_id, dept_name)</code> and 
+                        <code style="color: #60a5fa; background: #0c101d; padding: 2px 6px; border-radius: 4px;">Courses (course_code, title, dept_id, credits)</code>.
+                    </p>
                 </div>
 
-                <h4>WHERE (Filtering)</h4>
-                <div class="code-block">
-                    <span class="code-keyword">SELECT</span> student_id, student_name<br>
-                    <span class="code-keyword">FROM</span> Students<br>
-                    <span class="code-keyword">WHERE</span> year_level = 1;
+                <h4 style="font-size: 1.05rem; font-weight: 600; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem;">1. Selection and Filtering (SELECT ... WHERE)</h4>
+                <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.65rem;">Retrieve specific columns and filter rows using a conditional predicate.</p>
+                <div class="code-block" style="background: #080c14; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; font-family: var(--font-mono, monospace); font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin-bottom: 1.5rem;">
+                    <span style="color: #818cf8; font-weight: 600;">SELECT</span> course_code, title<br>
+                    <span style="color: #818cf8; font-weight: 600;">FROM</span> Courses<br>
+                    <span style="color: #818cf8; font-weight: 600;">WHERE</span> credits = 4;
                 </div>
 
-                <h4>JOIN (Combining Tables)</h4>
-                <div class="code-block">
-                    <span class="code-keyword">SELECT</span> s.student_name, c.course_name, e.score<br>
-                    <span class="code-keyword">FROM</span> Students s<br>
-                    <span class="code-keyword">JOIN</span> Enrollments e <span class="code-keyword">ON</span> s.student_id = e.student_id<br>
-                    <span class="code-keyword">JOIN</span> Courses c <span class="code-keyword">ON</span> e.course_id = c.course_id;
+                <h4 style="font-size: 1.05rem; font-weight: 600; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem;">2. Sorting and Limiting (ORDER BY ... LIMIT)</h4>
+                <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.65rem;">Sort records by an attribute in descending or ascending order and take the top N rows.</p>
+                <div class="code-block" style="background: #080c14; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; font-family: var(--font-mono, monospace); font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin-bottom: 1.5rem;">
+                    <span style="color: #818cf8; font-weight: 600;">SELECT</span> course_code, title, credits<br>
+                    <span style="color: #818cf8; font-weight: 600;">FROM</span> Courses<br>
+                    <span style="color: #818cf8; font-weight: 600;">ORDER BY</span> credits <span style="color: #818cf8; font-weight: 600;">DESC</span><br>
+                    <span style="color: #818cf8; font-weight: 600;">LIMIT</span> 3;
                 </div>
 
-                <h4>GROUP BY and HAVING (Aggregation)</h4>
-                <div class="code-block">
-                    <span class="code-keyword">SELECT</span> program, <span class="code-keyword">COUNT</span>(student_id) <span class="code-keyword">AS</span> total_students<br>
-                    <span class="code-keyword">FROM</span> Students<br>
-                    <span class="code-keyword">GROUP BY</span> program<br>
-                    <span class="code-keyword">HAVING COUNT</span>(student_id) &gt; 2;
+                <h4 style="font-size: 1.05rem; font-weight: 600; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem;">3. Grouping and Counting with Threshold (GROUP BY ... HAVING)</h4>
+                <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.65rem;">Group rows by a common key, calculate aggregate counts, and retain groups satisfying a threshold.</p>
+                <div class="code-block" style="background: #080c14; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; font-family: var(--font-mono, monospace); font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin-bottom: 1.5rem;">
+                    <span style="color: #818cf8; font-weight: 600;">SELECT</span> dept_id, <span style="color: #818cf8; font-weight: 600;">COUNT</span>(*) <span style="color: #818cf8; font-weight: 600;">AS</span> course_count<br>
+                    <span style="color: #818cf8; font-weight: 600;">FROM</span> Courses<br>
+                    <span style="color: #818cf8; font-weight: 600;">GROUP BY</span> dept_id<br>
+                    <span style="color: #818cf8; font-weight: 600;">HAVING COUNT</span>(*) &gt;= 3;
                 </div>
 
-                <h4>ORDER BY and LIMIT</h4>
-                <div class="code-block">
-                    <span class="code-keyword">SELECT</span> course_id, course_name<br>
-                    <span class="code-keyword">FROM</span> Courses<br>
-                    <span class="code-keyword">ORDER BY</span> course_name <span class="code-keyword">ASC</span><br>
-                    <span class="code-keyword">LIMIT</span> 5;
+                <h4 style="font-size: 1.05rem; font-weight: 600; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem;">4. Combining Two Tables (INNER JOIN)</h4>
+                <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.65rem;">Combine attributes from two related tables by matching foreign key values.</p>
+                <div class="code-block" style="background: #080c14; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; font-family: var(--font-mono, monospace); font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin-bottom: 1.5rem;">
+                    <span style="color: #818cf8; font-weight: 600;">SELECT</span> c.course_code, c.title, d.dept_name<br>
+                    <span style="color: #818cf8; font-weight: 600;">FROM</span> Courses c<br>
+                    <span style="color: #818cf8; font-weight: 600;">JOIN</span> Departments d <span style="color: #818cf8; font-weight: 600;">ON</span> c.dept_id = d.dept_id;
+                </div>
+
+                <h4 style="font-size: 1.05rem; font-weight: 600; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem;">5. Finding Records with No Match (LEFT JOIN ... IS NULL)</h4>
+                <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.65rem;">Find parent records that have no matching entries in a related table via an anti-join pattern.</p>
+                <div class="code-block" style="background: #080c14; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; font-family: var(--font-mono, monospace); font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin-bottom: 1.5rem;">
+                    <span style="color: #818cf8; font-weight: 600;">SELECT</span> d.dept_id, d.dept_name<br>
+                    <span style="color: #818cf8; font-weight: 600;">FROM</span> Departments d<br>
+                    <span style="color: #818cf8; font-weight: 600;">LEFT JOIN</span> Courses c <span style="color: #818cf8; font-weight: 600;">ON</span> d.dept_id = c.dept_id<br>
+                    <span style="color: #818cf8; font-weight: 600;">WHERE</span> c.course_code <span style="color: #818cf8; font-weight: 600;">IS NULL</span>;
                 </div>
             </div>
 
+            <!-- PYTHON TAB -->
             <div id="python-tab" class="tab-content" style="display: none;">
-                <h3>Python Data Processing</h3>
-                <p>In Python, you will process data represented as lists of dictionaries. Each dictionary corresponds to a row in a table.</p>
-                
-                <h4>List Comprehensions (Basic Select/Map)</h4>
-                <div class="code-block">
-                    <span class="code-comment"># Extracting names from a list of student dictionaries</span><br>
-                    names = [s[<span class="code-string">'student_name'</span>] <span class="code-keyword">for</span> s <span class="code-keyword">in</span> students]
+                <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+                    <p style="font-size: 0.88rem; color: #cbd5e1; margin: 0; line-height: 1.6;">
+                        <strong>Illustrative Data:</strong> The examples below process data represented as lists of dictionaries: 
+                        <code style="color: #c084fc; background: #0c101d; padding: 2px 6px; border-radius: 4px;">departments = [{'dept_id': ..., 'dept_name': ...}]</code> and 
+                        <code style="color: #c084fc; background: #0c101d; padding: 2px 6px; border-radius: 4px;">courses = [{'course_code': ..., 'title': ..., 'dept_id': ..., 'credits': ...}]</code>.
+                    </p>
                 </div>
 
-                <h4>Filtering with For Loops</h4>
-                <div class="code-block">
-                    <span class="code-comment"># Getting students in year level 1</span><br>
-                    first_year = []<br>
-                    <span class="code-keyword">for</span> s <span class="code-keyword">in</span> students:<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">if</span> s[<span class="code-string">'year_level'</span>] == 1:<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first_year.append(s)
-                </div>
-                
-                <h4>List Comprehensions with Filtering</h4>
-                <div class="code-block">
-                    <span class="code-comment"># Same as above, but more concise</span><br>
-                    first_year = [s <span class="code-keyword">for</span> s <span class="code-keyword">in</span> students <span class="code-keyword">if</span> s[<span class="code-string">'year_level'</span>] == 1]
+                <h4 style="font-size: 1.05rem; font-weight: 600; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem;">1. Selection and Filtering (List Comprehension with if)</h4>
+                <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.65rem;">Extract specific keys and filter elements using a conditional comprehension.</p>
+                <div class="code-block" style="background: #080c14; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; font-family: var(--font-mono, monospace); font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin-bottom: 1.5rem;">
+                    <span style="color: #64748b;"># Select course code and title for all 4-credit courses</span><br>
+                    four_credit_courses = [<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;{<span style="color: #34d399;">'course_code'</span>: c[<span style="color: #34d399;">'course_code'</span>], <span style="color: #34d399;">'title'</span>: c[<span style="color: #34d399;">'title'</span>]}<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #818cf8; font-weight: 600;">for</span> c <span style="color: #818cf8; font-weight: 600;">in</span> courses<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #818cf8; font-weight: 600;">if</span> c[<span style="color: #34d399;">'credits'</span>] == 4<br>
+                    ]
                 </div>
 
-                <h4>Sorting with Lambda Functions</h4>
-                <div class="code-block">
-                    <span class="code-comment"># Sort enrollments by score in descending order</span><br>
-                    sorted_scores = <span class="code-keyword">sorted</span>(enrollments, key=<span class="code-keyword">lambda</span> e: e[<span class="code-string">'score'</span>] <span class="code-keyword">or</span> 0, reverse=<span class="code-keyword">True</span>)
+                <h4 style="font-size: 1.05rem; font-weight: 600; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem;">2. Sorting and Limiting (sorted() and Slicing [:N])</h4>
+                <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.65rem;">Sort dictionaries with a key lambda and take the first N items using Python list slicing.</p>
+                <div class="code-block" style="background: #080c14; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; font-family: var(--font-mono, monospace); font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin-bottom: 1.5rem;">
+                    <span style="color: #64748b;"># Order courses by credits descending and take the first 3</span><br>
+                    sorted_courses = <span style="color: #818cf8; font-weight: 600;">sorted</span>(courses, key=<span style="color: #818cf8; font-weight: 600;">lambda</span> c: c[<span style="color: #34d399;">'credits'</span>], reverse=<span style="color: #818cf8; font-weight: 600;">True</span>)<br>
+                    top_three_courses = sorted_courses[:3]
                 </div>
 
-                <h4>Aggregation Functions</h4>
-                <div class="code-block">
-                    <span class="code-comment"># Counting total students</span><br>
-                    total_students = <span class="code-keyword">len</span>(students)<br><br>
-                    <span class="code-comment"># Total non-missing score sum</span><br>
-                    total_scores = <span class="code-keyword">sum</span>(e[<span class="code-string">'score'</span>] <span class="code-keyword">for</span> e <span class="code-keyword">in</span> enrollments <span class="code-keyword">if</span> e[<span class="code-string">'score'</span>] <span class="code-keyword">is not None</span>)<br><br>
-                    <span class="code-comment"># Finding maximum score</span><br>
-                    max_score = <span class="code-keyword">max</span>(e[<span class="code-string">'score'</span>] <span class="code-keyword">for</span> e <span class="code-keyword">in</span> enrollments <span class="code-keyword">if</span> e[<span class="code-string">'score'</span>] <span class="code-keyword">is not None</span>)
+                <h4 style="font-size: 1.05rem; font-weight: 600; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem;">3. Grouping and Counting with Threshold (Dictionary Accumulation)</h4>
+                <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.65rem;">Count occurrences by key using a dictionary accumulator and retain groups meeting the threshold.</p>
+                <div class="code-block" style="background: #080c14; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; font-family: var(--font-mono, monospace); font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin-bottom: 1.5rem;">
+                    <span style="color: #64748b;"># Count courses per department with a dictionary</span><br>
+                    counts = {}<br>
+                    <span style="color: #818cf8; font-weight: 600;">for</span> c <span style="color: #818cf8; font-weight: 600;">in</span> courses:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;d = c[<span style="color: #34d399;">'dept_id'</span>]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;counts[d] = counts.get(d, 0) + 1<br><br>
+                    <span style="color: #64748b;"># Keep departments with at least 3 courses</span><br>
+                    popular_depts = [<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;{<span style="color: #34d399;">'dept_id'</span>: d, <span style="color: #34d399;">'course_count'</span>: cnt}<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #818cf8; font-weight: 600;">for</span> d, cnt <span style="color: #818cf8; font-weight: 600;">in</span> counts.items()<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #818cf8; font-weight: 600;">if</span> cnt &gt;= 3<br>
+                    ]
+                </div>
+
+                <h4 style="font-size: 1.05rem; font-weight: 600; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem;">4. Combining Two Lists (Dictionary Lookup)</h4>
+                <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.65rem;">Index parent records into a lookup map to combine matching fields from two lists in linear time.</p>
+                <div class="code-block" style="background: #080c14; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; font-family: var(--font-mono, monospace); font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin-bottom: 1.5rem;">
+                    <span style="color: #64748b;"># Build a lookup dictionary for departments</span><br>
+                    dept_lookup = {d[<span style="color: #34d399;">'dept_id'</span>]: d[<span style="color: #34d399;">'dept_name'</span>] <span style="color: #818cf8; font-weight: 600;">for</span> d <span style="color: #818cf8; font-weight: 600;">in</span> departments}<br><br>
+                    <span style="color: #64748b;"># Combine course records with department names</span><br>
+                    combined = [<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;{<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #34d399;">'course_code'</span>: c[<span style="color: #34d399;">'course_code'</span>],<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #34d399;">'title'</span>: c[<span style="color: #34d399;">'title'</span>],<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #34d399;">'dept_name'</span>: dept_lookup[c[<span style="color: #34d399;">'dept_id'</span>]]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #818cf8; font-weight: 600;">for</span> c <span style="color: #818cf8; font-weight: 600;">in</span> courses<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #818cf8; font-weight: 600;">if</span> c[<span style="color: #34d399;">'dept_id'</span>] <span style="color: #818cf8; font-weight: 600;">in</span> dept_lookup<br>
+                    ]
+                </div>
+
+                <h4 style="font-size: 1.05rem; font-weight: 600; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem;">5. Finding Records with No Match (Set Membership Anti-Join)</h4>
+                <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.65rem;">Collect keys from child records into a set, then retain parent records whose keys are not in the set.</p>
+                <div class="code-block" style="background: #080c14; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; font-family: var(--font-mono, monospace); font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin-bottom: 1.5rem;">
+                    <span style="color: #64748b;"># Collect department IDs that have at least one course</span><br>
+                    offered_dept_ids = {c[<span style="color: #34d399;">'dept_id'</span>] <span style="color: #818cf8; font-weight: 600;">for</span> c <span style="color: #818cf8; font-weight: 600;">in</span> courses}<br><br>
+                    <span style="color: #64748b;"># Filter departments with no match using set membership</span><br>
+                    inactive_depts = [<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;{<span style="color: #34d399;">'dept_id'</span>: d[<span style="color: #34d399;">'dept_id'</span>], <span style="color: #34d399;">'dept_name'</span>: d[<span style="color: #34d399;">'dept_name'</span>]}<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #818cf8; font-weight: 600;">for</span> d <span style="color: #818cf8; font-weight: 600;">in</span> departments<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #818cf8; font-weight: 600;">if</span> d[<span style="color: #34d399;">'dept_id'</span>] <span style="color: #818cf8; font-weight: 600;">not in</span> offered_dept_ids<br>
+                    ]
                 </div>
             </div>
             
-            <div style="margin-top: 30px; text-align: center;">
-                <a href="{{ url_for('experiment.practice') }}" class="btn btn-primary btn-lg">I understand both languages -- Continue to Practice</a>
+            <div style="margin-top: 2.25rem; text-align: center;">
+                <a href="{{ url_for('experiment.practice') }}" class="btn btn-primary btn-lg" style="padding: 0.75rem 2rem; font-size: 1rem; text-decoration: none;">I understand both languages -- Continue to Practice &rarr;</a>
             </div>
         </div>
     </div>
@@ -110,18 +156,20 @@
 {% block extra_js %}
 <script>
     function switchTab(tabId) {
-        // Hide all tab contents
         document.querySelectorAll('.tab-content').forEach(function(el) {
             el.style.display = 'none';
         });
-        // Remove active class from all buttons
         document.querySelectorAll('.tab-btn').forEach(function(el) {
-            el.classList.remove('active');
+            el.style.background = 'transparent';
+            el.style.borderColor = 'transparent';
+            el.style.color = '#94a3b8';
         });
         
-        // Show selected tab content and activate button
         document.getElementById(tabId + '-tab').style.display = 'block';
-        document.querySelector('button[onclick="switchTab(\'' + tabId + '\')"]').classList.add('active');
+        const activeBtn = document.getElementById('tab-btn-' + tabId);
+        activeBtn.style.background = 'rgba(59, 130, 246, 0.15)';
+        activeBtn.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+        activeBtn.style.color = '#60a5fa';
     }
 </script>
 {% endblock %}

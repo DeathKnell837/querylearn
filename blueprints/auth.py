@@ -8,11 +8,15 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        program = request.form.get('program', 'BSCS')
-        year_level = int(request.form.get('year_level', 2))
-        sql_exp = request.form.get('sql_exp', 'novice')
-        python_exp = request.form.get('python_exp', 'novice')
-        db_course = request.form.get('db_course', 'yes')
+        program = request.form.get('program') or 'BSCS'
+        year_level_raw = request.form.get('year_level')
+        try:
+            year_level = int(year_level_raw) if year_level_raw else 2
+        except (ValueError, TypeError):
+            year_level = 2
+        sql_exp = request.form.get('sql_exp') or 'novice'
+        python_exp = request.form.get('python_exp') or 'novice'
+        db_course = request.form.get('db_course') or 'yes'
         other_languages = request.form.get('other_languages', '')
         consent = bool(request.form.get('consent'))
 

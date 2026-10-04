@@ -38,7 +38,8 @@
                 <div style="display: flex; flex-direction: column; gap: 1.25rem;">
                     <div>
                         <label style="display: block; font-size: 0.88rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.45rem;">Academic Degree Program</label>
-                        <select name="program" class="dash-search" style="width: 100%; padding: 0.75rem 1rem; border-radius: 8px;" required>
+                        <select name="program" id="reg-program" class="dash-search" style="width: 100%; padding: 0.75rem 1rem; border-radius: 8px;" required>
+                            <option value="" disabled selected>Select Degree Program</option>
                             <option value="BSCS">Bachelor of Science in Computer Science (BSCS)</option>
                             <option value="BSIT">Bachelor of Science in Information Technology (BSIT)</option>
                             <option value="BSIS">Bachelor of Science in Information Systems (BSIS)</option>
@@ -48,9 +49,10 @@
 
                     <div>
                         <label style="display: block; font-size: 0.88rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.45rem;">Current Year Level</label>
-                        <select name="year_level" class="dash-search" style="width: 100%; padding: 0.75rem 1rem; border-radius: 8px;" required>
+                        <select name="year_level" id="reg-year-level" class="dash-search" style="width: 100%; padding: 0.75rem 1rem; border-radius: 8px;" required>
+                            <option value="" disabled selected>Select Year Level</option>
                             <option value="1">1st Year (Freshman)</option>
-                            <option value="2" selected>2nd Year (Sophomore)</option>
+                            <option value="2">2nd Year (Sophomore)</option>
                             <option value="3">3rd Year (Junior)</option>
                             <option value="4">4th Year (Senior)</option>
                         </select>
@@ -69,9 +71,10 @@
                 <div style="display: flex; flex-direction: column; gap: 1.25rem;">
                     <div>
                         <label style="display: block; font-size: 0.88rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.45rem;">SQL / Relational Database Experience</label>
-                        <select name="sql_exp" class="dash-search" style="width: 100%; padding: 0.75rem 1rem; border-radius: 8px;" required>
+                        <select name="sql_exp" id="reg-sql-exp" class="dash-search" style="width: 100%; padding: 0.75rem 1rem; border-radius: 8px;" required>
+                            <option value="" disabled selected>Select SQL Experience</option>
                             <option value="none">None / Absolute Beginner (Never wrote SQL)</option>
-                            <option value="novice" selected>Novice (&lt; 6 months, basic queries)</option>
+                            <option value="novice">Novice (&lt; 6 months, basic queries)</option>
                             <option value="intermediate">Intermediate (6–12 months, comfortable with JOINs)</option>
                             <option value="proficient">Proficient (1+ year regular usage)</option>
                         </select>
@@ -79,9 +82,10 @@
 
                     <div>
                         <label style="display: block; font-size: 0.88rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.45rem;">Python Programming Experience</label>
-                        <select name="python_exp" class="dash-search" style="width: 100%; padding: 0.75rem 1rem; border-radius: 8px;" required>
+                        <select name="python_exp" id="reg-python-exp" class="dash-search" style="width: 100%; padding: 0.75rem 1rem; border-radius: 8px;" required>
+                            <option value="" disabled selected>Select Python Experience</option>
                             <option value="none">None / Absolute Beginner</option>
-                            <option value="novice" selected>Novice (&lt; 6 months, basic loops and dictionaries)</option>
+                            <option value="novice">Novice (&lt; 6 months, basic loops and dictionaries)</option>
                             <option value="intermediate">Intermediate (6–12 months)</option>
                             <option value="proficient">Proficient (1+ year)</option>
                         </select>
@@ -89,14 +93,11 @@
 
                     <div>
                         <label style="display: block; font-size: 0.88rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.45rem;">Have you completed or are currently taking a formal Database Course?</label>
-                        <div style="display: flex; gap: 1.5rem; margin-top: 0.25rem;">
-                            <label style="display: flex; align-items: center; gap: 0.45rem; color: #e2e8f0; font-size: 0.9rem; cursor: pointer;">
-                                <input type="radio" name="db_course" value="yes" checked> Yes
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 0.45rem; color: #e2e8f0; font-size: 0.9rem; cursor: pointer;">
-                                <input type="radio" name="db_course" value="no"> No
-                            </label>
-                        </div>
+                        <select name="db_course" id="reg-db-course" class="dash-search" style="width: 100%; padding: 0.75rem 1rem; border-radius: 8px;" required>
+                            <option value="" disabled selected>Select Database Course Status</option>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
                     </div>
 
                     <div>
@@ -117,15 +118,15 @@
                     <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 1.25rem; font-size: 0.85rem; color: #94a3b8; line-height: 1.6; max-height: 200px; overflow-y: auto;">
                         <h4 style="color: #ffffff; font-size: 0.95rem; margin-bottom: 0.5rem;">Participant Information &amp; Consent</h4>
                         <p style="margin-bottom: 0.5rem;">You are invited to participate in a research case study investigating the relative readability and productivity benefits of Domain-Specific Languages (SQL) compared to General-Purpose Languages (procedural Python) among novice database learners.</p>
-                        <p style="margin-bottom: 0.5rem;">• <strong>Anonymity:</strong> You will be assigned a randomized Study ID. No personal identification (names, student numbers) will be stored or published.</p>
+                        <p style="margin-bottom: 0.5rem;">• <strong>Anonymity:</strong> You will be assigned an anonymous Study ID. No personal identification (names, student numbers) will be stored or published.</p>
                         <p style="margin-bottom: 0.5rem;">• <strong>Activities:</strong> You will complete short code interpretation questions, 6 programming tasks in two language conditions (8 minutes each maximum), and a post-task feedback questionnaire.</p>
-                        <p>• <strong>Voluntary:</strong> Your participation is completely voluntary and will not affect your academic grades.</p>
+                        <p>• <strong>Voluntary:</strong> Your participation is completely voluntary and will not affect your academic grades. You may withdraw at any time without penalty.</p>
                     </div>
 
                     <div style="display: flex; align-items: flex-start; gap: 0.65rem; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 8px; padding: 0.85rem 1rem;">
                         <input type="checkbox" name="consent" id="consent-check" value="1" required style="margin-top: 0.25rem; cursor: pointer;">
                         <label for="consent-check" style="font-size: 0.88rem; color: #93c5fd; cursor: pointer;">
-                            I have read the research protocol and freely consent to participate in this evaluation.
+                            I have read the research protocol, I am 18 years or older, and I freely consent to participate in this evaluation.
                         </label>
                     </div>
 
@@ -143,6 +144,24 @@
 
 <script>
     function goToStep(stepNum) {
+        if (stepNum === 2) {
+            const prog = document.getElementById('reg-program');
+            const yl = document.getElementById('reg-year-level');
+            if (!prog.value || !yl.value) {
+                alert('Please select your degree program and year level before proceeding.');
+                return;
+            }
+        }
+        if (stepNum === 3) {
+            const sql = document.getElementById('reg-sql-exp');
+            const py = document.getElementById('reg-python-exp');
+            const db = document.getElementById('reg-db-course');
+            if (!sql.value || !py.value || !db.value) {
+                alert('Please select your SQL experience, Python experience, and database course status before proceeding.');
+                return;
+            }
+        }
+
         document.querySelectorAll('.reg-step').forEach(el => el.style.display = 'none');
         document.getElementById('step-' + stepNum).style.display = 'block';
 
