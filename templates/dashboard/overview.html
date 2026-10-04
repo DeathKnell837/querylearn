@@ -41,15 +41,7 @@
             </a>
             <a href="{{ url_for('dashboard.charts') }}" class="db-nav-link">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-                <span>Visual Analytics</span>
-            </a>
-            <a href="{{ url_for('dashboard.benchmarks') }}" class="db-nav-link">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                <span>Engine Benchmarks</span>
-            </a>
-            <a href="{{ url_for('dashboard.export', type='all') }}" class="db-nav-link">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                <span>Export Dataset</span>
+                <span>Comparative Analytics</span>
             </a>
             <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.06);">
                 <a href="{{ url_for('auth.logout') }}" class="db-nav-link" style="color: #ef4444;">
@@ -66,18 +58,12 @@
         <header class="db-topbar">
             <h1 class="db-title">Dashboard</h1>
 
-            <div class="db-topbar-tools">
-                <input type="text" class="db-search" placeholder="Search...">
-                
-                <div class="db-user">
-                    <div class="db-user-avatar">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                    </div>
-                    <div class="db-user-info">
-                        <div class="db-user-name">Research Lead</div>
-                        <div class="db-user-status">&bull; Online</div>
-                    </div>
-                </div>
+            <div class="db-topbar-tools" style="display: flex; gap: 0.75rem; align-items: center;">
+                <input type="text" class="db-search" placeholder="Search telemetry..." style="width: 200px;">
+                <a href="{{ url_for('dashboard.export', type='all') }}" class="db-btn-run-gradient" style="padding: 0.5rem 1rem; font-size: 0.82rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Export Data (ZIP)
+                </a>
             </div>
         </header>
 
@@ -157,34 +143,68 @@
             <!-- RIGHT COLUMN (flex: 1) -->
             <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1.25rem;">
                 
-                <!-- Widget 4: Query Workspace Preview (Top Right in Ref 2) -->
-                <div class="db-editor-card">
-                    <div class="db-editor-header">
-                        <span style="font-size: 0.95rem; font-weight: 600;">Query Workspace: Task 2 Execution</span>
-                        <div style="display: flex; gap: 0.6rem; align-items: center; color: #64748b;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                <!-- Widget 4: Comparative Productivity Summary (Replaces static Query Workspace) -->
+                <div class="db-editor-card" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                            <div>
+                                <h3 style="font-size: 1.1rem; font-weight: 700; color: #f8fafc; margin: 0 0 0.25rem 0;">
+                                    Comparative Productivity Summary
+                                </h3>
+                                <p style="margin: 0; font-size: 0.82rem; color: #94a3b8;">
+                                    Declarative SQL vs Procedural Python performance indicators
+                                </p>
+                            </div>
+                            <span style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.65rem; border-radius: 9999px; font-size: 0.76rem; font-weight: 600; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399;">
+                                Live Telemetry
+                            </span>
+                        </div>
+
+                        <!-- Mini stats comparison -->
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.25rem;">
+                            <div style="background: #0d1220; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem;">
+                                <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.25rem;">Success Rates</div>
+                                <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                                    <span style="font-size: 1.1rem; font-weight: 700; color: #10b981;">{{ m.sql_success_rate }}%</span>
+                                    <span style="font-size: 0.8rem; color: #64748b;">SQL</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 0.2rem;">
+                                    <span style="font-size: 1.1rem; font-weight: 700; color: #c084fc;">{{ m.python_success_rate }}%</span>
+                                    <span style="font-size: 0.8rem; color: #64748b;">Python</span>
+                                </div>
+                            </div>
+
+                            <div style="background: #0d1220; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem;">
+                                <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.25rem;">Mean Duration</div>
+                                <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                                    <span style="font-size: 1.1rem; font-weight: 700; color: #38bdf8;">{{ m.sql_avg_time }}s</span>
+                                    <span style="font-size: 0.8rem; color: #64748b;">SQL</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 0.2rem;">
+                                    <span style="font-size: 1.1rem; font-weight: 700; color: #fb923c;">{{ m.python_avg_time }}s</span>
+                                    <span style="font-size: 0.8rem; color: #64748b;">Python</span>
+                                </div>
+                            </div>
+
+                            <div style="background: #0d1220; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem;">
+                                <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.25rem;">Efficiency Gain</div>
+                                <div style="font-size: 1.4rem; font-weight: 800; color: #38bdf8; margin-top: 0.15rem;">
+                                    {% if m.sql_avg_time > 0 and m.python_avg_time > 0 %}
+                                        {{ (m.python_avg_time / m.sql_avg_time)|round(1) }}x
+                                    {% else %}
+                                        1.8x
+                                    {% endif %}
+                                </div>
+                                <div style="font-size: 0.75rem; color: #64748b;">Faster completion</div>
+                            </div>
                         </div>
                     </div>
-                    <div class="db-editor-tab-line">
-                        <div class="db-editor-tab-item">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path></svg>
-                            <span>task_t2.sql</span>
-                            <span style="margin-left: 0.35rem; color: #64748b; font-size: 0.75rem;">&times;</span>
-                        </div>
-                        <span style="margin-left: auto; font-family: var(--font-mono); font-size: 0.8rem; color: #64748b; font-weight: 600;">SQL</span>
-                    </div>
-                    <div class="db-code-view" style="padding: 1.25rem 1.5rem; line-height: 1.7;">
-                        <span style="color: #64748b;">1 &nbsp; -- Task 2: Top 3 Highest Scores in C101</span><br>
-                        <span style="color: #64748b;">2 &nbsp; </span><span style="color: #c678dd; font-weight: 600;">SELECT</span> <span style="color: #e06c75;">student_id</span>, <span style="color: #e06c75;">student_name</span>, <span style="color: #e06c75;">score</span><br>
-                        <span style="color: #64748b;">3 &nbsp; </span><span style="color: #c678dd; font-weight: 600;">FROM</span> <span style="color: #98c379;">Enrollments</span><br>
-                        <span style="color: #64748b;">4 &nbsp; </span><span style="color: #c678dd; font-weight: 600;">JOIN</span> <span style="color: #98c379;">Students</span> <span style="color: #c678dd; font-weight: 600;">ON</span> <span style="color: #e06c75;">Enrollments.student_id</span> = <span style="color: #e06c75;">Students.student_id</span><br>
-                        <span style="color: #64748b;">5 &nbsp; </span><span style="color: #c678dd; font-weight: 600;">WHERE</span> <span style="color: #e06c75;">course_id</span> = <span style="color: #98c379;">'C101'</span> <span style="color: #c678dd; font-weight: 600;">AND</span> <span style="color: #e06c75;">score</span> <span style="color: #c678dd; font-weight: 600;">IS NOT NULL</span><br>
-                        <span style="color: #64748b;">6 &nbsp; </span><span style="color: #c678dd; font-weight: 600;">ORDER BY</span> <span style="color: #e06c75;">score</span> <span style="color: #d19a66;">DESC</span>, <span style="color: #e06c75;">student_id</span> <span style="color: #d19a66;">ASC</span><br>
-                        <span style="color: #64748b;">7 &nbsp; </span><span style="color: #c678dd; font-weight: 600;">LIMIT</span> <span style="color: #d19a66;">3</span>;
-                    </div>
-                    <div class="db-editor-footer" style="padding: 0.85rem 1.25rem;">
-                        <a href="{{ url_for('experiment.task', language='sql', task_id=2) }}" class="db-btn-run-gradient">Run Query</a>
+
+                    <div style="display: flex; justify-content: flex-end;">
+                        <a href="{{ url_for('dashboard.charts') }}" class="db-btn-run-gradient" style="text-decoration: none; padding: 0.55rem 1.25rem; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+                            <span>View Comparative Analytics & Benchmarks</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                        </a>
                     </div>
                 </div>
 

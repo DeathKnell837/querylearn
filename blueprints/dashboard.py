@@ -135,10 +135,11 @@ def results():
     conn.close()
     return render_template('dashboard/results.html', results=results_list)
 
+@dashboard_bp.route('/analytics')
 @dashboard_bp.route('/charts')
 @require_researcher
 def charts():
-    """Visual analytics page - reuses the same metrics as overview."""
+    """Comparative Analytics & Benchmarks combined page."""
     conn = sqlite3.connect(Config.RESEARCH_DB)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
@@ -179,6 +180,10 @@ def charts():
     """)
     lang_stats = {row['language']: dict(row) for row in cursor.fetchall()}
 
+    # Fetch Benchmarks records
+    cursor.execute("SELECT * FROM benchmarks ORDER BY measured_at DESC, dataset_size ASC")
+    raw_records = [dict(r) for r in cursor.fetchall()]
+
     conn.close()
 
     sql_stats = lang_stats.get('sql', {})
@@ -193,17 +198,6 @@ def charts():
         "sql_avg_attempts": sql_stats.get('avg_attempts', 0),
         "python_avg_attempts": py_stats.get('avg_attempts', 0),
     }
-    return render_template('dashboard/charts.html', m=metrics)
-
-@dashboard_bp.route('/benchmarks', methods=['GET'])
-@require_researcher
-def benchmarks():
-    conn = sqlite3.connect(Config.RESEARCH_DB)
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM benchmarks ORDER BY measured_at DESC, dataset_size ASC")
-    raw_records = [dict(r) for r in cursor.fetchall()]
-    conn.close()
 
     grouped = {}
     for r in raw_records:
@@ -229,7 +223,13 @@ def benchmarks():
             grouped[key]['peak_memory_mb'] = round(r['memory_usage'] / 1024, 2)
 
     bench_records = list(grouped.values())
-    return render_template('dashboard/benchmark.html', benchmarks=bench_records)
+
+    return render_template('dashboard/charts.html', m=metrics, benchmarks=bench_records)
+
+@dashboard_bp.route('/benchmarks', methods=['GET'])
+@require_researcher
+def benchmarks():
+    return redirect(url_for('dashboard.charts'))
 
 @dashboard_bp.route('/benchmarks/run', methods=['POST'])
 @require_researcher
