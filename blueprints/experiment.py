@@ -197,8 +197,10 @@ def comprehension(language):
     current_form = session.get('current_form', 'A')
     study_id = session.get('study_id', 'UNKNOWN')
 
-    # Query completed comprehension items for this session
-    completed_item_ids = []
+    # Query completed comprehension items (combine session cookie & DB for serverless multi-worker resilience)
+    session_comp_key = f"comp_{sess_id}_items"
+    completed_item_ids = list(session.get(session_comp_key, []))
+
     if sess_id:
         try:
             conn = sqlite3.connect(get_research_db_path())
@@ -207,7 +209,9 @@ def comprehension(language):
                 "SELECT item_id FROM comprehension_responses WHERE session_id = ? AND item_id IN ('C1','C2','C3','C4','C5','C6') ORDER BY id ASC",
                 (sess_id,)
             )
-            completed_item_ids = [r[0] for r in cursor.fetchall()]
+            for r in cursor.fetchall():
+                if r[0] not in completed_item_ids:
+                    completed_item_ids.append(r[0])
             conn.close()
         except Exception:
             pass
@@ -283,11 +287,16 @@ def comprehension(language):
             except Exception as e:
                 print(f"Error saving comprehension response: {e}")
 
+        # Track completed items in session for multi-worker continuity
+        if submitted_item_id not in completed_item_ids:
+            completed_item_ids.append(submitted_item_id)
+        session[session_comp_key] = completed_item_ids
+
         # Clear timer for submitted item
         session.pop(timer_key, None)
 
         # Check if condition complete
-        if submitted_item_id == 'C6' or current_item_num >= 6:
+        if submitted_item_id == 'C6' or len(completed_item_ids) >= 6:
             session['comprehension_completed'] = True
             return redirect(url_for('experiment.survey', language=language))
         else:
