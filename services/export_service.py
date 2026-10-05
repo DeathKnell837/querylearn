@@ -86,11 +86,31 @@ def export_comprehension_csv(db_path):
         ORDER BY p.study_id ASC, s.id ASC, cr.item_id ASC
     """)
 
+def export_attempts_csv(db_path):
+    """Export all individual code execution attempts with participant and session details."""
+    return get_csv_string_from_query(db_path, """
+        SELECT
+            p.study_id,
+            s.language,
+            s.form,
+            ta.task_id,
+            ta.attempt_number,
+            ta.result_status,
+            ta.error_message,
+            ta.submitted_code,
+            ta.submitted_at
+        FROM task_attempts ta
+        JOIN sessions s ON ta.session_id = s.id
+        JOIN participants p ON s.participant_id = p.id
+        ORDER BY p.study_id ASC, s.language ASC, ta.task_id ASC, ta.attempt_number ASC
+    """)
+
 def export_all_csv(db_path):
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zf:
         zf.writestr('participants.csv', export_participants_csv(db_path))
         zf.writestr('results.csv', export_results_csv(db_path))
+        zf.writestr('attempts.csv', export_attempts_csv(db_path))
         zf.writestr('survey.csv', export_survey_csv(db_path))
         zf.writestr('comprehension.csv', export_comprehension_csv(db_path))
     return zip_buffer.getvalue()

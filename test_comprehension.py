@@ -206,6 +206,11 @@ class TestComprehensionUpdates(unittest.TestCase):
         conn = sqlite3.connect(self.test_db_path)
         cursor = conn.cursor()
         
+        # Clear existing data in isolated test DB so test runs independently
+        cursor.execute("DELETE FROM comprehension_responses")
+        cursor.execute("DELETE FROM sessions")
+        cursor.execute("DELETE FROM participants")
+        
         # 1. Participant A with legacy 3-item data (only 1 row with old item_id 'comp_sql')
         cursor.execute("INSERT INTO participants (study_id, status) VALUES ('P_OLD', 'completed')")
         p_old = cursor.lastrowid

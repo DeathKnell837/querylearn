@@ -14,8 +14,19 @@ def check_answer(learner_output, expected_output, task_config=None):
             return {"correct": False, "feedback": f"Expected {len(expected_output)} rows, got {len(learner_output)} rows.", "classification": "incorrect"}
 
         for l_row, e_row in zip(learner_output, expected_output):
-            l_items = list(l_row) if isinstance(l_row, (list, tuple)) else [l_row]
-            e_items = list(e_row) if isinstance(e_row, (list, tuple)) else [e_row]
+            if isinstance(l_row, dict):
+                l_items = list(l_row.values())
+            elif isinstance(l_row, (list, tuple)):
+                l_items = list(l_row)
+            else:
+                l_items = [l_row]
+
+            if isinstance(e_row, dict):
+                e_items = list(e_row.values())
+            elif isinstance(e_row, (list, tuple)):
+                e_items = list(e_row)
+            else:
+                e_items = [e_row]
 
             if len(l_items) != len(e_items):
                 return {"correct": False, "feedback": f"Column count mismatch: expected {len(e_items)} columns, got {len(l_items)}.", "classification": "incorrect"}

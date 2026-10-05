@@ -179,6 +179,13 @@ def task(language, task_id):
     )
 
 
+@experiment_bp.route('/comprehension', methods=['GET', 'POST'])
+@participant_required
+def comprehension_fallback():
+    lang = session.get('current_language', 'sql')
+    return redirect(url_for('experiment.comprehension', language=lang))
+
+
 @experiment_bp.route('/comprehension/<language>', methods=['GET', 'POST'])
 @participant_required
 def comprehension(language):
@@ -246,7 +253,7 @@ def comprehension(language):
         is_timed_out = 1 if request.form.get('timed_out') in ('1', 'true', 'True') else 0
         resp_time_param = request.form.get('response_time_seconds')
 
-        # Calculate response time
+        # Calculate authoritative response time from server session timestamp
         try:
             started = datetime.datetime.fromisoformat(session.get(timer_key, now.isoformat()))
             server_elapsed = round((now - started).total_seconds(), 1)
@@ -254,10 +261,12 @@ def comprehension(language):
             server_elapsed = 0.0
 
         try:
-            resp_time = float(resp_time_param) if resp_time_param else server_elapsed
+            client_elapsed = float(resp_time_param) if resp_time_param else 0.0
         except (ValueError, TypeError):
-            resp_time = server_elapsed
+            client_elapsed = 0.0
 
+        # Authoritative time is max of server elapsed and client elapsed
+        resp_time = max(server_elapsed, client_elapsed)
         resp_time = max(0.0, min(180.0, resp_time))
         if resp_time >= 180.0 or is_timed_out:
             is_timed_out = 1
@@ -314,6 +323,13 @@ def comprehension(language):
         total_items=6,
         remaining_seconds=remaining_seconds
     )
+
+
+@experiment_bp.route('/survey', methods=['GET', 'POST'])
+@participant_required
+def survey_fallback():
+    lang = session.get('current_language', 'sql')
+    return redirect(url_for('experiment.survey', language=lang))
 
 
 @experiment_bp.route('/survey/<language>', methods=['GET', 'POST'])

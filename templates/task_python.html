@@ -317,8 +317,6 @@
         }
 
         const code = editor.getValue();
-        attempts++;
-        document.getElementById('attempt-num').textContent = attempts;
 
         try {
             const resp = await fetch('/api/submit', {
@@ -347,6 +345,12 @@
                         window.location.href = data.next_task_url;
                     }, 1400);
                 } else {
+                    if (data.attempt_count) {
+                        attempts = data.attempt_count + 1;
+                    } else {
+                        attempts++;
+                    }
+                    document.getElementById('attempt-num').textContent = Math.min(5, attempts);
                     isSubmitting = false;
                     if (btnSubmit) {
                         btnSubmit.disabled = false;

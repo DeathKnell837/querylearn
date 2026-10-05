@@ -9,3 +9,5 @@ ENV/
 .DS_Store
 *.log
 .vercel/
+screenshots/
+screenshots_html/

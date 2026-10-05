@@ -297,10 +297,30 @@ def submit():
             "next_task_url": next_url
         })
     else:
+        # Check if participant reached maximum attempt limit (5 attempts)
+        conn = sqlite3.connect(Config.RESEARCH_DB)
+        c = conn.cursor()
+        c.execute("SELECT COUNT(*) FROM task_attempts WHERE session_id = ? AND task_id = ?", (session_id, formatted_task_id))
+        count_row = c.fetchone()
+        attempts_so_far = count_row[0] if count_row else 1
+        conn.close()
+
+        if attempts_so_far >= 5:
+            log_task_result(session_id, language, form, formatted_task_id, False, elapsed_seconds, code, failure_reason="max_attempts_reached")
+            session['highest_unlocked_task'] = max(session.get('highest_unlocked_task', 1), current_num + 1)
+            return jsonify({
+                "correct": False,
+                "feedback": f"{feedback} Maximum attempts (5) reached. Proceeding to next task...",
+                "task_complete": True,
+                "next_task_url": next_url,
+                "attempt_count": attempts_so_far
+            })
+
         return jsonify({
             "correct": False,
             "feedback": feedback,
-            "task_complete": False
+            "task_complete": False,
+            "attempt_count": attempts_so_far
         })
 
 

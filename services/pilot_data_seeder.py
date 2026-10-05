@@ -28,6 +28,10 @@ STUDENT_PROFILES = [
     ("BSIT", 2, "novice", "intermediate", "yes", "JavaScript, Python")
 ]
 
+# Set fixed seed for consistent, reproducible research pilot benchmark data
+random.seed(2026)
+
+
 def seed_pilot_data():
     conn = sqlite3.connect(Config.RESEARCH_DB)
     cursor = conn.cursor()
@@ -68,10 +72,15 @@ def seed_pilot_data():
         """, (p_id, seq_info['second_language'].lower(), seq_info['second_form']))
         s2_id = cursor.lastrowid
 
-        # Seed task results if completed or in_progress
+        # Seed task results and attempts if completed or in_progress
         if status in ["completed", "in_progress"]:
-            for session_id, lang in [(s1_id, seq_info['first_language'].lower()), (s2_id, seq_info['second_language'].lower())]:
+            session_list = [
+                (s1_id, seq_info['first_language'].lower(), seq_info['first_form']),
+                (s2_id, seq_info['second_language'].lower(), seq_info['second_form'])
+            ]
+            for session_id, lang, form in session_list:
                 for task_idx in range(1, 7):
+                    task_id_str = f"T{task_idx}"
                     # SQL typically has faster times and fewer attempts for declarative tasks (as per research hypothesis)
                     if lang == "sql":
                         elapsed = random.randint(45, 210)
@@ -82,22 +91,63 @@ def seed_pilot_data():
                         attempts = random.choice([1, 2, 2, 3, 3, 4])
                         success = True if (i < 10 or task_idx < 4) else random.choice([True, False])
 
+                    code_sample = f"-- SQL Task {task_id_str} Solution" if lang == "sql" else f"# Python Task {task_id_str} Solution"
+
                     cursor.execute("""
                         INSERT INTO task_results 
                         (session_id, task_id, success, elapsed_seconds, allocated_seconds, attempt_count, final_code)
-                        VALUES (?, ?, ?, ?, 480, ?, '-- Pilot submission')
-                    """, (session_id, f"T{task_idx}", success, elapsed, attempts))
+                        VALUES (?, ?, ?, ?, 480, ?, ?)
+                    """, (session_id, task_id_str, success, elapsed, attempts, code_sample))
 
-                # Seed Survey
+                    # Seed matching task attempts
+                    for att in range(1, attempts + 1):
+                        is_final = (att == attempts)
+                        if is_final:
+                            att_status = "correct" if success else "incorrect"
+                            err_msg = "" if success else "Result mismatch against expected dataset"
+                        else:
+                            att_status = random.choice(["syntax_error", "incorrect"])
+                            err_msg = "SyntaxError: near clause" if att_status == "syntax_error" else "Column count or value mismatch"
+
+                        cursor.execute("""
+                            INSERT INTO task_attempts
+                            (session_id, task_id, attempt_number, submitted_code, result_status, error_message, submitted_at)
+                            VALUES (?, ?, ?, ?, ?, ?, datetime('now', '-' || ? || ' minutes'))
+                        """, (session_id, task_id_str, att, f"{code_sample} (attempt {att})", att_status, err_msg, max(1, 60 - att * 5)))
+
+                # Seed Comprehension Responses (6 items C1 to C6 per session) for completed participants
                 if status == "completed":
-                    # SQL typically rated higher for clarity (Q1, Q2) and lower mental effort (Q6)
+                    for c_idx in range(1, 7):
+                        item_id = f"C{c_idx}"
+                        if lang == "sql":
+                            exp_score = random.choices([2, 1, 0], weights=[0.75, 0.20, 0.05])[0]
+                            pred_score = random.choices([1, 0], weights=[0.85, 0.15])[0]
+                            resp_time = round(random.uniform(22.0, 68.0), 1)
+                        else:
+                            exp_score = random.choices([2, 1, 0], weights=[0.55, 0.35, 0.10])[0]
+                            pred_score = random.choices([1, 0], weights=[0.70, 0.30])[0]
+                            resp_time = round(random.uniform(38.0, 115.0), 1)
+
+                        total_score = exp_score + pred_score
+
+                        cursor.execute("""
+                            INSERT INTO comprehension_responses
+                            (study_id, session_id, item_id, language, form, explanation_score, prediction_score, condition_score, response_time, response_time_seconds, timed_out, learner_answer)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)
+                        """, (
+                            study_id, session_id, item_id, lang, form,
+                            float(exp_score), float(pred_score), float(total_score),
+                            resp_time, resp_time, f"exp:{exp_score},pred:{pred_score}"
+                        ))
+
+                    # Seed Survey Responses
                     q1 = random.choice([4, 5, 5]) if lang == "sql" else random.choice([3, 4, 4])
                     q2 = random.choice([4, 5]) if lang == "sql" else random.choice([3, 4])
                     q3 = random.choice([4, 4, 5]) if lang == "sql" else random.choice([3, 4])
                     q4 = random.choice([3, 4, 4]) if lang == "sql" else random.choice([3, 3, 4])
                     q5 = random.choice([4, 5]) if lang == "sql" else random.choice([3, 4])
-                    q6 = random.choice([2, 3]) if lang == "sql" else random.choice([3, 4]) # mental effort
-                    q7 = random.choice([2, 2, 3]) if lang == "sql" else random.choice([3, 3, 4]) # fatigue
+                    q6 = random.choice([2, 3]) if lang == "sql" else random.choice([3, 4])  # mental effort
+                    q7 = random.choice([2, 2, 3]) if lang == "sql" else random.choice([3, 3, 4])  # fatigue
 
                     cursor.execute("""
                         INSERT INTO survey_responses 
