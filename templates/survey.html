@@ -2,132 +2,117 @@
 
 {% block title %}Post-Task Feedback Survey ({{ language|upper }}) - QueryLearn{% endblock %}
 
+{% block extra_css %}
+<style>
+    .sv-card { background: #131929; border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-card); padding: 2.25rem; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+    .sv-section { font-size: 1.1rem; font-weight: 600; color: #f8fafc; margin: 2.25rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sv-section:first-of-type { margin-top: 0; }
+    .sv-q { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.1rem 1.25rem 1.25rem; margin-bottom: 1rem; }
+    .sv-q-title { display: flex; gap: 0.75rem; align-items: flex-start; font-size: 0.97rem; font-weight: 600; color: #e2e8f0; line-height: 1.5; margin-bottom: 0.9rem; }
+    .sv-num { flex: 0 0 auto; min-width: 26px; height: 26px; border-radius: 50%; background: rgba(59,130,246,0.15); color: #60a5fa; font-size: 0.8rem; display: inline-flex; align-items: center; justify-content: center; }
+    .sv-scale { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; }
+    .sv-opt { position: relative; cursor: pointer; }
+    .sv-opt input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; cursor: pointer; margin: 0; }
+    .sv-box { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 0.3rem; height: 100%; text-align: center; background: #0c101d; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 0.65rem 0.35rem; color: #cbd5e1; font-size: 0.78rem; line-height: 1.3; transition: all 0.15s; }
+    .sv-box b { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.25); font-size: 0.85rem; color: #e2e8f0; }
+    .sv-opt:hover .sv-box { border-color: rgba(96,165,250,0.6); }
+    .sv-opt input:focus-visible + .sv-box { outline: 2px solid #60a5fa; outline-offset: 2px; }
+    .sv-opt input:checked + .sv-box { background: rgba(59,130,246,0.15); border-color: #3b82f6; color: #fff; }
+    .sv-opt input:checked + .sv-box b { background: #3b82f6; border-color: #3b82f6; color: #fff; }
+    .sv-na { margin-top: 0.6rem; display: flex; justify-content: flex-end; }
+    .sv-na .sv-box { flex-direction: row; gap: 0.5rem; padding: 0.4rem 0.9rem; color: #94a3b8; font-size: 0.8rem; }
+    .sv-na .sv-box b { width: 16px; height: 16px; }
+    .sv-na input:checked + .sv-box b { box-shadow: inset 0 0 0 3px #3b82f6; background: #fff; }
+    .sv-text { width: 100%; background: #0c101d; border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 0.75rem 1rem; border-radius: 8px; font-family: inherit; font-size: 0.92rem; outline: none; resize: vertical; }
+    .sv-text:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+    @media (max-width: 640px) { .sv-scale { grid-template-columns: repeat(2, 1fr); } }
+</style>
+{% endblock %}
+
+{% macro scale(name, labels, na_label='Not applicable') %}
+<div class="sv-scale">
+    {% for label in labels %}
+    <label class="sv-opt">
+        <input type="radio" name="{{ name }}" value="{{ loop.index }}"{% if loop.first %} required{% endif %}>
+        <span class="sv-box"><b>{{ loop.index }}</b><span>{{ label }}</span></span>
+    </label>
+    {% endfor %}
+</div>
+<div class="sv-na">
+    <label class="sv-opt">
+        <input type="radio" name="{{ name }}" value="na">
+        <span class="sv-box"><b></b><span>{{ na_label }}</span></span>
+    </label>
+</div>
+{% endmacro %}
+
 {% block content %}
 <div class="container fade-in" style="max-width: 820px; margin: 2rem auto; padding: 0 1rem;">
-    <div class="card" style="background: #131929; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-card); padding: 2.25rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);">
-        <div class="card-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 1.25rem; margin-bottom: 1.75rem;">
+    <div class="sv-card">
+        <div style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1.25rem; margin-bottom: 1.75rem;">
             <h2 style="font-size: 1.5rem; font-weight: 700; color: #ffffff; margin-bottom: 0.35rem;">Post-Task Feedback Survey ({{ language|upper }})</h2>
-            <p style="font-size: 0.9rem; color: #94a3b8; margin: 0;">Please rate your experience with {{ language|upper }} for the tasks you just completed.</p>
+            <p style="font-size: 0.92rem; color: #94a3b8; margin: 0;">Please rate your experience with {{ language|upper }} for the tasks you just completed.</p>
         </div>
-        <div class="card-body">
-            <form action="{{ url_for('experiment.survey', language=language) }}" method="POST">
-                
-                <h3 style="font-size: 1.15rem; font-weight: 600; color: #f8fafc; margin-bottom: 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.5rem;">Section 1: Experience Ratings</h3>
-                
-                <!-- Five Agreement Items -->
-                {% set likert_items = [
-                    ('survey_likert_1', 'I could identify what the code was intended to return.'),
-                    ('survey_likert_2', 'The notation helped me connect the task instructions to the code.'),
-                    ('survey_likert_3', 'I could check whether my output answered the task correctly.'),
-                    ('survey_likert_4', 'When an error occurred, I understood the feedback well enough to decide what to change.'),
-                    ('survey_likert_5', 'I felt confident explaining my solution to another beginner.')
-                ] %}
 
-                {% for name, label in likert_items %}
-                <div class="form-group" style="margin-bottom: 1.75rem;">
-                    <label class="form-label" style="display: block; font-size: 0.92rem; font-weight: 600; color: #e2e8f0; margin-bottom: 0.65rem;">Item {{ loop.index }}: {{ label }}</label>
-                    <div class="likert-group" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <label class="likert-option" style="cursor: pointer; background: #0c101d; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.85rem; border-radius: 6px; font-size: 0.82rem; color: #cbd5e1; display: inline-flex; align-items: center; gap: 0.35rem;">
-                            <input type="radio" name="{{ name }}" value="1" required> 1 - Strongly Disagree
-                        </label>
-                        <label class="likert-option" style="cursor: pointer; background: #0c101d; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.85rem; border-radius: 6px; font-size: 0.82rem; color: #cbd5e1; display: inline-flex; align-items: center; gap: 0.35rem;">
-                            <input type="radio" name="{{ name }}" value="2"> 2 - Disagree
-                        </label>
-                        <label class="likert-option" style="cursor: pointer; background: #0c101d; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.85rem; border-radius: 6px; font-size: 0.82rem; color: #cbd5e1; display: inline-flex; align-items: center; gap: 0.35rem;">
-                            <input type="radio" name="{{ name }}" value="3"> 3 - Neither Agree nor Disagree
-                        </label>
-                        <label class="likert-option" style="cursor: pointer; background: #0c101d; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.85rem; border-radius: 6px; font-size: 0.82rem; color: #cbd5e1; display: inline-flex; align-items: center; gap: 0.35rem;">
-                            <input type="radio" name="{{ name }}" value="4"> 4 - Agree
-                        </label>
-                        <label class="likert-option" style="cursor: pointer; background: #0c101d; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.85rem; border-radius: 6px; font-size: 0.82rem; color: #cbd5e1; display: inline-flex; align-items: center; gap: 0.35rem;">
-                            <input type="radio" name="{{ name }}" value="5"> 5 - Strongly Agree
-                        </label>
-                        <label class="likert-option" style="cursor: pointer; background: #0c101d; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.85rem; border-radius: 6px; font-size: 0.82rem; color: #94a3b8; display: inline-flex; align-items: center; gap: 0.35rem;">
-                            <input type="radio" name="{{ name }}" value="na"> Not applicable
-                        </label>
-                    </div>
-                </div>
-                {% endfor %}
+        <form action="{{ url_for('experiment.survey', language=language) }}" method="POST">
 
-                <h3 style="font-size: 1.15rem; font-weight: 600; color: #f8fafc; margin-top: 2rem; margin-bottom: 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.5rem;">Section 2: Self-Assessment</h3>
-                
-                <div class="form-group" style="margin-bottom: 1.75rem;">
-                    <label class="form-label" style="display: block; font-size: 0.92rem; font-weight: 600; color: #e2e8f0; margin-bottom: 0.65rem;">Mental effort required</label>
-                    <div class="likert-group" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <label class="likert-option" style="cursor: pointer; background: #0c101d; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.85rem; border-radius: 6px; font-size: 0.82rem; color: #cbd5e1; display: inline-flex; align-items: center; gap: 0.35rem;">
-                            <input type="radio" name="survey_effort" value="1" required> 1 - Very Low
-                        </label>
-                        <label class="likert-option" style="cursor: pointer; background: #0c101d; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.85rem; border-radius: 6px; font-size: 0.82rem; color: #cbd5e1; display: inline-flex; align-items: center; gap: 0.35rem;">
-                            <input type="radio" name="survey_effort" value="2"> 2 - Low
-                        </label>
-                        <label class="likert-option" style="cursor: pointer; background: #0c101d; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.85rem; border-radius: 6px; font-size: 0.82rem; color: #cbd5e1; display: inline-flex; align-items: center; gap: 0.35rem;">
-                            <input type="radio" name="survey_effort" value="3"> 3 - Neutral
-                        </label>
-                        <label class="likert-option" style="cursor: pointer; background: #0c101d; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.85rem; border-radius: 6px; font-size: 0.82rem; color: #cbd5e1; display: inline-flex; align-items: center; gap: 0.35rem;">
-                            <input type="radio" name="survey_effort" value="4"> 4 - High
-                        </label>
-                        <label class="likert-option" style="cursor: pointer; background: #0c101d; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.85rem; border-radius: 6px; font-size: 0.82rem; color: #cbd5e1; display: inline-flex; align-items: center; gap: 0.35rem;">
-                            <input type="radio" name="survey_effort" value="5"> 5 - Very High
-                        </label>
-                        <label class="likert-option" style="cursor: pointer; background: #0c101d; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.85rem; border-radius: 6px; font-size: 0.82rem; color: #94a3b8; display: inline-flex; align-items: center; gap: 0.35rem;">
-                            <input type="radio" name="survey_effort" value="na"> Not applicable
-                        </label>
-                    </div>
-                </div>
+            <h3 class="sv-section">Section 1: Experience Ratings</h3>
 
-                <div class="form-group" style="margin-bottom: 1.75rem;">
-                    <label class="form-label" style="display: block; font-size: 0.92rem; font-weight: 600; color: #e2e8f0; margin-bottom: 0.65rem;">Fatigue level after tasks</label>
-                    <div class="likert-group" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <label class="likert-option" style="cursor: pointer; background: #0c101d; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.85rem; border-radius: 6px; font-size: 0.82rem; color: #cbd5e1; display: inline-flex; align-items: center; gap: 0.35rem;">
-                            <input type="radio" name="survey_fatigue" value="1" required> 1 - Not Tired
-                        </label>
-                        <label class="likert-option" style="cursor: pointer; background: #0c101d; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.85rem; border-radius: 6px; font-size: 0.82rem; color: #cbd5e1; display: inline-flex; align-items: center; gap: 0.35rem;">
-                            <input type="radio" name="survey_fatigue" value="2"> 2 - Slightly Tired
-                        </label>
-                        <label class="likert-option" style="cursor: pointer; background: #0c101d; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.85rem; border-radius: 6px; font-size: 0.82rem; color: #cbd5e1; display: inline-flex; align-items: center; gap: 0.35rem;">
-                            <input type="radio" name="survey_fatigue" value="3"> 3 - Moderately Tired
-                        </label>
-                        <label class="likert-option" style="cursor: pointer; background: #0c101d; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.85rem; border-radius: 6px; font-size: 0.82rem; color: #cbd5e1; display: inline-flex; align-items: center; gap: 0.35rem;">
-                            <input type="radio" name="survey_fatigue" value="4"> 4 - Tired
-                        </label>
-                        <label class="likert-option" style="cursor: pointer; background: #0c101d; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.85rem; border-radius: 6px; font-size: 0.82rem; color: #cbd5e1; display: inline-flex; align-items: center; gap: 0.35rem;">
-                            <input type="radio" name="survey_fatigue" value="5"> 5 - Very Tired
-                        </label>
-                        <label class="likert-option" style="cursor: pointer; background: #0c101d; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.85rem; border-radius: 6px; font-size: 0.82rem; color: #94a3b8; display: inline-flex; align-items: center; gap: 0.35rem;">
-                            <input type="radio" name="survey_fatigue" value="na"> Not applicable
-                        </label>
-                    </div>
-                </div>
+            {% set agree = ['Strongly Disagree', 'Disagree', 'Neither Agree nor Disagree', 'Agree', 'Strongly Agree'] %}
+            {% set likert_items = [
+                ('survey_likert_1', 'I could identify what the code was intended to return.'),
+                ('survey_likert_2', 'The notation helped me connect the task instructions to the code.'),
+                ('survey_likert_3', 'I could check whether my output answered the task correctly.'),
+                ('survey_likert_4', 'When an error occurred, I understood the feedback well enough to decide what to change.'),
+                ('survey_likert_5', 'I felt confident explaining my solution to another beginner.')
+            ] %}
+            {% for name, label in likert_items %}
+            <div class="sv-q">
+                <div class="sv-q-title"><span class="sv-num">{{ loop.index }}</span><span>{{ label }}</span></div>
+                {{ scale(name, agree) }}
+            </div>
+            {% endfor %}
 
-                <h3 style="font-size: 1.15rem; font-weight: 600; color: #f8fafc; margin-top: 2rem; margin-bottom: 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.5rem;">Section 3: Open-Ended (Optional)</h3>
+            <h3 class="sv-section">Section 2: Self-Assessment</h3>
 
-                <div class="form-group" style="margin-bottom: 1.5rem;">
-                    <label class="form-label" for="open_easiest" style="display: block; font-size: 0.92rem; font-weight: 600; color: #e2e8f0; margin-bottom: 0.5rem;">Which part of the code was easiest to understand, and why?</label>
-                    <textarea class="form-control" name="open_easiest" id="open_easiest" rows="3" style="width: 100%; background: #0c101d; border: 1px solid rgba(255,255,255,0.1); color: #ffffff; padding: 0.75rem 1rem; border-radius: 8px; font-family: inherit; font-size: 0.9rem; outline: none;"></textarea>
-                </div>
+            <div class="sv-q">
+                <div class="sv-q-title"><span class="sv-num">6</span><span>Mental effort required</span></div>
+                {{ scale('survey_effort', ['Very Low', 'Low', 'Neutral', 'High', 'Very High']) }}
+            </div>
 
-                <div class="form-group" style="margin-bottom: 1.5rem;">
-                    <label class="form-label" for="open_hardest" style="display: block; font-size: 0.92rem; font-weight: 600; color: #e2e8f0; margin-bottom: 0.5rem;">Which task or construct caused the most difficulty? Give a specific example.</label>
-                    <textarea class="form-control" name="open_hardest" id="open_hardest" rows="3" style="width: 100%; background: #0c101d; border: 1px solid rgba(255,255,255,0.1); color: #ffffff; padding: 0.75rem 1rem; border-radius: 8px; font-family: inherit; font-size: 0.9rem; outline: none;"></textarea>
-                </div>
+            <div class="sv-q">
+                <div class="sv-q-title"><span class="sv-num">7</span><span>Fatigue level after tasks</span></div>
+                {{ scale('survey_fatigue', ['Not Tired', 'Slightly Tired', 'Moderately Tired', 'Tired', 'Very Tired']) }}
+            </div>
 
-                <div class="form-group" style="margin-bottom: 1.5rem;">
-                    <label class="form-label" for="open_after_error" style="display: block; font-size: 0.92rem; font-weight: 600; color: #e2e8f0; margin-bottom: 0.5rem;">What did you do when your first attempt was incorrect?</label>
-                    <textarea class="form-control" name="open_after_error" id="open_after_error" rows="3" style="width: 100%; background: #0c101d; border: 1px solid rgba(255,255,255,0.1); color: #ffffff; padding: 0.75rem 1rem; border-radius: 8px; font-family: inherit; font-size: 0.9rem; outline: none;"></textarea>
-                </div>
+            <h3 class="sv-section">Section 3: Open-Ended (Optional)</h3>
 
-                {% if condition_step and condition_step >= 2 %}
-                <div class="form-group" style="margin-bottom: 1.75rem;">
-                    <label class="form-label" for="open_preference" style="display: block; font-size: 0.92rem; font-weight: 600; color: #e2e8f0; margin-bottom: 0.5rem;">Which approach would you choose for a similar task, and what influenced that choice?</label>
-                    <textarea class="form-control" name="open_preference" id="open_preference" rows="3" style="width: 100%; background: #0c101d; border: 1px solid rgba(255,255,255,0.1); color: #ffffff; padding: 0.75rem 1rem; border-radius: 8px; font-family: inherit; font-size: 0.9rem; outline: none;"></textarea>
-                </div>
-                {% endif %}
+            <div class="sv-q">
+                <label class="sv-q-title" for="open_easiest">Which part of the code was easiest to understand, and why?</label>
+                <textarea class="sv-text" name="open_easiest" id="open_easiest" rows="3"></textarea>
+            </div>
 
-                <div style="text-align: center; margin-top: 2rem;">
-                    <button type="submit" class="btn btn-primary btn-lg" style="padding: 0.75rem 2.25rem; font-size: 1rem;">Submit Survey</button>
-                </div>
-            </form>
-        </div>
+            <div class="sv-q">
+                <label class="sv-q-title" for="open_hardest">Which task or construct caused the most difficulty? Give a specific example.</label>
+                <textarea class="sv-text" name="open_hardest" id="open_hardest" rows="3"></textarea>
+            </div>
+
+            <div class="sv-q">
+                <label class="sv-q-title" for="open_after_error">What did you do when your first attempt was incorrect?</label>
+                <textarea class="sv-text" name="open_after_error" id="open_after_error" rows="3"></textarea>
+            </div>
+
+            {% if condition_step and condition_step >= 2 %}
+            <div class="sv-q">
+                <label class="sv-q-title" for="open_preference">Which approach would you choose for a similar task, and what influenced that choice?</label>
+                <textarea class="sv-text" name="open_preference" id="open_preference" rows="3"></textarea>
+            </div>
+            {% endif %}
+
+            <div style="text-align: center; margin-top: 2rem;">
+                <button type="submit" class="btn btn-primary btn-lg" style="padding: 0.75rem 2.25rem; font-size: 1rem;">Submit Survey</button>
+            </div>
+        </form>
     </div>
 </div>
 {% endblock %}
