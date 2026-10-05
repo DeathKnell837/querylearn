@@ -2,228 +2,153 @@
 
 {% block title %}Language Reference Guide - QueryLearn{% endblock %}
 
+{% block extra_css %}
+<style>
+    .guide-card { background: #131929; border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-card); padding: 2.25rem; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+    .guide-note { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; font-size: 0.95rem; color: #cbd5e1; line-height: 1.7; }
+    .guide-h { font-size: 1.1rem; font-weight: 600; color: #f8fafc; margin: 1.75rem 0 0.6rem; }
+    .guide-code { background: #080c14; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; font-family: var(--font-mono, monospace); font-size: 0.9rem; color: #e2e8f0; line-height: 1.6; margin: 0 0 0.75rem; overflow-x: auto; white-space: pre; }
+    .guide-code .k { color: #818cf8; font-weight: 600; }
+    .guide-code .s { color: #34d399; }
+    .guide-says { font-size: 0.95rem; color: #e2e8f0; margin: 0 0 1.5rem; padding: 0.65rem 0.9rem; background: rgba(255,255,255,0.03); border-left: 3px solid #60a5fa; border-radius: 0 6px 6px 0; line-height: 1.6; }
+    .guide-says.py { border-left-color: #c084fc; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container fade-in" style="max-width: 920px; margin: 2rem auto; padding: 0 1rem;">
-    <div class="card" style="background: #131929; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-card); padding: 2.25rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);">
-        <div class="card-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 1.25rem; margin-bottom: 1.75rem;">
+    <div class="guide-card">
+        <div style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1.25rem; margin-bottom: 1.75rem;">
             <h2 style="font-size: 1.5rem; font-weight: 700; color: #ffffff; margin-bottom: 0.35rem;">Language Reference Guide</h2>
-            <p style="font-size: 0.9rem; color: #94a3b8; margin: 0;">Review equivalent query and data-processing patterns for SQL and procedural Python before starting the practice tasks.</p>
+            <p style="font-size: 0.95rem; color: #94a3b8; margin: 0;">Read the examples in both tabs. They show the same six ideas in two ways.</p>
         </div>
-        <div class="card-body">
-            <div class="tabs" style="display: flex; gap: 0.5rem; margin-bottom: 1.75rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.75rem;">
-                <button class="tab-btn active" onclick="switchTab('sql')" id="tab-btn-sql" style="padding: 0.6rem 1.25rem; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; color: #60a5fa; font-weight: 600; font-size: 0.9rem; cursor: pointer;">SQL Reference</button>
-                <button class="tab-btn" onclick="switchTab('python')" id="tab-btn-python" style="padding: 0.6rem 1.25rem; background: transparent; border: 1px solid transparent; border-radius: 8px; color: #94a3b8; font-weight: 600; font-size: 0.9rem; cursor: pointer;">Python Reference</button>
+
+        <div class="tabs" style="display: flex; gap: 0.5rem; margin-bottom: 1.75rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.75rem;">
+            <button class="tab-btn active" onclick="switchTab('sql')" id="tab-btn-sql" style="padding: 0.6rem 1.25rem; background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.3); border-radius: 8px; color: #60a5fa; font-weight: 600; font-size: 0.9rem; cursor: pointer;">SQL Reference</button>
+            <button class="tab-btn" onclick="switchTab('python')" id="tab-btn-python" style="padding: 0.6rem 1.25rem; background: transparent; border: 1px solid transparent; border-radius: 8px; color: #94a3b8; font-weight: 600; font-size: 0.9rem; cursor: pointer;">Python Reference</button>
+        </div>
+
+        <!-- SQL TAB -->
+        <div id="sql-tab" class="tab-content" style="display: block;">
+            <div class="guide-note">
+                <strong>About the examples:</strong> They use two small tables of school courses:
+                <code>Departments (dept_id, dept_name)</code> and
+                <code>Courses (course_code, title, dept_id, credits, fee)</code>.
+                An empty value is called <code>NULL</code>.
             </div>
 
-            <!-- SQL TAB -->
-            <div id="sql-tab" class="tab-content" style="display: block;">
-                <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
-                    <p style="font-size: 0.88rem; color: #cbd5e1; margin: 0; line-height: 1.6;">
-                        <strong>Illustrative Schema:</strong> The examples below use a sample university catalog with two tables: 
-                        <code style="color: #60a5fa; background: #0c101d; padding: 2px 6px; border-radius: 4px;">Departments (dept_id, dept_name)</code> and 
-                        <code style="color: #60a5fa; background: #0c101d; padding: 2px 6px; border-radius: 4px;">Courses (course_code, title, dept_id, credits, fee)</code>.
-                    </p>
-                </div>
+            <h4 class="guide-h">1. Pick rows that match</h4>
+            <pre class="guide-code"><span class="k">SELECT</span> course_code, title
+<span class="k">FROM</span> Courses
+<span class="k">WHERE</span> credits = 4 <span class="k">AND</span> fee &lt; 500.0
+<span class="k">ORDER BY</span> course_code <span class="k">ASC</span>;</pre>
+            <p class="guide-says"><strong>What it does:</strong> Shows courses that have 4 credits and cost less than 500, sorted by course code.</p>
 
-                <h4 style="font-size: 1.05rem; font-weight: 600; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem;">1. Selection and Filtering (SELECT ... WHERE with Multiple Conditions)</h4>
-                <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.65rem;">Retrieve specific columns and filter rows using multiple logical conditions connected with <code style="color: #818cf8;">AND</code>.</p>
-                <div class="code-block" style="background: #080c14; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; font-family: var(--font-mono, monospace); font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin-bottom: 1rem;">
-                    <span style="color: #818cf8; font-weight: 600;">SELECT</span> course_code, title<br>
-                    <span style="color: #818cf8; font-weight: 600;">FROM</span> Courses<br>
-                    <span style="color: #818cf8; font-weight: 600;">WHERE</span> credits = 4 <span style="color: #818cf8; font-weight: 600;">AND</span> fee &lt; 500.0<br>
-                    <span style="color: #818cf8; font-weight: 600;">ORDER BY</span> course_code <span style="color: #818cf8; font-weight: 600;">ASC</span>;
-                </div>
-                <p style="font-size: 0.88rem; color: #cbd5e1; margin-bottom: 1.5rem; padding: 0.6rem 0.9rem; background: rgba(255, 255, 255, 0.03); border-left: 3px solid #60a5fa; border-radius: 0 6px 6px 0; line-height: 1.5;">
-                    <strong>Plain-English summary:</strong> This code finds all 4-credit courses with a fee under 500.0, skipping any missing fees, and lists their code and title in alphabetical order.
-                </p>
+            <h4 class="guide-h">2. Sort and keep the top few</h4>
+            <pre class="guide-code"><span class="k">SELECT</span> course_code, fee, credits
+<span class="k">FROM</span> Courses
+<span class="k">WHERE</span> fee <span class="k">IS NOT NULL</span> <span class="k">AND</span> credits <span class="k">IS NOT NULL</span>
+<span class="k">ORDER BY</span> fee <span class="k">DESC</span>, credits <span class="k">ASC</span>
+<span class="k">LIMIT</span> 4;</pre>
+            <p class="guide-says"><strong>What it does:</strong> Skips empty values, puts the highest fee first, and keeps only the first 4 rows.</p>
 
-                <h4 style="font-size: 1.05rem; font-weight: 600; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem;">2. Sorting with Two Columns, Limiting, and Filtering Missing Values</h4>
-                <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.65rem;">Exclude missing values using <code style="color: #818cf8;">IS NOT NULL</code>, sort by multiple columns with <code style="color: #818cf8;">DESC</code> and <code style="color: #818cf8;">ASC</code>, and restrict rows with <code style="color: #818cf8;">LIMIT</code>.</p>
-                <div class="code-block" style="background: #080c14; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; font-family: var(--font-mono, monospace); font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin-bottom: 1rem;">
-                    <span style="color: #818cf8; font-weight: 600;">SELECT</span> course_code, fee, credits<br>
-                    <span style="color: #818cf8; font-weight: 600;">FROM</span> Courses<br>
-                    <span style="color: #818cf8; font-weight: 600;">WHERE</span> fee <span style="color: #818cf8; font-weight: 600;">IS NOT NULL</span> <span style="color: #818cf8; font-weight: 600;">AND</span> credits <span style="color: #818cf8; font-weight: 600;">IS NOT NULL</span><br>
-                    <span style="color: #818cf8; font-weight: 600;">ORDER BY</span> fee <span style="color: #818cf8; font-weight: 600;">DESC</span>, credits <span style="color: #818cf8; font-weight: 600;">ASC</span><br>
-                    <span style="color: #818cf8; font-weight: 600;">LIMIT</span> 4;
-                </div>
-                <p style="font-size: 0.88rem; color: #cbd5e1; margin-bottom: 1.5rem; padding: 0.6rem 0.9rem; background: rgba(255, 255, 255, 0.03); border-left: 3px solid #60a5fa; border-radius: 0 6px 6px 0; line-height: 1.5;">
-                    <strong>Plain-English summary:</strong> This code skips courses with missing fees or credits, sorts the rest from highest fee to lowest, breaks ties by lower credits, and keeps only the top 4 courses.
-                </p>
+            <h4 class="guide-h">3. Count items in each group</h4>
+            <pre class="guide-code"><span class="k">SELECT</span> dept_id, <span class="k">COUNT</span>(*) <span class="k">AS</span> total_courses
+<span class="k">FROM</span> Courses
+<span class="k">WHERE</span> dept_id <span class="k">IS NOT NULL</span>
+<span class="k">GROUP BY</span> dept_id
+<span class="k">ORDER BY</span> dept_id <span class="k">ASC</span>;</pre>
+            <p class="guide-says"><strong>What it does:</strong> Counts how many courses each department has.</p>
 
-                <h4 style="font-size: 1.05rem; font-weight: 600; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem;">3. Grouping and Counting (GROUP BY ... COUNT)</h4>
-                <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.65rem;">Group records by a common key attribute and compute the count of records in each group.</p>
-                <div class="code-block" style="background: #080c14; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; font-family: var(--font-mono, monospace); font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin-bottom: 1rem;">
-                    <span style="color: #818cf8; font-weight: 600;">SELECT</span> dept_id, <span style="color: #818cf8; font-weight: 600;">COUNT</span>(*) <span style="color: #818cf8; font-weight: 600;">AS</span> total_courses<br>
-                    <span style="color: #818cf8; font-weight: 600;">FROM</span> Courses<br>
-                    <span style="color: #818cf8; font-weight: 600;">WHERE</span> dept_id <span style="color: #818cf8; font-weight: 600;">IS NOT NULL</span><br>
-                    <span style="color: #818cf8; font-weight: 600;">GROUP BY</span> dept_id<br>
-                    <span style="color: #818cf8; font-weight: 600;">ORDER BY</span> dept_id <span style="color: #818cf8; font-weight: 600;">ASC</span>;
-                </div>
-                <p style="font-size: 0.88rem; color: #cbd5e1; margin-bottom: 1.5rem; padding: 0.6rem 0.9rem; background: rgba(255, 255, 255, 0.03); border-left: 3px solid #60a5fa; border-radius: 0 6px 6px 0; line-height: 1.5;">
-                    <strong>Plain-English summary:</strong> This code counts how many courses belong to each department and lists each department ID alongside its course total in alphabetical order.
-                </p>
+            <h4 class="guide-h">4. Combine two tables</h4>
+            <pre class="guide-code"><span class="k">SELECT</span> c.course_code, c.title, d.dept_name
+<span class="k">FROM</span> Courses c
+<span class="k">JOIN</span> Departments d <span class="k">ON</span> c.dept_id = d.dept_id
+<span class="k">ORDER BY</span> c.course_code <span class="k">ASC</span>;</pre>
+            <p class="guide-says"><strong>What it does:</strong> Matches each course to its department so you can see the department name next to the course.</p>
 
-                <h4 style="font-size: 1.05rem; font-weight: 600; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem;">4. Combining Two Tables (INNER JOIN)</h4>
-                <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.65rem;">Combine attributes from two related tables by matching primary and foreign key values.</p>
-                <div class="code-block" style="background: #080c14; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; font-family: var(--font-mono, monospace); font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin-bottom: 1rem;">
-                    <span style="color: #818cf8; font-weight: 600;">SELECT</span> c.course_code, c.title, d.dept_name<br>
-                    <span style="color: #818cf8; font-weight: 600;">FROM</span> Courses c<br>
-                    <span style="color: #818cf8; font-weight: 600;">JOIN</span> Departments d <span style="color: #818cf8; font-weight: 600;">ON</span> c.dept_id = d.dept_id<br>
-                    <span style="color: #818cf8; font-weight: 600;">ORDER BY</span> c.course_code <span style="color: #818cf8; font-weight: 600;">ASC</span>;
-                </div>
-                <p style="font-size: 0.88rem; color: #cbd5e1; margin-bottom: 1.5rem; padding: 0.6rem 0.9rem; background: rgba(255, 255, 255, 0.03); border-left: 3px solid #60a5fa; border-radius: 0 6px 6px 0; line-height: 1.5;">
-                    <strong>Plain-English summary:</strong> This code looks up each course's department ID to show the course code and title together with the full department name in alphabetical order.
-                </p>
+            <h4 class="guide-h">5. Find the average of each group</h4>
+            <pre class="guide-code"><span class="k">SELECT</span> dept_id, <span class="k">ROUND</span>(<span class="k">AVG</span>(fee), 2) <span class="k">AS</span> avg_fee
+<span class="k">FROM</span> Courses
+<span class="k">WHERE</span> fee <span class="k">IS NOT NULL</span> <span class="k">AND</span> dept_id <span class="k">IS NOT NULL</span>
+<span class="k">GROUP BY</span> dept_id
+<span class="k">HAVING</span> <span class="k">AVG</span>(fee) &gt;= 350.0
+<span class="k">ORDER BY</span> dept_id <span class="k">ASC</span>;</pre>
+            <p class="guide-says"><strong>What it does:</strong> Finds each department's average fee, rounds it, and keeps only averages of 350 or more.</p>
 
-                <h4 style="font-size: 1.05rem; font-weight: 600; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem;">5. Group Aggregation with Average, Rounding, and Threshold (AVG, ROUND, HAVING)</h4>
-                <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.65rem;">Compute the group average ignoring NULL values, round to 2 decimal places, and filter aggregated groups with <code style="color: #818cf8;">HAVING</code>.</p>
-                <div class="code-block" style="background: #080c14; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; font-family: var(--font-mono, monospace); font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin-bottom: 1rem;">
-                    <span style="color: #818cf8; font-weight: 600;">SELECT</span> dept_id, <span style="color: #818cf8; font-weight: 600;">ROUND</span>(<span style="color: #818cf8; font-weight: 600;">AVG</span>(fee), 2) <span style="color: #818cf8; font-weight: 600;">AS</span> avg_fee<br>
-                    <span style="color: #818cf8; font-weight: 600;">FROM</span> Courses<br>
-                    <span style="color: #818cf8; font-weight: 600;">WHERE</span> fee <span style="color: #818cf8; font-weight: 600;">IS NOT NULL</span> <span style="color: #818cf8; font-weight: 600;">AND</span> dept_id <span style="color: #818cf8; font-weight: 600;">IS NOT NULL</span><br>
-                    <span style="color: #818cf8; font-weight: 600;">GROUP BY</span> dept_id<br>
-                    <span style="color: #818cf8; font-weight: 600;">HAVING</span> <span style="color: #818cf8; font-weight: 600;">AVG</span>(fee) &gt;= 350.0<br>
-                    <span style="color: #818cf8; font-weight: 600;">ORDER BY</span> dept_id <span style="color: #818cf8; font-weight: 600;">ASC</span>;
-                </div>
-                <p style="font-size: 0.88rem; color: #cbd5e1; margin-bottom: 1.5rem; padding: 0.6rem 0.9rem; background: rgba(255, 255, 255, 0.03); border-left: 3px solid #60a5fa; border-radius: 0 6px 6px 0; line-height: 1.5;">
-                    <strong>Plain-English summary:</strong> This code calculates each department's average fee leaving out missing values, rounds that average to two decimals, and keeps only departments averaging 350.0 or more.
-                </p>
+            <h4 class="guide-h">6. Find items with no match</h4>
+            <pre class="guide-code"><span class="k">SELECT</span> d.dept_id, d.dept_name
+<span class="k">FROM</span> Departments d
+<span class="k">LEFT JOIN</span> Courses c <span class="k">ON</span> d.dept_id = c.dept_id
+<span class="k">WHERE</span> c.dept_id <span class="k">IS NULL</span>
+<span class="k">ORDER BY</span> d.dept_id <span class="k">ASC</span>;</pre>
+            <p class="guide-says"><strong>What it does:</strong> Shows departments that have no courses at all.</p>
+        </div>
 
-                <h4 style="font-size: 1.05rem; font-weight: 600; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem;">6. Finding Records with No Match (LEFT JOIN ... IS NULL)</h4>
-                <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.65rem;">Identify parent records that have no matching rows in a child table using a left outer join and testing for <code style="color: #818cf8;">IS NULL</code>.</p>
-                <div class="code-block" style="background: #080c14; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; font-family: var(--font-mono, monospace); font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin-bottom: 1rem;">
-                    <span style="color: #818cf8; font-weight: 600;">SELECT</span> d.dept_id, d.dept_name<br>
-                    <span style="color: #818cf8; font-weight: 600;">FROM</span> Departments d<br>
-                    <span style="color: #818cf8; font-weight: 600;">LEFT JOIN</span> Courses c <span style="color: #818cf8; font-weight: 600;">ON</span> d.dept_id = c.dept_id<br>
-                    <span style="color: #818cf8; font-weight: 600;">WHERE</span> c.dept_id <span style="color: #818cf8; font-weight: 600;">IS NULL</span><br>
-                    <span style="color: #818cf8; font-weight: 600;">ORDER BY</span> d.dept_id <span style="color: #818cf8; font-weight: 600;">ASC</span>;
-                </div>
-                <p style="font-size: 0.88rem; color: #cbd5e1; margin-bottom: 1.5rem; padding: 0.6rem 0.9rem; background: rgba(255, 255, 255, 0.03); border-left: 3px solid #60a5fa; border-radius: 0 6px 6px 0; line-height: 1.5;">
-                    <strong>Plain-English summary:</strong> This code finds all departments that currently have no courses by checking for department IDs that never appear in the course list, sorted in alphabetical order.
-                </p>
+        <!-- PYTHON TAB -->
+        <div id="python-tab" class="tab-content" style="display: none;">
+            <div class="guide-note">
+                <strong>About the examples:</strong> They use two lists of school courses:
+                <code>departments = [{'dept_id': ..., 'dept_name': ...}]</code> and
+                <code>courses = [{'course_code': ..., 'title': ..., 'dept_id': ..., 'credits': ..., 'fee': ...}]</code>.
+                An empty value is called <code>None</code>.
             </div>
 
-            <!-- PYTHON TAB -->
-            <div id="python-tab" class="tab-content" style="display: none;">
-                <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
-                    <p style="font-size: 0.88rem; color: #cbd5e1; margin: 0; line-height: 1.6;">
-                        <strong>Illustrative Data:</strong> The examples below process in-memory lists of dictionaries: 
-                        <code style="color: #c084fc; background: #0c101d; padding: 2px 6px; border-radius: 4px;">departments = [{'dept_id': ..., 'dept_name': ...}]</code> and 
-                        <code style="color: #c084fc; background: #0c101d; padding: 2px 6px; border-radius: 4px;">courses = [{'course_code': ..., 'title': ..., 'dept_id': ..., 'credits': ..., 'fee': ...}]</code>.
-                    </p>
-                </div>
+            <h4 class="guide-h">1. Pick rows that match</h4>
+            <pre class="guide-code">result = []
+<span class="k">for</span> c <span class="k">in</span> courses:
+    <span class="k">if</span> c[<span class="s">'credits'</span>] == 4 <span class="k">and</span> c[<span class="s">'fee'</span>] <span class="k">is not None</span> <span class="k">and</span> c[<span class="s">'fee'</span>] &lt; 500.0:
+        result.append((c[<span class="s">'course_code'</span>], c[<span class="s">'title'</span>]))
+result.sort()</pre>
+            <p class="guide-says py"><strong>What it does:</strong> Keeps courses that have 4 credits and cost less than 500, sorted by course code.</p>
 
-                <h4 style="font-size: 1.05rem; font-weight: 600; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem;">1. Selection and Filtering (List Comprehension with Multiple Conditions)</h4>
-                <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.65rem;">Extract specific keys and filter records using multiple conditional expressions connected with <code style="color: #c084fc;">and</code>.</p>
-                <div class="code-block" style="background: #080c14; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; font-family: var(--font-mono, monospace); font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin-bottom: 1rem;">
-                    <span style="color: #64748b;"># Filter courses with 4 credits and fee below 500.0, skipping missing fees</span><br>
-                    selected_courses = [<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;{<span style="color: #34d399;">'course_code'</span>: c[<span style="color: #34d399;">'course_code'</span>], <span style="color: #34d399;">'title'</span>: c[<span style="color: #34d399;">'title'</span>]}<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #818cf8; font-weight: 600;">for</span> c <span style="color: #818cf8; font-weight: 600;">in</span> courses<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #818cf8; font-weight: 600;">if</span> c[<span style="color: #34d399;">'credits'</span>] == 4 <span style="color: #818cf8; font-weight: 600;">and</span> c[<span style="color: #34d399;">'fee'</span>] <span style="color: #818cf8; font-weight: 600;">is not None</span> <span style="color: #818cf8; font-weight: 600;">and</span> c[<span style="color: #34d399;">'fee'</span>] &lt; 500.0<br>
-                    ]<br>
-                    selected_courses.sort(key=<span style="color: #818cf8; font-weight: 600;">lambda</span> c: c[<span style="color: #34d399;">'course_code'</span>])
-                </div>
-                <p style="font-size: 0.88rem; color: #cbd5e1; margin-bottom: 1.5rem; padding: 0.6rem 0.9rem; background: rgba(255, 255, 255, 0.03); border-left: 3px solid #c084fc; border-radius: 0 6px 6px 0; line-height: 1.5;">
-                    <strong>Plain-English summary:</strong> This code finds all 4-credit courses with a fee under 500.0, skipping any missing fees, and lists their code and title in alphabetical order.
-                </p>
+            <h4 class="guide-h">2. Sort and keep the top few</h4>
+            <pre class="guide-code">good = [c <span class="k">for</span> c <span class="k">in</span> courses <span class="k">if</span> c[<span class="s">'fee'</span>] <span class="k">is not None</span> <span class="k">and</span> c[<span class="s">'credits'</span>] <span class="k">is not None</span>]
+good.sort(key=<span class="k">lambda</span> c: (-c[<span class="s">'fee'</span>], c[<span class="s">'credits'</span>]))
+top4 = good[:4]</pre>
+            <p class="guide-says py"><strong>What it does:</strong> Skips empty values, puts the highest fee first, and keeps only the first 4 items.</p>
 
-                <h4 style="font-size: 1.05rem; font-weight: 600; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem;">2. Sorting with Two Columns, Limiting, and Filtering Missing Values</h4>
-                <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.65rem;">Filter out <code style="color: #c084fc;">None</code> values, sort using a tuple key (<code style="color: #c084fc;">-x</code> for descending), and extract the top items using a slice <code style="color: #c084fc;">[:N]</code>.</p>
-                <div class="code-block" style="background: #080c14; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; font-family: var(--font-mono, monospace); font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin-bottom: 1rem;">
-                    <span style="color: #64748b;"># Exclude missing fees and credits, sort by fee DESC then credits ASC, slice top 4</span><br>
-                    valid_courses = [c <span style="color: #818cf8; font-weight: 600;">for</span> c <span style="color: #818cf8; font-weight: 600;">in</span> courses <span style="color: #818cf8; font-weight: 600;">if</span> c[<span style="color: #34d399;">'fee'</span>] <span style="color: #818cf8; font-weight: 600;">is not None</span> <span style="color: #818cf8; font-weight: 600;">and</span> c[<span style="color: #34d399;">'credits'</span>] <span style="color: #818cf8; font-weight: 600;">is not None</span>]<br>
-                    sorted_courses = <span style="color: #818cf8; font-weight: 600;">sorted</span>(<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;valid_courses,<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;key=<span style="color: #818cf8; font-weight: 600;">lambda</span> c: (-c[<span style="color: #34d399;">'fee'</span>], c[<span style="color: #34d399;">'credits'</span>])<br>
-                    )<br>
-                    top_courses = sorted_courses[:4]
-                </div>
-                <p style="font-size: 0.88rem; color: #cbd5e1; margin-bottom: 1.5rem; padding: 0.6rem 0.9rem; background: rgba(255, 255, 255, 0.03); border-left: 3px solid #c084fc; border-radius: 0 6px 6px 0; line-height: 1.5;">
-                    <strong>Plain-English summary:</strong> This code skips courses with missing fees or credits, sorts the rest from highest fee to lowest, breaks ties by lower credits, and keeps only the top 4 courses.
-                </p>
+            <h4 class="guide-h">3. Count items in each group</h4>
+            <pre class="guide-code">counts = {}
+<span class="k">for</span> c <span class="k">in</span> courses:
+    <span class="k">if</span> c[<span class="s">'dept_id'</span>] <span class="k">is not None</span>:
+        d = c[<span class="s">'dept_id'</span>]
+        counts[d] = counts.get(d, 0) + 1
+result = <span class="k">sorted</span>(counts.items())</pre>
+            <p class="guide-says py"><strong>What it does:</strong> Counts how many courses each department has.</p>
 
-                <h4 style="font-size: 1.05rem; font-weight: 600; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem;">3. Grouping and Counting (Dictionary Accumulator)</h4>
-                <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.65rem;">Count occurrences by group key using a dictionary frequency accumulator, then format the result.</p>
-                <div class="code-block" style="background: #080c14; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; font-family: var(--font-mono, monospace); font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin-bottom: 1rem;">
-                    <span style="color: #64748b;"># Count courses per department with a dictionary, skipping missing department IDs</span><br>
-                    course_counts = {}<br>
-                    <span style="color: #818cf8; font-weight: 600;">for</span> c <span style="color: #818cf8; font-weight: 600;">in</span> courses:<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #818cf8; font-weight: 600;">if</span> c[<span style="color: #34d399;">'dept_id'</span>] <span style="color: #818cf8; font-weight: 600;">is not None</span>:<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d = c[<span style="color: #34d399;">'dept_id'</span>]<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;course_counts[d] = course_counts.get(d, 0) + 1<br><br>
-                    <span style="color: #64748b;"># Format output as sorted list of dictionaries</span><br>
-                    summary = [<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;{<span style="color: #34d399;">'dept_id'</span>: d, <span style="color: #34d399;">'total_courses'</span>: cnt}<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #818cf8; font-weight: 600;">for</span> d, cnt <span style="color: #818cf8; font-weight: 600;">in</span> <span style="color: #818cf8; font-weight: 600;">sorted</span>(course_counts.items())<br>
-                    ]
-                </div>
-                <p style="font-size: 0.88rem; color: #cbd5e1; margin-bottom: 1.5rem; padding: 0.6rem 0.9rem; background: rgba(255, 255, 255, 0.03); border-left: 3px solid #c084fc; border-radius: 0 6px 6px 0; line-height: 1.5;">
-                    <strong>Plain-English summary:</strong> This code counts how many courses belong to each department and lists each department ID alongside its course total in alphabetical order.
-                </p>
+            <h4 class="guide-h">4. Combine two lists</h4>
+            <pre class="guide-code">names = {d[<span class="s">'dept_id'</span>]: d[<span class="s">'dept_name'</span>] <span class="k">for</span> d <span class="k">in</span> departments}
+result = [
+    (c[<span class="s">'course_code'</span>], c[<span class="s">'title'</span>], names[c[<span class="s">'dept_id'</span>]])
+    <span class="k">for</span> c <span class="k">in</span> courses <span class="k">if</span> c[<span class="s">'dept_id'</span>] <span class="k">in</span> names
+]
+result.sort()</pre>
+            <p class="guide-says py"><strong>What it does:</strong> Matches each course to its department so you can see the department name next to the course.</p>
 
-                <h4 style="font-size: 1.05rem; font-weight: 600; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem;">4. Combining Two Lists (Dictionary Lookup)</h4>
-                <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.65rem;">Index parent records into a lookup dictionary by primary key to merge fields from two lists in linear time.</p>
-                <div class="code-block" style="background: #080c14; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; font-family: var(--font-mono, monospace); font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin-bottom: 1rem;">
-                    <span style="color: #64748b;"># Build a lookup dictionary for departments</span><br>
-                    dept_lookup = {d[<span style="color: #34d399;">'dept_id'</span>]: d[<span style="color: #34d399;">'dept_name'</span>] <span style="color: #818cf8; font-weight: 600;">for</span> d <span style="color: #818cf8; font-weight: 600;">in</span> departments <span style="color: #818cf8; font-weight: 600;">if</span> d[<span style="color: #34d399;">'dept_id'</span>] <span style="color: #818cf8; font-weight: 600;">is not None</span>}<br><br>
-                    <span style="color: #64748b;"># Combine course records with department names</span><br>
-                    combined = [<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;{<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #34d399;">'course_code'</span>: c[<span style="color: #34d399;">'course_code'</span>],<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #34d399;">'title'</span>: c[<span style="color: #34d399;">'title'</span>],<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #34d399;">'dept_name'</span>: dept_lookup[c[<span style="color: #34d399;">'dept_id'</span>]]<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;}<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #818cf8; font-weight: 600;">for</span> c <span style="color: #818cf8; font-weight: 600;">in</span> courses<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #818cf8; font-weight: 600;">if</span> c[<span style="color: #34d399;">'dept_id'</span>] <span style="color: #818cf8; font-weight: 600;">is not None</span> <span style="color: #818cf8; font-weight: 600;">and</span> c[<span style="color: #34d399;">'dept_id'</span>] <span style="color: #818cf8; font-weight: 600;">in</span> dept_lookup<br>
-                    ]<br>
-                    combined.sort(key=<span style="color: #818cf8; font-weight: 600;">lambda</span> c: c[<span style="color: #34d399;">'course_code'</span>])
-                </div>
-                <p style="font-size: 0.88rem; color: #cbd5e1; margin-bottom: 1.5rem; padding: 0.6rem 0.9rem; background: rgba(255, 255, 255, 0.03); border-left: 3px solid #c084fc; border-radius: 0 6px 6px 0; line-height: 1.5;">
-                    <strong>Plain-English summary:</strong> This code looks up each course's department ID to show the course code and title together with the full department name in alphabetical order.
-                </p>
+            <h4 class="guide-h">5. Find the average of each group</h4>
+            <pre class="guide-code">fees = {}
+<span class="k">for</span> c <span class="k">in</span> courses:
+    <span class="k">if</span> c[<span class="s">'dept_id'</span>] <span class="k">is not None</span> <span class="k">and</span> c[<span class="s">'fee'</span>] <span class="k">is not None</span>:
+        fees.setdefault(c[<span class="s">'dept_id'</span>], []).append(c[<span class="s">'fee'</span>])
+result = []
+<span class="k">for</span> d <span class="k">in</span> <span class="k">sorted</span>(fees):
+    avg = <span class="k">round</span>(<span class="k">sum</span>(fees[d]) / <span class="k">len</span>(fees[d]), 2)
+    <span class="k">if</span> avg &gt;= 350.0:
+        result.append((d, avg))</pre>
+            <p class="guide-says py"><strong>What it does:</strong> Finds each department's average fee, rounds it, and keeps only averages of 350 or more.</p>
 
-                <h4 style="font-size: 1.05rem; font-weight: 600; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem;">5. Group Aggregation with Average, Rounding, and Threshold (Dictionary of Lists)</h4>
-                <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.65rem;">Group values into a dictionary of lists excluding <code style="color: #c084fc;">None</code>, compute rounded averages, and filter with a threshold.</p>
-                <div class="code-block" style="background: #080c14; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; font-family: var(--font-mono, monospace); font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin-bottom: 1rem;">
-                    <span style="color: #64748b;"># Group non-missing fees by department</span><br>
-                    dept_fees = {}<br>
-                    <span style="color: #818cf8; font-weight: 600;">for</span> c <span style="color: #818cf8; font-weight: 600;">in</span> courses:<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #818cf8; font-weight: 600;">if</span> c[<span style="color: #34d399;">'dept_id'</span>] <span style="color: #818cf8; font-weight: 600;">is not None</span> <span style="color: #818cf8; font-weight: 600;">and</span> c[<span style="color: #34d399;">'fee'</span>] <span style="color: #818cf8; font-weight: 600;">is not None</span>:<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dept_fees.setdefault(c[<span style="color: #34d399;">'dept_id'</span>], []).append(c[<span style="color: #34d399;">'fee'</span>])<br><br>
-                    <span style="color: #64748b;"># Compute rounded average and filter threshold &gt;= 350.0</span><br>
-                    avg_summary = []<br>
-                    <span style="color: #818cf8; font-weight: 600;">for</span> d, fees <span style="color: #818cf8; font-weight: 600;">in</span> dept_fees.items():<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;mean_val = <span style="color: #818cf8; font-weight: 600;">round</span>(<span style="color: #818cf8; font-weight: 600;">sum</span>(fees) / <span style="color: #818cf8; font-weight: 600;">len</span>(fees), 2)<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #818cf8; font-weight: 600;">if</span> mean_val &gt;= 350.0:<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;avg_summary.append({<span style="color: #34d399;">'dept_id'</span>: d, <span style="color: #34d399;">'avg_fee'</span>: mean_val})<br><br>
-                    avg_summary.sort(key=<span style="color: #818cf8; font-weight: 600;">lambda</span> x: x[<span style="color: #34d399;">'dept_id'</span>])
-                </div>
-                <p style="font-size: 0.88rem; color: #cbd5e1; margin-bottom: 1.5rem; padding: 0.6rem 0.9rem; background: rgba(255, 255, 255, 0.03); border-left: 3px solid #c084fc; border-radius: 0 6px 6px 0; line-height: 1.5;">
-                    <strong>Plain-English summary:</strong> This code calculates each department's average fee leaving out missing values, rounds that average to two decimals, and keeps only departments averaging 350.0 or more.
-                </p>
+            <h4 class="guide-h">6. Find items with no match</h4>
+            <pre class="guide-code">used = {c[<span class="s">'dept_id'</span>] <span class="k">for</span> c <span class="k">in</span> courses <span class="k">if</span> c[<span class="s">'dept_id'</span>] <span class="k">is not None</span>}
+result = <span class="k">sorted</span>(
+    (d[<span class="s">'dept_id'</span>], d[<span class="s">'dept_name'</span>])
+    <span class="k">for</span> d <span class="k">in</span> departments <span class="k">if</span> d[<span class="s">'dept_id'</span>] <span class="k">not in</span> used
+)</pre>
+            <p class="guide-says py"><strong>What it does:</strong> Shows departments that have no courses at all.</p>
+        </div>
 
-                <h4 style="font-size: 1.05rem; font-weight: 600; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem;">6. Finding Records with No Match (Set Membership Anti-Join)</h4>
-                <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.65rem;">Collect keys from the child list into a set, then retain parent records whose keys are <code style="color: #c084fc;">not in</code> the set.</p>
-                <div class="code-block" style="background: #080c14; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; font-family: var(--font-mono, monospace); font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin-bottom: 1rem;">
-                    <span style="color: #64748b;"># Collect unique department IDs that have at least one course</span><br>
-                    active_dept_ids = {c[<span style="color: #34d399;">'dept_id'</span>] <span style="color: #818cf8; font-weight: 600;">for</span> c <span style="color: #818cf8; font-weight: 600;">in</span> courses <span style="color: #818cf8; font-weight: 600;">if</span> c[<span style="color: #34d399;">'dept_id'</span>] <span style="color: #818cf8; font-weight: 600;">is not None</span>}<br><br>
-                    <span style="color: #64748b;"># Filter departments with no match using set membership</span><br>
-                    inactive_depts = [<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;{<span style="color: #34d399;">'dept_id'</span>: d[<span style="color: #34d399;">'dept_id'</span>], <span style="color: #34d399;">'dept_name'</span>: d[<span style="color: #34d399;">'dept_name'</span>]}<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #818cf8; font-weight: 600;">for</span> d <span style="color: #818cf8; font-weight: 600;">in</span> departments<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #818cf8; font-weight: 600;">if</span> d[<span style="color: #34d399;">'dept_id'</span>] <span style="color: #818cf8; font-weight: 600;">is not None</span> <span style="color: #818cf8; font-weight: 600;">and</span> d[<span style="color: #34d399;">'dept_id'</span>] <span style="color: #818cf8; font-weight: 600;">not in</span> active_dept_ids<br>
-                    ]<br>
-                    inactive_depts.sort(key=<span style="color: #818cf8; font-weight: 600;">lambda</span> d: d[<span style="color: #34d399;">'dept_id'</span>])
-                </div>
-                <p style="font-size: 0.88rem; color: #cbd5e1; margin-bottom: 1.5rem; padding: 0.6rem 0.9rem; background: rgba(255, 255, 255, 0.03); border-left: 3px solid #c084fc; border-radius: 0 6px 6px 0; line-height: 1.5;">
-                    <strong>Plain-English summary:</strong> This code finds all departments that currently have no courses by checking for department IDs that never appear in the course list, sorted in alphabetical order.
-                </p>
-            </div>
-            
-            <div style="margin-top: 2.25rem; text-align: center;">
-                <a href="{{ url_for('experiment.practice') }}" class="btn btn-primary btn-lg" style="padding: 0.75rem 2rem; font-size: 1rem; text-decoration: none;">I understand both languages -- Continue to Practice &rarr;</a>
-            </div>
+        <div style="margin-top: 2.25rem; text-align: center;">
+            <a href="{{ url_for('experiment.practice') }}" class="btn btn-primary btn-lg" style="padding: 0.75rem 2rem; font-size: 1rem; text-decoration: none;">I understand both languages -- Continue to Practice &rarr;</a>
         </div>
     </div>
 </div>
