@@ -2,7 +2,6 @@ import os
 import sys
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
-from reportlab.lib.units import inch
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import (
     SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, KeepTogether, HRFlowable
@@ -10,7 +9,7 @@ from reportlab.platypus import (
 from reportlab.pdfgen import canvas
 
 class NumberedCanvas(canvas.Canvas):
-    """Two-pass canvas to dynamically compute total page count."""
+    """Draws running headers and dynamic 'Page X of Y' footers."""
     def __init__(self, *args, **kwargs):
         super(NumberedCanvas, self).__init__(*args, **kwargs)
         self._saved_page_states = []
@@ -32,9 +31,9 @@ class NumberedCanvas(canvas.Canvas):
         self.setFont("Helvetica", 8)
         self.setFillColor(colors.HexColor("#64748B"))
         
-        # Header (pages > 1)
+        # Header on pages 2+
         if self._pageNumber > 1:
-            self.drawString(54, 755, "QueryLearn — System Architecture & Oral Defense Handbook")
+            self.drawString(54, 755, "QueryLearn — Beginner-Friendly Project & Defense Guide")
             self.setStrokeColor(colors.HexColor("#CBD5E1"))
             self.setLineWidth(0.5)
             self.line(54, 747, 558, 747)
@@ -42,7 +41,7 @@ class NumberedCanvas(canvas.Canvas):
         # Footer
         footer_text = f"Page {self._pageNumber} of {page_count}"
         self.drawRightString(558, 36, footer_text)
-        self.drawString(54, 36, "Confidential — Prepared for Academic Research Defense")
+        self.drawString(54, 36, "Simple Defense Guide — Use this to answer your teachers")
         self.setStrokeColor(colors.HexColor("#CBD5E1"))
         self.setLineWidth(0.5)
         self.line(54, 48, 558, 48)
@@ -50,7 +49,7 @@ class NumberedCanvas(canvas.Canvas):
         self.restoreState()
 
 
-def create_handbook(output_filename):
+def build_simple_pdf(output_filename):
     doc = SimpleDocTemplate(
         output_filename,
         pagesize=letter,
@@ -62,61 +61,57 @@ def create_handbook(output_filename):
 
     styles = getSampleStyleSheet()
 
-    # Custom color palette
-    primary_color = colors.HexColor("#0F172A")
-    brand_blue = colors.HexColor("#1D4ED8")
-    slate_dark = colors.HexColor("#334155")
-    slate_light = colors.HexColor("#F8FAFC")
-    border_color = colors.HexColor("#E2E8F0")
+    # Colors
+    c_primary = colors.HexColor("#0F172A")
+    c_blue = colors.HexColor("#2563EB")
+    c_blue_bg = colors.HexColor("#EFF6FF")
+    c_blue_border = colors.HexColor("#BFDBFE")
+    c_slate = colors.HexColor("#334155")
+    c_light = colors.HexColor("#F8FAFC")
+    c_border = colors.HexColor("#E2E8F0")
+    c_green = colors.HexColor("#059669")
+    c_green_bg = colors.HexColor("#ECFDF5")
+    c_green_border = colors.HexColor("#A7F3D0")
 
     title_style = ParagraphStyle(
         'DocTitle',
         parent=styles['Heading1'],
         fontName='Helvetica-Bold',
-        fontSize=22,
-        leading=26,
-        textColor=primary_color,
+        fontSize=21,
+        leading=25,
+        textColor=c_primary,
         spaceAfter=4
     )
 
     subtitle_style = ParagraphStyle(
-        'DocSubTitle',
+        'DocSub',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=11,
-        leading=15,
+        fontSize=10.5,
+        leading=14.5,
         textColor=colors.HexColor("#475569"),
         spaceAfter=12
     )
 
-    meta_style = ParagraphStyle(
-        'DocMeta',
-        parent=styles['Normal'],
-        fontName='Helvetica-Oblique',
-        fontSize=8.5,
-        leading=12,
-        textColor=colors.HexColor("#475569")
-    )
-
     h1_style = ParagraphStyle(
-        'Heading1_Custom',
+        'H1_Custom',
         parent=styles['Heading1'],
         fontName='Helvetica-Bold',
-        fontSize=13.5,
-        leading=17.5,
-        textColor=primary_color,
-        spaceBefore=14,
-        spaceAfter=6,
+        fontSize=13,
+        leading=17,
+        textColor=c_primary,
+        spaceBefore=12,
+        spaceAfter=5,
         keepWithNext=True
     )
 
     h2_style = ParagraphStyle(
-        'Heading2_Custom',
+        'H2_Custom',
         parent=styles['Heading2'],
         fontName='Helvetica-Bold',
-        fontSize=10.5,
-        leading=14,
-        textColor=brand_blue,
+        fontSize=10,
+        leading=13.5,
+        textColor=c_blue,
         spaceBefore=8,
         spaceAfter=3,
         keepWithNext=True
@@ -128,7 +123,7 @@ def create_handbook(output_filename):
         fontName='Helvetica',
         fontSize=9,
         leading=13,
-        textColor=slate_dark,
+        textColor=c_slate,
         spaceAfter=5
     )
 
@@ -137,38 +132,27 @@ def create_handbook(output_filename):
         parent=body_style,
         leftIndent=14,
         firstLineIndent=-9,
-        spaceAfter=2.5
+        spaceAfter=3
     )
 
-    callout_style = ParagraphStyle(
-        'CalloutText',
+    # Callout for "What to say to your teacher"
+    say_style = ParagraphStyle(
+        'SayStyle',
         parent=styles['Normal'],
         fontName='Helvetica',
         fontSize=8.5,
         leading=12,
-        textColor=colors.HexColor("#1E293B")
+        textColor=colors.HexColor("#065F46")
     )
 
-    qa_q_style = ParagraphStyle(
-        'QA_Q',
-        parent=styles['Normal'],
-        fontName='Helvetica-Bold',
-        fontSize=9.5,
-        leading=13,
-        textColor=colors.HexColor("#1E3A8A"),
-        spaceBefore=5,
-        spaceAfter=2,
-        keepWithNext=True
-    )
-
-    qa_a_style = ParagraphStyle(
-        'QA_A',
+    # Callout for simple summary
+    summary_box_style = ParagraphStyle(
+        'SummaryBox',
         parent=styles['Normal'],
         fontName='Helvetica',
         fontSize=8.5,
         leading=12,
-        textColor=slate_dark,
-        spaceAfter=6
+        textColor=colors.HexColor("#1E3A8A")
     )
 
     table_cell = ParagraphStyle(
@@ -177,7 +161,7 @@ def create_handbook(output_filename):
         fontName='Helvetica',
         fontSize=8,
         leading=11,
-        textColor=slate_dark
+        textColor=c_slate
     )
 
     table_header = ParagraphStyle(
@@ -189,271 +173,262 @@ def create_handbook(output_filename):
         textColor=colors.white
     )
 
+    def teacher_box(text):
+        content = f"<b>🗣️ What you say to your teacher:</b><br/>\"{text}\""
+        t = Table([[Paragraph(content, say_style)]], colWidths=[504])
+        t.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,-1), c_green_bg),
+            ('BOX', (0,0), (-1,-1), 1, c_green_border),
+            ('TOPPADDING', (0,0), (-1,-1), 4.5),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 4.5),
+            ('LEFTPADDING', (0,0), (-1,-1), 8),
+            ('RIGHTPADDING', (0,0), (-1,-1), 8),
+        ]))
+        return t
+
+    def blue_box(title, text):
+        content = f"<b>💡 {title}</b><br/>{text}"
+        t = Table([[Paragraph(content, summary_box_style)]], colWidths=[504])
+        t.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,-1), c_blue_bg),
+            ('BOX', (0,0), (-1,-1), 1, c_blue_border),
+            ('TOPPADDING', (0,0), (-1,-1), 4.5),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 4.5),
+            ('LEFTPADDING', (0,0), (-1,-1), 8),
+            ('RIGHTPADDING', (0,0), (-1,-1), 8),
+        ]))
+        return t
+
     story = []
 
-    # ==========================
-    # HEADER / METADATA
-    # ==========================
-    story.append(Paragraph("QueryLearn: System Architecture &amp; Defense Handbook", title_style))
-    story.append(Paragraph("A Complete Guide to Experimental Design, System Workflow, Methodology, and Defense Q&amp;A", subtitle_style))
+    # ==========================================
+    # TITLE & OVERVIEW
+    # ==========================================
+    story.append(Paragraph("QueryLearn: Simple Project Guide &amp; Defense Cheat Sheet", title_style))
+    story.append(Paragraph("Everything you need to easily understand your website and confidently answer your teachers.", subtitle_style))
     
     meta_box = [
-        [Paragraph("<b>Target Domain:</b> Novice Database Querying (SQL vs. Procedural Python)", meta_style),
-         Paragraph("<b>Study Design:</b> 2×2 Crossover Counterbalanced Latin Square", meta_style)],
-        [Paragraph("<b>Primary Metrics:</b> Comprehension (/18), Success (%), Time (s), Attempts", meta_style),
-         Paragraph("<b>Architecture:</b> Flask / SQLite / CodeMirror / Serverless Vercel", meta_style)]
+        [Paragraph("<b>What is this?</b> A website that tests whether beginners learn databases better with SQL or Python.", body_style),
+         Paragraph("<b>Who takes it?</b> College freshmen or beginners with no past database courses.", body_style)],
+        [Paragraph("<b>How is it tested?</b> Each student tests BOTH languages under fair, timed conditions.", body_style),
+         Paragraph("<b>What is measured?</b> Reading score, writing success, speed, and mental effort.", body_style)]
     ]
     t_meta = Table(meta_box, colWidths=[250, 254])
     t_meta.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,-1), slate_light),
-        ('BOX', (0,0), (-1,-1), 1, border_color),
-        ('INNERGRID', (0,0), (-1,-1), 0.5, border_color),
+        ('BACKGROUND', (0,0), (-1,-1), c_light),
+        ('BOX', (0,0), (-1,-1), 1, c_border),
+        ('INNERGRID', (0,0), (-1,-1), 0.5, c_border),
         ('TOPPADDING', (0,0), (-1,-1), 4),
         ('BOTTOMPADDING', (0,0), (-1,-1), 4),
-        ('LEFTPADDING', (0,0), (-1,-1), 8),
-        ('RIGHTPADDING', (0,0), (-1,-1), 8),
+        ('LEFTPADDING', (0,0), (-1,-1), 7),
+        ('RIGHTPADDING', (0,0), (-1,-1), 7),
     ]))
     story.append(t_meta)
     story.append(Spacer(1, 10))
 
-    # ==========================
-    # SECTION 1: RESEARCH BACKGROUND
-    # ==========================
-    story.append(Paragraph("1. Research Background &amp; Core Problem", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=brand_blue, spaceBefore=1, spaceAfter=6))
+    # ==========================================
+    # PART 1: THE BIG PICTURE
+    # ==========================================
+    story.append(Paragraph("Part 1: What is QueryLearn in Plain Words?", h1_style))
+    story.append(HRFlowable(width="100%", thickness=1, color=c_blue, spaceBefore=1, spaceAfter=5))
     
     story.append(Paragraph(
-        "<b>The Core Research Question:</b> In computer science education, what is the more effective cognitive and practical pathway for novice students to manipulate structured data: <b>declarative SQL</b> or <b>procedural Python</b>?",
+        "Normally, universities teach database queries using <b>SQL</b>. But beginner students often struggle because SQL feels different from regular programming. Some teachers wonder: <i>Would beginners find it easier or harder if we taught data queries using normal Python code instead?</i>",
         body_style
     ))
     story.append(Paragraph(
-        "Novice students often encounter a steep cognitive barrier when learning relational databases. While SQL requires learners to express <i>what</i> data they need declaratively without specifying algorithmic steps, general-purpose procedural languages like Python require specifying <i>how</i> step-by-step (loops, conditionals, hash maps).",
+        "<b>QueryLearn is the testing lab we built to find out the real answer.</b> It is an online testing system where real students try solving the same data tasks in SQL and in Python. The website records their scores, their time, their errors, and how tired they felt, so we have real proof of which language is better for beginners.",
         body_style
     ))
-    story.append(Paragraph(
-        "<b>QueryLearn</b> was developed as a standardized, automated, and empirically rigorous research instrument to test this comparison under controlled conditions with novice and beginner learners.",
-        body_style
-    ))
-    
-    # RQs Callout
-    rq_text = """
-    <b>Key Research Questions (RQs):</b><br/>
-    • <b>RQ1 (Comprehension &amp; Readability):</b> Do novices demonstrate higher accuracy in interpreting query logic and predicting output values when reading SQL compared to procedural Python?<br/>
-    • <b>RQ2 (Task Productivity &amp; Writing):</b> Which paradigm yields higher task completion rates, shorter problem-solving time, and fewer error-correction attempts?<br/>
-    • <b>RQ3 (Subjective Cognitive Load):</b> Which paradigm generates lower self-reported mental effort, lower task fatigue, and higher perceived confidence among beginners?
-    """
-    t_rq = Table([[Paragraph(rq_text, callout_style)]], colWidths=[504])
-    t_rq.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#EFF6FF")),
-        ('BOX', (0,0), (-1,-1), 1, colors.HexColor("#93C5FD")),
-        ('TOPPADDING', (0,0), (-1,-1), 5),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 5),
-        ('LEFTPADDING', (0,0), (-1,-1), 8),
-        ('RIGHTPADDING', (0,0), (-1,-1), 8),
-    ]))
-    story.append(t_rq)
+    story.append(Spacer(1, 3))
+    story.append(teacher_box("Our project is an evaluation platform called QueryLearn. It compares SQL versus procedural Python for beginner students to see which language is easier to read, faster to write, and causes less mental frustration."))
     story.append(Spacer(1, 10))
 
-    # ==========================
-    # SECTION 2: EXPERIMENTAL DESIGN
-    # ==========================
-    story.append(Paragraph("2. Experimental Methodology &amp; Counterbalancing", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=brand_blue, spaceBefore=1, spaceAfter=6))
+    # ==========================================
+    # PART 2: SQL VS PYTHON
+    # ==========================================
+    story.append(Paragraph("Part 2: SQL vs. Python — What is the Difference?", h1_style))
+    story.append(HRFlowable(width="100%", thickness=1, color=c_blue, spaceBefore=1, spaceAfter=5))
     
-    story.append(Paragraph(
-        "To ensure unbiased results, the experiment uses a <b>2×2 Crossover (Counterbalanced Latin Square) within-subjects design</b>. Every participant experiences both language conditions, but in balanced sequences to cancel out order and learning bias:",
-        body_style
-    ))
-
-    seq_data = [
-        [Paragraph("<b>Sequence</b>", table_header), Paragraph("<b>First Condition (Step 1)</b>", table_header), Paragraph("<b>Second Condition (Step 2)</b>", table_header), Paragraph("<b>Purpose / Balance</b>", table_header)],
-        [Paragraph("Sequence 1", table_cell), Paragraph("SQL (Form A)", table_cell), Paragraph("Python (Form B)", table_cell), Paragraph("SQL-first baseline", table_cell)],
-        [Paragraph("Sequence 2", table_cell), Paragraph("Python (Form A)", table_cell), Paragraph("SQL (Form B)", table_cell), Paragraph("Python-first baseline", table_cell)],
-        [Paragraph("Sequence 3", table_cell), Paragraph("SQL (Form B)", table_cell), Paragraph("Python (Form A)", table_cell), Paragraph("Controls form ordering", table_cell)],
-        [Paragraph("Sequence 4", table_cell), Paragraph("Python (Form B)", table_cell), Paragraph("SQL (Form A)", table_cell), Paragraph("Controls form ordering", table_cell)]
+    diff_data = [
+        [Paragraph("<b>Feature</b>", table_header), Paragraph("<b>SQL (Declarative)</b>", table_header), Paragraph("<b>Python (Procedural / Step-by-Step)</b>", table_header)],
+        [Paragraph("<b>How you write</b>", table_cell), Paragraph("You tell the computer <b>WHAT</b> data you want, and the database engine finds it for you.", table_cell), Paragraph("You tell the computer <b>HOW</b> to get the data, writing every single step yourself.", table_cell)],
+        [Paragraph("<b>Simple example</b>", table_cell), Paragraph("<code>SELECT name FROM Students WHERE year = 1;</code>", table_cell), Paragraph("<code>for s in students:<br/>&nbsp;&nbsp;if s['year'] == 1: print(s['name'])</code>", table_cell)],
+        [Paragraph("<b>Joining 2 tables</b>", table_cell), Paragraph("One simple word: <code>JOIN Courses ON ...</code>", table_cell), Paragraph("Must build a dictionary lookup or write nested loops.", table_cell)],
+        [Paragraph("<b>What we test</b>", table_cell), Paragraph("Do beginners find SQL syntax natural, or does it feel confusing?", table_cell), Paragraph("Do beginners prefer Python loops because they already know them, or is it too tedious?", table_cell)]
     ]
-    t_seq = Table(seq_data, colWidths=[70, 140, 140, 154])
-    t_seq.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), brand_blue),
-        ('BACKGROUND', (0,1), (-1,-1), slate_light),
-        ('GRID', (0,0), (-1,-1), 0.5, border_color),
+    t_diff = Table(diff_data, colWidths=[90, 207, 207])
+    t_diff.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), c_primary),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, c_light]),
+        ('GRID', (0,0), (-1,-1), 0.5, c_border),
         ('TOPPADDING', (0,0), (-1,-1), 3.5),
         ('BOTTOMPADDING', (0,0), (-1,-1), 3.5),
         ('LEFTPADDING', (0,0), (-1,-1), 6),
         ('RIGHTPADDING', (0,0), (-1,-1), 6),
     ]))
-    story.append(t_seq)
-    story.append(Spacer(1, 6))
-
-    story.append(Paragraph("<b>Why Is This Design Essential for Your Research?</b>", h2_style))
-    story.append(Paragraph("• <b>Elimination of Order Effects:</b> If everyone did SQL first and then Python, Python might look artificially easier simply because students had already seen the task logic.", bullet_style))
-    story.append(Paragraph("• <b>Form Isomorphism (Form A vs Form B):</b> Form A and Form B test identical relational concepts with identical structural complexity, but use different student records, course names, and threshold boundaries (Form A uses BSCS / threshold 80.0; Form B uses BSIT / threshold 85.0).", bullet_style))
-    story.append(Paragraph("• <b>Round-Robin Assignment:</b> Participants are sequentially assigned to sequences 1–4 so group sizes remain balanced.", bullet_style))
+    story.append(t_diff)
     story.append(Spacer(1, 10))
 
-    # ==========================
-    # SECTION 3: THE 6 TASK FAMILIES
-    # ==========================
-    story.append(Paragraph("3. The 6 Task Families (T1 to T6)", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=brand_blue, spaceBefore=1, spaceAfter=6))
+    # ==========================================
+    # PART 3: HOW WE MADE THE TEST FAIR
+    # ==========================================
+    story.append(Paragraph("Part 3: How We Made the Test Fair (The Swap Plan)", h1_style))
+    story.append(HRFlowable(width="100%", thickness=1, color=c_blue, spaceBefore=1, spaceAfter=5))
     
     story.append(Paragraph(
-        "Each condition tests 6 representative query challenges spanning standard relational algebra operations:",
+        "A common mistake in student research is testing Group 1 on SQL and Group 2 on Python. If Group 1 happens to have smarter students, the test is ruined! To prevent this, we used a <b>Crossover Design</b>: <i>every single student tests both languages</i>.",
+        body_style
+    ))
+    story.append(Paragraph(
+        "We also created <b>4 balanced sequences</b> so neither language gets an unfair advantage:",
         body_style
     ))
 
-    task_data = [
-        [Paragraph("<b>Task</b>", table_header), Paragraph("<b>Relational Concept</b>", table_header), Paragraph("<b>SQL Construct</b>", table_header), Paragraph("<b>Python Procedural Construct</b>", table_header)],
-        [Paragraph("<b>T1</b>", table_cell), Paragraph("Selection &amp; Filtering", table_cell), Paragraph("SELECT ... WHERE with AND, ORDER BY", table_cell), Paragraph("for loop / comprehension filtering on dict keys", table_cell)],
-        [Paragraph("<b>T2</b>", table_cell), Paragraph("Sort, Limit &amp; Nulls", table_cell), Paragraph("WHERE score IS NOT NULL, ORDER BY composite, LIMIT 3", table_cell), Paragraph("None checks, tuple sort key <code>(-score, id)</code>, slice <code>[:3]</code>", table_cell)],
-        [Paragraph("<b>T3</b>", table_cell), Paragraph("Grouping &amp; Counting", table_cell), Paragraph("GROUP BY program, COUNT(*)", table_cell), Paragraph("Dictionary frequency count accumulator", table_cell)],
-        [Paragraph("<b>T4</b>", table_cell), Paragraph("Relational Joins", table_cell), Paragraph("INNER JOIN across Students, Enrollments, Courses", table_cell), Paragraph("Nested loop or dictionary lookup index", table_cell)],
-        [Paragraph("<b>T5</b>", table_cell), Paragraph("Group Aggregation", table_cell), Paragraph("GROUP BY ... HAVING AVG(score) >= threshold", table_cell), Paragraph("Dict-of-lists accumulator, round(sum/len), threshold filter", table_cell)],
-        [Paragraph("<b>T6</b>", table_cell), Paragraph("Records With No Match", table_cell), Paragraph("LEFT JOIN ... WHERE Enrollments.student_id IS NULL", table_cell), Paragraph("Set difference / membership: <code>id not in active_ids</code>", table_cell)]
+    fair_data = [
+        [Paragraph("<b>Group</b>", table_header), Paragraph("<b>First Language</b>", table_header), Paragraph("<b>Second Language</b>", table_header), Paragraph("<b>Why this is fair</b>", table_header)],
+        [Paragraph("Sequence 1", table_cell), Paragraph("SQL (Form A)", table_cell), Paragraph("Python (Form B)", table_cell), Paragraph("Starts with SQL", table_cell)],
+        [Paragraph("Sequence 2", table_cell), Paragraph("Python (Form A)", table_cell), Paragraph("SQL (Form B)", table_cell), Paragraph("Starts with Python (balances practice)", table_cell)],
+        [Paragraph("Sequence 3", table_cell), Paragraph("SQL (Form B)", table_cell), Paragraph("Python (Form A)", table_cell), Paragraph("Swaps the problem sets", table_cell)],
+        [Paragraph("Sequence 4", table_cell), Paragraph("Python (Form B)", table_cell), Paragraph("SQL (Form A)", table_cell), Paragraph("Swaps the problem sets", table_cell)]
     ]
-    t_task = Table(task_data, colWidths=[34, 110, 180, 180])
-    t_task.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#1E293B")),
-        ('BACKGROUND', (0,1), (-1,-1), colors.white),
-        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, slate_light]),
-        ('GRID', (0,0), (-1,-1), 0.5, border_color),
-        ('TOPPADDING', (0,0), (-1,-1), 3.5),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 3.5),
+    t_fair = Table(fair_data, colWidths=[70, 140, 140, 154])
+    t_fair.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), c_blue),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, c_light]),
+        ('GRID', (0,0), (-1,-1), 0.5, c_border),
+        ('TOPPADDING', (0,0), (-1,-1), 3),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 3),
+        ('LEFTPADDING', (0,0), (-1,-1), 6),
+        ('RIGHTPADDING', (0,0), (-1,-1), 6),
+    ]))
+    story.append(t_fair)
+    story.append(Spacer(1, 4))
+    story.append(Paragraph("<b>Notice Form A and Form B:</b> They test the exact same difficulty, but use different numbers and student names so nobody can memorize answers.", body_style))
+    story.append(Spacer(1, 3))
+    story.append(teacher_box("We used a counterbalanced crossover design. Every student does both SQL and Python in alternating orders, so differences in student intelligence or practice effects cancel out completely."))
+    
+    story.append(Spacer(1, 10))
+
+    # ==========================================
+    # PART 4: THE 8 STEPS ON THE WEBSITE
+    # ==========================================
+    story.append(Paragraph("Part 4: What a Student Experiences (The 8 Steps)", h1_style))
+    story.append(HRFlowable(width="100%", thickness=1, color=c_blue, spaceBefore=1, spaceAfter=5))
+    story.append(Paragraph("Here is what happens when someone uses QueryLearn from start to finish:", body_style))
+
+    flow_items = [
+        ("Step 1: Registration &amp; Ethics Consent",
+         "The student enters their college year level and programming background. They agree to the privacy consent. The system creates an anonymous Study ID (like P001 or P017) so their real identity is never shown in research."),
+        
+        ("Step 2: Language Reference Guide",
+         "A study guide showing 6 short code examples in SQL and Python. <b>Important secret:</b> The guide uses made-up course and department data so it teaches the rules without giving away any task answers!"),
+        
+        ("Step 3: Practice Sandbox &amp; Quick Check",
+         "Students test the buttons and editor on 2 simple practice tasks (not timed, not graded). Then they answer 2 quick readiness questions to make sure they didn't just rush through."),
+        
+        ("Step 4: Reading Test (Code Comprehension)",
+         "Before writing code, students read 6 code snippets. For each snippet, they explain what the code does (2 pts) and predict the output (1 pt). Max score is 18 points. Has a 3-minute timer per question."),
+        
+        ("Step 5: Writing Test (The 6 Coding Tasks)",
+         "Students write their own code for Tasks 1 to 6. Each task has an 8-minute countdown timer and allows up to 5 tries. A green Run button tests their code, and a blue Submit button grades it."),
+        
+        ("Step 6: Post-Task Survey",
+         "Students rate how easy the language was to read, understand, and debug (1 to 5 stars), plus their mental effort and fatigue, with a couple of optional written comments."),
+        
+        ("Step 7: 5-Minute Break",
+         "A screen telling them to rest their eyes and relax before moving on to the second language."),
+        
+        ("Step 8: Second Language &amp; Completion",
+         "They repeat Steps 4, 5, and 6 with the second language. When done, they see a Thank You screen, and all their numbers are safely saved in the researcher dashboard.")
+    ]
+
+    for st_title, st_desc in flow_items:
+        story.append(Paragraph(f"<b>{st_title}</b>", h2_style))
+        story.append(Paragraph(st_desc, body_style))
+
+    story.append(Spacer(1, 8))
+
+    # ==========================================
+    # PART 5: THE 6 TASKS EXPLAINED SIMPLY
+    # ==========================================
+    story.append(Paragraph("Part 5: The 6 Coding Tasks (What the Student Actually Solves)", h1_style))
+    story.append(HRFlowable(width="100%", thickness=1, color=c_blue, spaceBefore=1, spaceAfter=5))
+
+    task_simple = [
+        [Paragraph("<b>Task #</b>", table_header), Paragraph("<b>Goal in Plain English</b>", table_header), Paragraph("<b>In SQL</b>", table_header), Paragraph("<b>In Python</b>", table_header)],
+        [Paragraph("<b>Task 1</b>", table_cell), Paragraph("Find all 2nd-year BSIT students.", table_cell), Paragraph("<code>WHERE program='BSIT' AND year=2</code>", table_cell), Paragraph("<code>if s['program']=='BSIT' and s['year']==2</code>", table_cell)],
+        [Paragraph("<b>Task 2</b>", table_cell), Paragraph("Get the top 3 highest scores in a course.", table_cell), Paragraph("<code>ORDER BY score DESC LIMIT 3</code>", table_cell), Paragraph("Sort by score descending and take slice <code>[:3]</code>", table_cell)],
+        [Paragraph("<b>Task 3</b>", table_cell), Paragraph("Count how many students in each program.", table_cell), Paragraph("<code>GROUP BY program, COUNT(*)</code>", table_cell), Paragraph("Use a dictionary to count frequencies", table_cell)],
+        [Paragraph("<b>Task 4</b>", table_cell), Paragraph("Show student name and course name together.", table_cell), Paragraph("<code>JOIN Enrollments ... JOIN Courses</code>", table_cell), Paragraph("Lookup dictionary matching student and course IDs", table_cell)],
+        [Paragraph("<b>Task 5</b>", table_cell), Paragraph("Find courses where average score is &gt;= 85.", table_cell), Paragraph("<code>GROUP BY ... HAVING AVG(score) &gt;= 85</code>", table_cell), Paragraph("Group scores in dictionary lists, compute average", table_cell)],
+        [Paragraph("<b>Task 6</b>", table_cell), Paragraph("Find students who have zero enrolled courses.", table_cell), Paragraph("<code>LEFT JOIN ... WHERE course_id IS NULL</code>", table_cell), Paragraph("Set difference (find student IDs not in enrolled list)", table_cell)]
+    ]
+    t_ts = Table(task_simple, colWidths=[40, 164, 150, 150])
+    t_ts.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), c_primary),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, c_light]),
+        ('GRID', (0,0), (-1,-1), 0.5, c_border),
+        ('TOPPADDING', (0,0), (-1,-1), 3),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 3),
         ('LEFTPADDING', (0,0), (-1,-1), 5),
         ('RIGHTPADDING', (0,0), (-1,-1), 5),
     ]))
-    story.append(t_task)
-    story.append(Spacer(1, 10))
+    story.append(t_ts)
+    story.append(Spacer(1, 12))
 
-    story.append(PageBreak())
-
-    # ==========================
-    # SECTION 4: SYSTEM WORKFLOW
-    # ==========================
-    story.append(Paragraph("4. Complete Participant Workflow (Step-by-Step)", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=brand_blue, spaceBefore=1, spaceAfter=6))
-
-    story.append(Paragraph("When a participant enters QueryLearn, they progress through 8 controlled stages:", body_style))
-
-    steps = [
-        ("Step 1: Registration &amp; Ethics Consent",
-         "Captures academic program (BSCS/BSIT/BSIS), year level, programming background, prior database courses. Displays research protocol and obtains informed consent. Generates an <b>anonymous Study ID</b> (e.g. P001) and round-robin sequence assignment."),
-        
-        ("Step 2: Language Reference Guide",
-         "Presents equivalent SQL and Python constructs side-by-side. <b>Crucial Control:</b> To prevent learning task answers in advance, the guide uses an isolated university catalog schema (<code>Departments</code> and <code>Courses</code>) that never appears in actual tasks."),
-        
-        ("Step 3: Practice Sandbox &amp; Gatekeeper Check",
-         "Includes 2 un-timed, un-scored practice exercises so participants familiarize themselves with the editor. A 2-question <b>Readiness Verification</b> ensures participants actually understand basic syntax before the timed evaluation begins."),
-        
-        ("Step 4: Code Comprehension Assessment (Reading Phase)",
-         "Assesses code interpretation <i>before</i> code generation. 6 multiple-choice items per condition (C1–C6 matching T1–T6). Each item has 2 parts: <b>Explanation</b> (0, 1, or 2 points) and <b>Output Prediction</b> (0 or 1 point) for a max score of 18 points. Enforces a <b>3-minute per-item timer</b> that automatically submits on timeout."),
-        
-        ("Step 5: Timed Task Workspace (Writing Phase)",
-         "Participants write code for T1 to T6. Features an <b>8-minute timer per task</b>, max 5 submission attempts, real-time error execution feedback, and automated validation against hidden edge-case test datasets. Includes a collapsible schema and beginner reference panel."),
-        
-        ("Step 6: Post-Task Survey",
-         "Administered immediately after completing the language condition. 5 agreement items on code clarity and confidence (1–5 Likert + Not Applicable), mental effort (1–5), fatigue level (1–5), and 3–4 open-ended feedback prompts."),
-        
-        ("Step 7: Break &amp; Condition 2 Crossover",
-         "Provides an optional 5-minute cognitive rest period before crossing over to the second language condition, which repeats Steps 4, 5, and 6 with the alternate language and form."),
-        
-        ("Step 8: Completion &amp; Researcher Dashboard",
-         "Displays study completion receipt. Behind researcher login, the dashboard displays real-time telemetry, median comprehension scores out of 18, comparative productivity charts, and full CSV exports.")
-    ]
-
-    for title, desc in steps:
-        story.append(Paragraph(f"<b>{title}</b>", h2_style))
-        story.append(Paragraph(desc, body_style))
-
-    story.append(Spacer(1, 10))
-
-    # ==========================
-    # SECTION 5: TECHNICAL ARCHITECTURE
-    # ==========================
-    story.append(Paragraph("5. Technical Architecture &amp; Security Measures", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=brand_blue, spaceBefore=1, spaceAfter=6))
-
-    tech_box = """
-    • <b>Backend Framework:</b> Python Flask with modular Blueprints (<code>auth</code>, <code>experiment</code>, <code>tasks</code>, <code>dashboard</code>).<br/>
-    • <b>Code Editors:</b> Integrated CodeMirror with SQL and Python syntax highlighting, matching brackets, and keyboard shortcuts (Ctrl+Enter).<br/>
-    • <b>Database Storage:</b> SQLite relational architecture. Separates research telemetry (<code>research.db</code>) from experiment databases (<code>experiment_a.db</code>, <code>experiment_b.db</code>).<br/>
-    • <b>SQL Security:</b> Queries execute in read-only mode (<code>uri=file:...mode=ro</code>) with strict DDL/DML blocking (prevents CREATE, DROP, INSERT, UPDATE, DELETE).<br/>
-    • <b>Python Sandboxing:</b> Restricted execution environment blocking unauthorized system calls (no <code>os</code>, <code>sys</code>, <code>exec</code>, or file I/O).<br/>
-    • <b>Automated Grading Engine:</b> Answers are parsed and graded against hidden datasets containing edge cases: tie-breaking, NULL values, and empty result sets.
-    """
-    t_tech = Table([[Paragraph(tech_box, callout_style)]], colWidths=[504])
-    t_tech.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#F1F5F9")),
-        ('BOX', (0,0), (-1,-1), 1, colors.HexColor("#CBD5E1")),
-        ('TOPPADDING', (0,0), (-1,-1), 5),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 5),
-        ('LEFTPADDING', (0,0), (-1,-1), 8),
-        ('RIGHTPADDING', (0,0), (-1,-1), 8),
-    ]))
-    story.append(t_tech)
-    story.append(Spacer(1, 10))
-
-    # ==========================
-    # SECTION 6: DEFENSE Q&A CHEAT SHEET
-    # ==========================
-    story.append(Paragraph("6. Oral Defense Cheat Sheet: Questions Teachers Will Ask", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=brand_blue, spaceBefore=1, spaceAfter=6))
-    story.append(Paragraph("Study these questions and answers carefully before presenting to your committee:", body_style))
+    # ==========================================
+    # PART 6: ORAL DEFENSE CHEAT SHEET
+    # ==========================================
+    story.append(Paragraph("Part 6: Teacher Defense Questions &amp; Simple Answers", h1_style))
+    story.append(HRFlowable(width="100%", thickness=1, color=c_blue, spaceBefore=1, spaceAfter=5))
+    story.append(Paragraph("Here are the top 10 questions your teachers or panelists will ask, with the simple answers you can say out loud:", body_style))
     story.append(Spacer(1, 4))
 
-    qa_list = [
-        ("Q1: Why did you use a Crossover (within-subjects) design instead of testing SQL on Group A and Python on Group B?",
-         "A: A within-subjects crossover design eliminates inter-individual variation (such as student general intelligence, typing speed, or baseline aptitude) because every participant serves as their own baseline control. Counterbalancing (Sequences 1–4) completely neutralizes learning order effects. It also effectively doubles the statistical power of the dataset without requiring twice as many participants."),
+    qa_simple = [
+        ("1. 'Why did you build a web app instead of just giving students Google Forms or paper?'",
+         "Because a web app automatically records exact seconds spent, tracks every single failed attempt, runs their code in a secure sandbox, and grades their answers instantly without human grading errors."),
 
-        ("Q2: How did you ensure that novices with zero background could realistically answer these questions?",
-         "A: We implemented three deliberate scaffolding layers: (1) an isolated Language Reference Guide with plain-English summaries, (2) an untimed practice playground with gatekeeper readiness questions, and (3) a non-intrusive collapsible Quick Reference inside the task workspace. Crucially, all reference materials use an entirely separate Courses/Departments schema so they teach the syntax without giving away task answers."),
+        ("2. 'How can freshmen or students with zero experience answer these tasks?'",
+         "We provided three beginner helpers: (1) a Reference Guide with plain-English summaries, (2) an untimed practice sandbox with a readiness check, and (3) a collapsible 'Need Help?' quick reference box inside the task window. All references use fake course data so they don't give away task answers."),
 
-        ("Q3: Why is the Comprehension Assessment separated from the Task Writing Workspace?",
-         "A: In educational psychology (e.g. Bloom's taxonomy and cognitive load theory), code reading/comprehension is distinct from code generation. Measuring comprehension first provides an unadulterated metric of syntactic and mental readability before measuring writing productivity (speed, attempts, syntax errors)."),
+        ("3. 'What if a student just guesses or hardcodes the answer like print([1, 2, 3])?'",
+         "They cannot cheat! The system tests their code against hidden test datasets with edge cases (like tie scores, missing values, and empty rows). If their code does not genuinely calculate the right logic, it fails automatically."),
 
-        ("Q4: How does the scoring for the Comprehension test work?",
-         "A: Each of the 6 items has two parts: an Explanation question (0 = incorrect, 1 = partially correct, 2 = fully correct) and an Output Prediction question (0 or 1 point). This yields a maximum of 3 points per item, or 18 points maximum per condition. It is timed at 3 minutes per item to measure fluent comprehension."),
+        ("4. 'What are the main metrics or numbers you are collecting?'",
+         "We collect four main numbers: (1) Reading score (out of 18), (2) Task success rate (percentage solved), (3) Time spent solving each task (seconds), and (4) Number of attempts (from 1 to 5). We also collect self-reported mental effort and fatigue ratings."),
 
-        ("Q5: What prevents students from hardcoding answers or cheating?",
-         "A: QueryLearn uses hidden automated test datasets (`hidden_tests.json`). When a student submits code, the grading engine executes their query against 3 separate synthetic databases with diverse edge cases (ties, NULL scores, empty matches). A solution only passes if it produces the mathematically correct result across all edge cases."),
+        ("5. 'Why do you test code comprehension before task writing?'",
+         "Because reading and writing are two different cognitive skills. Testing comprehension first lets us measure how easily a beginner understands the syntax before they have to worry about typing speed or syntax typos."),
 
-        ("Q6: How do you measure 'Productivity'?",
-         "A: Productivity is quantified by four objective dependent variables: (1) Task Success Rate (% of tasks solved within 8 minutes), (2) Time-to-Solve (elapsed seconds per task), (3) Number of Attempts required before success, and (4) Error Frequency."),
+        ("6. 'Why did each task have an 8-minute timer?'",
+         "To keep the experiment controlled and standardized. If there were no timer, one student might spend 40 minutes on one task, which ruins the time comparison and exhausts the participant."),
 
-        ("Q7: Isn't Python naturally harder than SQL for databases? Doesn't that bias the study?",
-         "A: That difference in paradigm is precisely what the study investigates. SQL was purpose-built for declarative set operations, whereas procedural Python represents how general programmers write data manipulation. By measuring where novice difficulties occur (e.g. joins, aggregations, nulls), the study generates empirical evidence for curriculum designers."),
+        ("7. 'What happens if the timer runs out before they finish?'",
+         "The app automatically saves whatever they did, marks the task as timed out, and smoothly moves them to the next task so they don't get stuck forever."),
 
-        ("Q8: How did you handle participants who did not finish within the time limit?",
-         "A: When the 8-minute task timer or 3-minute comprehension countdown expires, the system records a timeout flag (`timed_out = 1`), logs the current attempt count, and transitions automatically to the next item so the evaluation stays on schedule."),
+        ("8. 'Why is Python longer than SQL for tasks 4, 5, and 6?'",
+         "Because SQL has built-in database keywords like JOIN and GROUP BY, while in Python you have to manually build dictionaries, compute sums, and check set memberships. That difference in difficulty is exactly what this study is measuring!"),
 
-        ("Q9: What happens if a participant answers 'Not applicable' on the survey?",
-         "A: The survey cleanly separates 'Not applicable' from the 1–5 agreement scale and stores it as database `NULL`. When computing statistical means or medians, NULL values are excluded so they do not distort the numerical results."),
+        ("9. 'How do you keep participant identities anonymous?'",
+         "Students never type their real name. The system assigns an anonymous Study ID (like P001, P002, P017). All research data and exports only use that ID, keeping participant privacy 100% protected."),
 
-        ("Q10: Why did you build an automated web app instead of giving students pen-and-paper or Google Forms?",
-         "A: QueryLearn provides millisecond-level telemetry (exact typing time, attempt counts, execution error logs), strictly enforces countdown timers, prevents lookahead bias, automatically randomizes answer choices, and eliminates human grading errors through server-side test oracles."),
-
-        ("Q11: How do you know the data isn't biased by student fatigue?",
-         "A: The Latin square crossover balances condition order across participants. Also, an optional 5-minute cognitive rest break is provided between conditions, and fatigue is explicitly quantified on a 1–5 scale after each condition to test for fatigue effects as a covariate in statistical analysis."),
-
-        ("Q12: What statistical tests will you use to analyze the final data?",
-         "A: For Comprehension and Survey ordinal data: Wilcoxon signed-rank test (non-parametric paired test). For Task Success Rates: McNemar's test for paired binary proportions. For Task Duration and Attempt Counts: Paired t-test or Wilcoxon test, along with Repeated Measures ANOVA (RM-ANOVA) or Mixed Effects Models to control for sequence, form, and prior programming experience."),
-
-        ("Q13: How is data exported for statistical analysis (SPSS / R / Python)?",
-         "A: The system generates RFC 4180-compliant CSV exports across 4 granularities: participants registry, task telemetry results, comprehension responses (item-level), and survey responses, as well as a consolidated ZIP archive.")
+        ("10. 'What will you do with the final data collected in the dashboard?'",
+         "We export the data as clean CSV files and run standard statistical tests (like Wilcoxon paired tests for ratings and paired t-tests for task times) to prove whether SQL or Python was statistically significantly better.")
     ]
 
-    for q, a in qa_list:
+    for q, a in qa_simple:
         story.append(KeepTogether([
-            Paragraph(q, qa_q_style),
-            Paragraph(a, qa_a_style),
-            Spacer(1, 2.5)
+            Paragraph(f"<b>{q}</b>", h2_style),
+            teacher_box(a),
+            Spacer(1, 4)
         ]))
 
     # Build the document
     doc.build(story, canvasmaker=NumberedCanvas)
-    print(f"Handbook PDF successfully created at: {output_filename}")
+    print(f"Simple Handbook PDF successfully created at: {output_filename}")
 
 
 if __name__ == '__main__':
     target = os.path.join(r"C:\Users\USER\.gemini\antigravity\scratch\querylearn", "QueryLearn_System_Guide_and_Defense_Handbook.pdf")
-    create_handbook(target)
+    build_simple_pdf(target)
