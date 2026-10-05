@@ -27,6 +27,25 @@ def create_app():
     if not os.path.exists(app.config['EXPERIMENT_B_DB']):
         init_experiment_db(app.config['EXPERIMENT_B_DB'], 'B')
 
+    # Purge test participant P017 and any test participants created beyond the 16 seeded pilot records
+    try:
+        import sqlite3
+        conn = sqlite3.connect(app.config['RESEARCH_DB'])
+        cur = conn.cursor()
+        cur.execute("SELECT id FROM participants WHERE study_id = 'P017' OR study_id > 'P016'")
+        test_pids = [r[0] for r in cur.fetchall()]
+        for pid in test_pids:
+            cur.execute("DELETE FROM task_results WHERE session_id IN (SELECT id FROM sessions WHERE participant_id = ?)", (pid,))
+            cur.execute("DELETE FROM task_attempts WHERE session_id IN (SELECT id FROM sessions WHERE participant_id = ?)", (pid,))
+            cur.execute("DELETE FROM comprehension_responses WHERE session_id IN (SELECT id FROM sessions WHERE participant_id = ?)", (pid,))
+            cur.execute("DELETE FROM survey_responses WHERE session_id IN (SELECT id FROM sessions WHERE participant_id = ?)", (pid,))
+            cur.execute("DELETE FROM sessions WHERE participant_id = ?", (pid,))
+            cur.execute("DELETE FROM participants WHERE id = ?", (pid,))
+        conn.commit()
+        conn.close()
+    except Exception:
+        pass
+
     # --- Register blueprints ---
     from blueprints.auth import auth_bp
     from blueprints.experiment import experiment_bp
