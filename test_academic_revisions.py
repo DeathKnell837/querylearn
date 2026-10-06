@@ -4,6 +4,8 @@ import sqlite3
 import tempfile
 import shutil
 import re
+import csv
+import io
 from app import create_app
 from config import Config
 from database.init_research_db import init_research_db
@@ -77,8 +79,8 @@ class AcademicRevisionsTestCase(unittest.TestCase):
         id_num = int(match.group(1))
         self.assertGreaterEqual(id_num, 17, f"Live study IDs must be at least P017 (after 16 pilot users), got {study_id}")
 
-    def test_right_vs_wrong_metrics_in_overview(self):
-        """Verify that overview dashboard computes exact Right vs Wrong counts and split percentages."""
+    def test_headline_cards_in_overview(self):
+        """Verify that overview dashboard keeps only 4 headline cards, link to comparison, and sample data banner."""
         with self.client.session_transaction() as sess:
             sess['is_researcher'] = True
             sess['researcher_name'] = 'admin'
@@ -87,19 +89,24 @@ class AcademicRevisionsTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         html = resp.get_data(as_text=True)
 
-        # Check Tile 1 displays Right vs Wrong text and percentages
-        self.assertIn('Overall Evaluation (Pass vs. Fail)', html)
-        self.assertIn('Right /', html)
-        self.assertIn('Wrong', html)
-        self.assertIn('% Right', html)
-        self.assertIn('% Wrong', html)
+        # 4 Headline Cards
+        self.assertIn('Median Duration', html)
+        self.assertIn('Correct Tasks / Hour', html)
+        self.assertIn('Paired Successful Time Ratio', html)
+        self.assertIn('Median Comprehension Score', html)
 
-        # Check table columns
-        self.assertIn('SQL Performance (Right vs. Wrong)', html)
-        self.assertIn('Python Performance (Right vs. Wrong)', html)
+        # Single Link to Comparison
+        self.assertIn('View Comparison', html)
 
-    def test_right_vs_wrong_badges_in_results(self):
-        """Verify that results page displays explicit Right (Correct) and Wrong (Incorrect) badges."""
+        # Tile 1 and duplicate table removed
+        self.assertNotIn('Overall Evaluation (Pass vs. Fail)', html)
+        self.assertNotIn('Task Telemetry & Evaluation Analysis', html)
+
+        # Sample data banner when seeded participants exist
+        self.assertIn('Sample data: these 16 participants are generated for testing and are not study results.', html)
+
+    def test_badges_and_headers_in_results(self):
+        """Verify that results page displays Correct and Incorrect pills, Time (s) column, and sample data banner."""
         with self.client.session_transaction() as sess:
             sess['is_researcher'] = True
             sess['researcher_name'] = 'admin'
@@ -108,24 +115,46 @@ class AcademicRevisionsTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         html = resp.get_data(as_text=True)
 
-        self.assertIn('Outcome (Right / Wrong)', html)
-        self.assertTrue('Right (Correct)' in html or 'Wrong (Incorrect)' in html)
+        self.assertIn('Time (s)', html)
+        self.assertIn('Outcome', html)
+        self.assertIn('Correct', html)
+        self.assertNotIn('Right (Correct)', html)
+        self.assertNotIn('Wrong (Incorrect)', html)
+        self.assertIn('Sample data: these 16 participants are generated for testing and are not study results.', html)
+
+    def test_comparison_page_clean_wording_and_matrix(self):
+        """Verify that comparison page displays neutral What it tests, Accuracy difference, 0 pts, and clean duration."""
+        with self.client.session_transaction() as sess:
+            sess['is_researcher'] = True
+            sess['researcher_name'] = 'admin'
+
+        resp = self.client.get('/dashboard/charts')
+        self.assertEqual(resp.status_code, 200)
+        html = resp.get_data(as_text=True)
+
+        self.assertIn('Task Comparison', html)
+        self.assertIn('What it tests', html)
+        self.assertIn('Accuracy difference', html)
+        self.assertIn('task attempts', html)
+        self.assertIn('0 pts', html)
+        self.assertNotIn('Qualitative Synthesis', html)
+        self.assertNotIn('Empirical Task Evaluation Matrix', html)
+        self.assertIn('Sample data: these 16 participants are generated for testing and are not study results.', html)
 
     def test_csv_export_explicit_outcome_column(self):
         """Verify that results.csv and attempts.csv contain the explicit outcome column with CORRECT/WRONG."""
         res_csv = export_results_csv(self.test_db_path)
-        res_lines = res_csv.strip().splitlines()
-        self.assertGreater(len(res_lines), 1)
-        res_headers = [h.strip() for h in res_lines[0].split(',')]
+        res_reader = list(csv.reader(io.StringIO(res_csv)))
+        self.assertGreater(len(res_reader), 1)
+        res_headers = [h.strip() for h in res_reader[0]]
         self.assertIn('outcome', res_headers)
         outcome_idx = res_headers.index('outcome')
         success_idx = res_headers.index('success')
 
         # Check rows
-        for line in res_lines[1:20]:
-            parts = [p.strip() for p in line.split(',')]
-            success_val = parts[success_idx]
-            outcome_val = parts[outcome_idx]
+        for row in res_reader[1:20]:
+            success_val = row[success_idx].strip()
+            outcome_val = row[outcome_idx].strip()
             if success_val == '1':
                 self.assertEqual(outcome_val, 'CORRECT')
             else:
@@ -133,17 +162,16 @@ class AcademicRevisionsTestCase(unittest.TestCase):
 
         # Check attempts.csv
         att_csv = export_attempts_csv(self.test_db_path)
-        att_lines = att_csv.strip().splitlines()
-        self.assertGreater(len(att_lines), 1)
-        att_headers = [h.strip() for h in att_lines[0].split(',')]
+        att_reader = list(csv.reader(io.StringIO(att_csv)))
+        self.assertGreater(len(att_reader), 1)
+        att_headers = [h.strip() for h in att_reader[0]]
         self.assertIn('outcome', att_headers)
         att_outcome_idx = att_headers.index('outcome')
         att_status_idx = att_headers.index('result_status')
 
-        for line in att_lines[1:20]:
-            parts = [p.strip() for p in line.split(',')]
-            status_val = parts[att_status_idx]
-            outcome_val = parts[att_outcome_idx]
+        for row in att_reader[1:20]:
+            status_val = row[att_status_idx].strip()
+            outcome_val = row[att_outcome_idx].strip()
             if status_val == 'correct':
                 self.assertEqual(outcome_val, 'CORRECT')
             else:

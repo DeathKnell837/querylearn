@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard — QueryLearn Case Study</title>
+    <title>Overview — QueryLearn Case Study</title>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
@@ -29,7 +27,7 @@
         <nav class="db-nav">
             <a href="{{ url_for('dashboard.overview') }}" class="db-nav-link active">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-                <span>Console Overview</span>
+                <span>Overview</span>
             </a>
             <a href="{{ url_for('dashboard.participants') }}" class="db-nav-link">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
@@ -37,11 +35,11 @@
             </a>
             <a href="{{ url_for('dashboard.results') }}" class="db-nav-link">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-                <span>Task Telemetry</span>
+                <span>Task Results</span>
             </a>
             <a href="{{ url_for('dashboard.charts') }}" class="db-nav-link">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-                <span>Comparative Analytics</span>
+                <span>Comparison</span>
             </a>
             <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.06);">
                 <a href="{{ url_for('auth.logout') }}" class="db-nav-link" style="color: #ef4444;">
@@ -56,7 +54,7 @@
     <main class="db-main">
         <!-- Topbar -->
         <header class="db-topbar">
-            <h1 class="db-title">Dashboard</h1>
+            <h1 class="db-title">Overview</h1>
 
             <div class="db-topbar-tools" style="display: flex; gap: 0.75rem; align-items: center;">
                 <a href="{{ url_for('dashboard.export', type='all') }}" class="db-btn-run-gradient" style="padding: 0.5rem 1rem; font-size: 0.82rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
@@ -66,217 +64,110 @@
             </div>
         </header>
 
-        <!-- Simplified Researcher Telemetry Layout (Full Width Stack) -->
-        <div style="display: flex; flex-direction: column; gap: 1.5rem; width: 100%;">
-            
-            <!-- 1. Comparative Productivity Summary (Full Width) -->
-            <div class="db-editor-card" style="padding: 1.5rem; width: 100%;">
-                <div style="margin-bottom: 1.25rem;">
-                    <h3 style="font-size: 1.15rem; font-weight: 700; color: #f8fafc; margin: 0 0 0.35rem 0;">
+        {% if has_seeded %}
+        <!-- Sample Data Banner (Shown whenever data includes seeded participants) -->
+        <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 10px; padding: 0.85rem 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; color: #fbbf24; font-size: 0.88rem; font-weight: 500;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span>Sample data: these 16 participants are generated for testing and are not study results.</span>
+        </div>
+        {% endif %}
+
+        <!-- Headline Cards Container -->
+        <div class="db-editor-card" style="padding: 1.75rem; width: 100%;">
+            <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h3 style="font-size: 1.2rem; font-weight: 700; color: #f8fafc; margin: 0 0 0.35rem 0;">
                         Comparative Productivity Summary
                     </h3>
                     <p style="margin: 0; font-size: 0.85rem; color: #94a3b8;">
-                        Declarative SQL vs Procedural Python performance indicators
+                        Key performance metrics comparing SQL and Python conditions
                     </p>
                 </div>
+                <div style="display: flex; gap: 0.75rem;">
+                    <span style="font-size: 0.76rem; font-weight: 600; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.25); padding: 0.25rem 0.65rem; border-radius: 9999px;">SQL</span>
+                    <span style="font-size: 0.76rem; font-weight: 600; color: #c084fc; background: rgba(192, 132, 252, 0.12); border: 1px solid rgba(192, 132, 252, 0.25); padding: 0.25rem 0.65rem; border-radius: 9999px;">Python</span>
+                </div>
+            </div>
 
-                <!-- 4 Performance Metric Tiles in Responsive Grid -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
-                    
-                    <!-- Tile 1: Evaluation Accuracy & Failure Distribution -->
-                    <div style="background: #0d1220; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem; display: flex; flex-direction: column; justify-content: space-between;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                            <span style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 700; letter-spacing: 0.04em;">Overall Evaluation (Pass vs. Fail)</span>
-                            <span style="font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 9999px; background: rgba(56, 189, 248, 0.12); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.25); font-weight: 600;">Cohort Outcomes</span>
+            <!-- The Four Headline Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                
+                <!-- Headline Card 1: Median Duration -->
+                <div style="background: #0d1220; border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="font-size: 0.78rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.75rem; font-weight: 600; letter-spacing: 0.03em;">Median Duration</div>
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.4rem;">
+                            <span style="font-size: 1.35rem; font-weight: 700; color: #38bdf8;">{{ m.sql_median_time }}s</span>
+                            <span style="font-size: 0.82rem; color: #38bdf8; font-weight: 600;">SQL</span>
                         </div>
-                        
-                        <!-- SQL Accuracy Segment -->
-                        <div style="margin-bottom: 0.6rem;">
-                            <div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 0.82rem; margin-bottom: 0.25rem;">
-                                <span style="font-weight: 700; color: #38bdf8;">SQL Cohort</span>
-                                <span><strong style="color: #10b981;">{{ m.sql_correct_count }} Right / {{ m.sql_wrong_count }} Wrong</strong> <span style="font-size: 0.74rem; color: #cbd5e1; margin-left: 0.25rem;">({{ m.sql_success_rate }}% Right <span style="color: #ef4444;">{{ m.sql_fail_rate }}% Wrong</span>)</span></span>
-                            </div>
-                            <div style="width: 100%; height: 6px; background: rgba(239, 68, 68, 0.35); border-radius: 9999px; overflow: hidden; display: flex;" title="{{ m.sql_success_rate }}% Right, {{ m.sql_fail_rate }}% Wrong">
-                                <div style="width: {{ m.sql_success_rate }}%; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 9999px;"></div>
-                            </div>
-                        </div>
-
-                        <!-- Python Accuracy Segment -->
-                        <div>
-                            <div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 0.82rem; margin-bottom: 0.25rem;">
-                                <span style="font-weight: 700; color: #c084fc;">Python Cohort</span>
-                                <span><strong style="color: #c084fc;">{{ m.python_correct_count }} Right / {{ m.python_wrong_count }} Wrong</strong> <span style="font-size: 0.74rem; color: #cbd5e1; margin-left: 0.25rem;">({{ m.python_success_rate }}% Right <span style="color: #ef4444;">{{ m.python_fail_rate }}% Wrong</span>)</span></span>
-                            </div>
-                            <div style="width: 100%; height: 6px; background: rgba(239, 68, 68, 0.35); border-radius: 9999px; overflow: hidden; display: flex;" title="{{ m.python_success_rate }}% Right, {{ m.python_fail_rate }}% Wrong">
-                                <div style="width: {{ m.python_success_rate }}%; height: 100%; background: linear-gradient(90deg, #a855f7, #c084fc); border-radius: 9999px;"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tile 2: Median Duration -->
-                    <div style="background: #0d1220; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem;">
-                        <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.35rem; font-weight: 600;">Median Duration</div>
                         <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                            <span style="font-size: 1.15rem; font-weight: 700; color: #38bdf8;">{{ m.sql_median_time }}s</span>
-                            <span style="font-size: 0.8rem; color: #64748b; font-weight: 600;">SQL</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 0.25rem;">
-                            <span style="font-size: 1.15rem; font-weight: 700; color: #fb923c;">{{ m.python_median_time }}s</span>
-                            <span style="font-size: 0.8rem; color: #64748b; font-weight: 600;">Python</span>
+                            <span style="font-size: 1.35rem; font-weight: 700; color: #c084fc;">{{ m.python_median_time }}s</span>
+                            <span style="font-size: 0.82rem; color: #c084fc; font-weight: 600;">Python</span>
                         </div>
                     </div>
+                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 0.75rem;">Median elapsed time per task</div>
+                </div>
 
-                    <!-- Tile 3: Correct Tasks per Hour -->
-                    <div style="background: #0d1220; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem;">
-                        <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.35rem; font-weight: 600;">Correct Tasks / Hour</div>
+                <!-- Headline Card 2: Correct Tasks per Hour -->
+                <div style="background: #0d1220; border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="font-size: 0.78rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.75rem; font-weight: 600; letter-spacing: 0.03em;">Correct Tasks / Hour</div>
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.4rem;">
+                            <span style="font-size: 1.35rem; font-weight: 700; color: #38bdf8;">{{ m.sql_ct_per_hour or '--' }}{% if m.sql_ct_per_hour %}/hr{% endif %}</span>
+                            <span style="font-size: 0.82rem; color: #38bdf8; font-weight: 600;">SQL</span>
+                        </div>
                         <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                            <span style="font-size: 1.15rem; font-weight: 700; color: #34d399;">{{ m.sql_ct_per_hour or '--' }}{% if m.sql_ct_per_hour %}/hr{% endif %}</span>
-                            <span style="font-size: 0.8rem; color: #64748b; font-weight: 600;">SQL</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 0.25rem;">
-                            <span style="font-size: 1.15rem; font-weight: 700; color: #e879f9;">{{ m.python_ct_per_hour or '--' }}{% if m.python_ct_per_hour %}/hr{% endif %}</span>
-                            <span style="font-size: 0.8rem; color: #64748b; font-weight: 600;">Python</span>
-                        </div>
-                        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.35rem;">8-min allocation on failures</div>
-                    </div>
-
-                    <!-- Tile 4: Paired Successful-Task Time Ratio -->
-                    <div style="background: #0d1220; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem;">
-                        <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.35rem; font-weight: 600;">Paired Successful Time Ratio</div>
-                        <div style="font-size: 1.45rem; font-weight: 800; color: #38bdf8; margin-top: 0.15rem;">
-                            {% if m.paired_time_ratio %}
-                                {{ m.paired_time_ratio }}x
-                            {% else %}
-                                --
-                            {% endif %}
-                        </div>
-                        <div style="font-size: 0.72rem; color: #64748b; margin-top: 0.2rem;">
-                            Median Py / Median SQL on paired successes (n={{ m.paired_task_count }})
+                            <span style="font-size: 1.35rem; font-weight: 700; color: #c084fc;">{{ m.python_ct_per_hour or '--' }}{% if m.python_ct_per_hour %}/hr{% endif %}</span>
+                            <span style="font-size: 0.82rem; color: #c084fc; font-weight: 600;">Python</span>
                         </div>
                     </div>
+                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 0.75rem;">8-min allocation on incorrect attempts</div>
+                </div>
 
-                    <!-- Tile 5: Median Comprehension Score -->
-                    <div style="background: #0d1220; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem;">
-                        <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.35rem; font-weight: 600;">Median Comprehension Score</div>
-                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                            <span style="font-size: 1.15rem; font-weight: 700; color: #38bdf8;">
+                <!-- Headline Card 3: Paired Successful Time Ratio -->
+                <div style="background: #0d1220; border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="font-size: 0.78rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.75rem; font-weight: 600; letter-spacing: 0.03em;">Paired Successful Time Ratio</div>
+                    <div>
+                        <div style="font-size: 1.75rem; font-weight: 800; color: #38bdf8;">
+                            {% if m.paired_time_ratio %}{{ m.paired_time_ratio }}x{% else %}--{% endif %}
+                        </div>
+                    </div>
+                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 0.75rem;">
+                        Median Python / Median SQL on paired correct tasks (n={{ m.paired_task_count }})
+                    </div>
+                </div>
+
+                <!-- Headline Card 4: Median Comprehension Score -->
+                <div style="background: #0d1220; border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="font-size: 0.78rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.75rem; font-weight: 600; letter-spacing: 0.03em;">Median Comprehension Score</div>
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.4rem;">
+                            <span style="font-size: 1.35rem; font-weight: 700; color: #38bdf8;">
                                 {% if m.sql_median_comp is not none %}{{ m.sql_median_comp }} / 18{% else %}-- / 18{% endif %}
                             </span>
-                            <span style="font-size: 0.8rem; color: #64748b; font-weight: 600;">SQL</span>
+                            <span style="font-size: 0.82rem; color: #38bdf8; font-weight: 600;">SQL</span>
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 0.25rem;">
-                            <span style="font-size: 1.15rem; font-weight: 700; color: #c084fc;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                            <span style="font-size: 1.35rem; font-weight: 700; color: #c084fc;">
                                 {% if m.python_median_comp is not none %}{{ m.python_median_comp }} / 18{% else %}-- / 18{% endif %}
                             </span>
-                            <span style="font-size: 0.8rem; color: #64748b; font-weight: 600;">Python</span>
-                        </div>
-                        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.35rem;">
-                            Out of 18 pts (excludes legacy 3-item pilot data)
+                            <span style="font-size: 0.82rem; color: #c084fc; font-weight: 600;">Python</span>
                         </div>
                     </div>
-
-                </div>
-
-                <div style="display: flex; justify-content: flex-end;">
-                    <a href="{{ url_for('dashboard.charts') }}" class="db-btn-run-gradient" style="text-decoration: none; padding: 0.55rem 1.25rem; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.5rem;">
-                        <span>View Comparative Analytics & Benchmarks</span>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                    </a>
-                </div>
-            </div>
-
-            <!-- 2. Task Telemetry Table (Full Width) -->
-            <div class="db-results-card" style="width: 100%;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
-                    <div>
-                        <h3 class="db-card-label" style="margin-bottom: 0.2rem;">Task Telemetry & Evaluation Analysis (T1 &ndash; T6)</h3>
-                        <p style="margin: 0; font-size: 0.78rem; color: #94a3b8;">Comparative evaluation breakdown showing individual Right (Pass) vs. Wrong (Fail) participant outcomes</p>
-                    </div>
-                    <div style="display: flex; gap: 0.75rem; align-items: center;">
-                        <a href="{{ url_for('dashboard.charts') }}" class="db-btn-run-gradient" style="text-decoration: none; padding: 0.45rem 1rem; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.4rem;">
-                            <span>Deep Comparative Analytics</span>
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                        </a>
-                        <a href="{{ url_for('dashboard.results') }}" style="font-size: 0.82rem; color: #3b82f6; text-decoration: none; font-weight: 500;">View Raw Logs &rarr;</a>
+                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 0.75rem;">
+                        Out of 18 pts (excludes legacy 3-item pilot data)
                     </div>
                 </div>
-                <div style="overflow-x: auto; width: 100%;">
-                    <table class="db-dark-table">
-                        <thead>
-                            <tr>
-                                <th>Task & Construct</th>
-                                <th>SQL Performance (Right vs. Wrong)</th>
-                                <th>Python Performance (Right vs. Wrong)</th>
-                                <th>Median Duration</th>
-                                <th>Relative Advantage</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for t in m.tasks %}
-                            <tr>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <strong style="color: #60a5fa; font-size: 0.95rem;">{{ t.task_id }}</strong>
-                                        <span style="font-size: 0.75rem; color: #cbd5e1; background: rgba(255,255,255,0.05); padding: 0.15rem 0.5rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.06);">
-                                            {{ t.construct or 'Relational Task' }}
-                                        </span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem;">
-                                        <span style="font-weight: 700; color: #10b981; font-size: 0.86rem;">
-                                            {{ t.sql_right if t.sql_right is defined else 0 }} Right / <span style="color: #ef4444; font-weight: 600;">{{ t.sql_wrong if t.sql_wrong is defined else 0 }} Wrong</span>
-                                        </span>
-                                        <span style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">{{ t.sql_success or '0.0' }}% Right <span style="color: #ef4444; font-size: 0.75rem;">({{ t.sql_fail or '0.0' }}% Wrong)</span></span>
-                                    </div>
-                                    <div style="width: 100%; height: 5px; background: rgba(239, 68, 68, 0.35); border-radius: 9999px; overflow: hidden;" title="SQL: {{ t.sql_success }}% Right, {{ t.sql_fail }}% Wrong">
-                                        <div style="width: {{ t.sql_success or 0 }}%; height: 100%; background: #10b981; border-radius: 9999px;"></div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem;">
-                                        <span style="font-weight: 700; color: #c084fc; font-size: 0.86rem;">
-                                            {{ t.python_right if t.python_right is defined else 0 }} Right / <span style="color: #ef4444; font-weight: 600;">{{ t.python_wrong if t.python_wrong is defined else 0 }} Wrong</span>
-                                        </span>
-                                        <span style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">{{ t.python_success or '0.0' }}% Right <span style="color: #ef4444; font-size: 0.75rem;">({{ t.python_fail or '0.0' }}% Wrong)</span></span>
-                                    </div>
-                                    <div style="width: 100%; height: 5px; background: rgba(239, 68, 68, 0.35); border-radius: 9999px; overflow: hidden;" title="Python: {{ t.python_success }}% Right, {{ t.python_fail }}% Wrong">
-                                        <div style="width: {{ t.python_success or 0 }}%; height: 100%; background: #a855f7; border-radius: 9999px;"></div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="font-size: 0.84rem;">
-                                        <span style="color: #38bdf8; font-weight: 600;">{{ t.sql_median_time or t.sql_time or '--' }}s</span>
-                                        <span style="color: #64748b; margin: 0 0.25rem;">vs</span>
-                                        <span style="color: #fb923c; font-weight: 600;">{{ t.python_median_time or t.python_time or '--' }}s</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    {% if t.accuracy_delta is defined and t.accuracy_delta > 0 %}
-                                        <span style="display: inline-flex; align-items: center; padding: 0.2rem 0.55rem; border-radius: 9999px; font-size: 0.74rem; font-weight: 700; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">
-                                            +{{ t.accuracy_delta }}% SQL
-                                        </span>
-                                    {% elif t.accuracy_delta is defined and t.accuracy_delta < 0 %}
-                                        <span style="display: inline-flex; align-items: center; padding: 0.2rem 0.55rem; border-radius: 9999px; font-size: 0.74rem; font-weight: 700; background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3);">
-                                            +{{ (t.accuracy_delta * -1)|round(1) }}% Python
-                                        </span>
-                                    {% else %}
-                                        <span style="display: inline-flex; align-items: center; padding: 0.2rem 0.55rem; border-radius: 9999px; font-size: 0.74rem; font-weight: 600; background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.25);">
-                                            Parity (0.0%)
-                                        </span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="5" style="text-align: center; color: #64748b; padding: 2rem;">No task telemetry recorded yet.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+
             </div>
 
+            <!-- Single Clean Link to Comparison Page -->
+            <div style="display: flex; justify-content: flex-end; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.06);">
+                <a href="{{ url_for('dashboard.charts') }}" class="db-btn-run-gradient" style="text-decoration: none; padding: 0.65rem 1.4rem; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 600;">
+                    <span>View Comparison</span>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </a>
+            </div>
         </div>
     </main>
 </div>

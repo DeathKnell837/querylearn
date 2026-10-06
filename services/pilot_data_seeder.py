@@ -91,7 +91,43 @@ def seed_pilot_data():
                         attempts = random.choice([1, 2, 2, 3, 3, 4])
                         success = True if (i < 10 or task_idx < 4) else random.choice([True, False])
 
-                    code_sample = f"-- SQL Task {task_id_str} Solution" if lang == "sql" else f"# Python Task {task_id_str} Solution"
+                    SQL_SNIPPETS = {
+                        'T1': "SELECT student_id, student_name FROM Students WHERE program = 'BSCS' AND year_level = 2 ORDER BY student_id;",
+                        'T2': "SELECT student_id, score FROM Enrollments WHERE course_id = 'C101' AND score IS NOT NULL ORDER BY score DESC, student_id ASC LIMIT 3;",
+                        'T3': "SELECT program, COUNT(*) AS student_count FROM Students GROUP BY program ORDER BY program ASC;",
+                        'T4': "SELECT s.student_id, s.student_name, c.course_name FROM Students s JOIN Enrollments e ON s.student_id = e.student_id JOIN Courses c ON e.course_id = c.course_id WHERE e.course_id = 'C101' ORDER BY s.student_id ASC;",
+                        'T5': "SELECT course_id, ROUND(AVG(score), 2) AS avg_score FROM Enrollments WHERE score IS NOT NULL GROUP BY course_id HAVING AVG(score) >= 80.0 ORDER BY course_id ASC;",
+                        'T6': "SELECT s.student_id, s.student_name FROM Students s LEFT JOIN Enrollments e ON s.student_id = e.student_id WHERE e.student_id IS NULL ORDER BY s.student_id ASC;"
+                    }
+                    SQL_INCORRECT_SNIPPETS = {
+                        'T1': "SELECT student_id FROM Students WHERE program = 'BSCS';",
+                        'T2': "SELECT student_id, score FROM Enrollments WHERE course_id = 'C101' LIMIT 3;",
+                        'T3': "SELECT program, COUNT(*) FROM Students;",
+                        'T4': "SELECT s.student_id, s.student_name FROM Students s JOIN Enrollments e ON s.student_id = e.student_id;",
+                        'T5': "SELECT course_id, AVG(score) FROM Enrollments GROUP BY course_id;",
+                        'T6': "SELECT s.student_id, s.student_name FROM Students s LEFT JOIN Enrollments e ON s.student_id = e.student_id;"
+                    }
+                    PYTHON_SNIPPETS = {
+                        'T1': "result = [(s['student_id'], s['student_name']) for s in students if s['program'] == 'BSCS' and s['year_level'] == 2]",
+                        'T2': "valid = [e for e in enrollments if e['course_id'] == 'C101' and e['score'] is not None]\nvalid.sort(key=lambda x: (-x['score'], x['student_id']))\nresult = valid[:3]",
+                        'T3': "counts = {}\nfor s in students:\n    counts[s['program']] = counts.get(s['program'], 0) + 1",
+                        'T4': "matches = [(s['student_id'], s['student_name'], c['course_name']) for s in students for e in enrollments for c in courses if s['student_id'] == e['student_id'] and e['course_id'] == c['course_id']]",
+                        'T5': "by_course = {}\nfor e in enrollments:\n    if e['score'] is not None:\n        by_course.setdefault(e['course_id'], []).append(e['score'])",
+                        'T6': "enrolled_ids = {e['student_id'] for e in enrollments}\nresult = [(s['student_id'], s['student_name']) for s in students if s['student_id'] not in enrolled_ids]"
+                    }
+                    PYTHON_INCORRECT_SNIPPETS = {
+                        'T1': "result = [s['student_name'] for s in students if s['program'] == 'BSCS']",
+                        'T2': "result = sorted(enrollments, key=lambda x: x['score'])[:3]",
+                        'T3': "result = len([s for s in students])",
+                        'T4': "result = [(s['student_name'], c['course_name']) for s in students for c in courses]",
+                        'T5': "result = [e['course_id'] for e in enrollments if e.get('score', 0) > 80]",
+                        'T6': "result = [s['student_id'] for s in students if s['student_id'] not in enrollments]"
+                    }
+
+                    if lang == "sql":
+                        code_sample = SQL_SNIPPETS.get(task_id_str, "") if success else SQL_INCORRECT_SNIPPETS.get(task_id_str, "")
+                    else:
+                        code_sample = PYTHON_SNIPPETS.get(task_id_str, "") if success else PYTHON_INCORRECT_SNIPPETS.get(task_id_str, "")
 
                     cursor.execute("""
                         INSERT INTO task_results 
@@ -109,11 +145,12 @@ def seed_pilot_data():
                             att_status = random.choice(["syntax_error", "incorrect"])
                             err_msg = "SyntaxError: near clause" if att_status == "syntax_error" else "Column count or value mismatch"
 
+                        submitted = code_sample if is_final else (f"{code_sample} -- attempt {att}" if lang == 'sql' else f"{code_sample} # attempt {att}")
                         cursor.execute("""
                             INSERT INTO task_attempts
                             (session_id, task_id, attempt_number, submitted_code, result_status, error_message, submitted_at)
                             VALUES (?, ?, ?, ?, ?, ?, datetime('now', '-' || ? || ' minutes'))
-                        """, (session_id, task_id_str, att, f"{code_sample} (attempt {att})", att_status, err_msg, max(1, 60 - att * 5)))
+                        """, (session_id, task_id_str, att, submitted, att_status, err_msg, max(1, 60 - att * 5)))
 
                 # Seed Comprehension Responses (6 items C1 to C6 per session) for completed participants
                 if status == "completed":

@@ -35,6 +35,13 @@ def _safe_sync_cloud():
     except Exception:
         pass
 
+def _has_seeded_data(cursor):
+    try:
+        cursor.execute("SELECT 1 FROM participants WHERE study_id LIKE 'P0%' AND CAST(SUBSTR(study_id, 2) AS INTEGER) <= 16 LIMIT 1")
+        return cursor.fetchone() is not None
+    except Exception:
+        return False
+
 @dashboard_bp.route('/')
 @require_researcher
 def overview():
@@ -44,6 +51,8 @@ def overview():
     conn = sqlite3.connect(get_research_db_path())
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
+
+    has_seeded = _has_seeded_data(cursor)
 
     # 1. Overall Language Stats (Success & Failure Breakdown)
     cursor.execute("""
@@ -242,10 +251,11 @@ def overview():
         "sql_median_comp": sql_median_comp,
         "python_median_comp": python_median_comp,
         "comp_session_count": comp_session_count,
+        "has_seeded": has_seeded,
         "tasks": list(task_breakdown.values())
     }
 
-    return render_template('dashboard/overview.html', m=metrics)
+    return render_template('dashboard/overview.html', m=metrics, has_seeded=has_seeded)
 
 @dashboard_bp.route('/participants')
 @require_researcher
@@ -337,9 +347,18 @@ def results():
         ORDER BY r.id DESC
         LIMIT ? OFFSET ?
     """
+    has_seeded = _has_seeded_data(cursor)
     cursor.execute(data_sql, params + [per_page, offset])
     results_list = [dict(r) for r in cursor.fetchall()]
     conn.close()
+
+    for r in results_list:
+        raw_code = r.get('final_code') or r.get('code_submitted') or ''
+        if raw_code:
+            lines = [line.strip() for line in raw_code.splitlines() if line.strip()]
+            r['code_preview'] = lines[0] if lines else '—'
+        else:
+            r['code_preview'] = '—'
 
     summary_stats = {
         "total_results": total_matching,
@@ -360,7 +379,8 @@ def results():
         total_count=total_matching,
         selected_lang=language,
         selected_task=task,
-        search_query=search
+        search_query=search,
+        has_seeded=has_seeded
     )
 
 @dashboard_bp.route('/analytics')
@@ -408,13 +428,13 @@ def charts():
         'T6': 'Set Difference / Anti-Join (LEFT JOIN ... NULL)'
     }
 
-    task_insights = {
-        'T1': 'High declarative syntax transfer for simple record filtering.',
-        'T2': 'SQL ORDER BY/LIMIT avoids manual sort keys and tie-breaker code.',
-        'T3': 'Declarative GROUP BY eliminates nested dict-accumulator boilerplate.',
-        'T4': 'Declarative JOIN significantly reduces loop nesting and index tracking errors.',
-        'T5': 'HAVING clause cleanly isolates group filters from row filters.',
-        'T6': 'LEFT JOIN with NULL filter replaces complex manual set-difference logic.'
+    task_what_it_tests = {
+        'T1': 'Filtering and sorting rows',
+        'T2': 'Top N with a tie-break',
+        'T3': 'Counting per group',
+        'T4': 'Joining three tables',
+        'T5': 'Group filter with a threshold',
+        'T6': 'Rows with no match'
     }
 
     task_breakdown = {}
@@ -422,7 +442,7 @@ def charts():
         task_breakdown[tid] = {
             'task_id': tid,
             'construct': task_constructs.get(tid, 'Relational Operation'),
-            'insight': task_insights.get(tid, 'Evaluated across experimental forms.')
+            'what_it_tests': task_what_it_tests.get(tid, 'Relational Operation')
         }
         for lang in ['sql', 'python']:
             group = task_groups.get((tid, lang), {'success': [], 'times': [], 'attempts': []})
@@ -485,6 +505,7 @@ def charts():
     cursor.execute("SELECT * FROM benchmarks ORDER BY measured_at DESC, dataset_size ASC")
     raw_records = [dict(r) for r in cursor.fetchall()]
 
+    has_seeded = _has_seeded_data(cursor)
     conn.close()
 
     metrics = {
@@ -505,6 +526,7 @@ def charts():
         "python_avg_time": py_med_time,
         "sql_avg_attempts": sql_avg_att,
         "python_avg_attempts": py_avg_att,
+        "has_seeded": has_seeded,
     }
 
     grouped = {}
@@ -532,7 +554,7 @@ def charts():
 
     bench_records = list(grouped.values())
 
-    return render_template('dashboard/charts.html', m=metrics, benchmarks=bench_records)
+    return render_template('dashboard/charts.html', m=metrics, benchmarks=bench_records, has_seeded=has_seeded)
 
 @dashboard_bp.route('/benchmarks', methods=['GET'])
 @require_researcher
