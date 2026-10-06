@@ -30,10 +30,13 @@ def register():
         sequence_id = get_next_sequence(Config.RESEARCH_DB, python_exp)
         seq_info = get_sequence_details(sequence_id)
 
-        # Generate next sequential study_id via shared cloud database (Supabase)
-        study_id = get_next_cloud_study_id(Config.RESEARCH_DB)
+        from flask import current_app
+        db_path = current_app.config.get('RESEARCH_DB', Config.RESEARCH_DB)
 
-        conn = sqlite3.connect(Config.RESEARCH_DB)
+        # Generate next sequential study_id via shared cloud database (Supabase)
+        study_id = get_next_cloud_study_id(db_path)
+
+        conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
         # Insert participant
@@ -45,22 +48,23 @@ def register():
         
         participant_id = cursor.lastrowid
 
-        # Asynchronously/safely sync participant to Supabase cloud database
-        try:
-            sync_participant_to_cloud({
-                'study_id': study_id,
-                'program': program,
-                'year_level': year_level,
-                'python_exp': python_exp,
-                'sql_exp': sql_exp,
-                'other_languages': other_languages,
-                'db_course': db_course,
-                'consent': consent,
-                'sequence_id': sequence_id,
-                'status': 'in_progress'
-            })
-        except Exception:
-            pass
+        # Asynchronously/safely sync participant to Supabase cloud database (skipped during testing)
+        if not current_app.config.get('TESTING'):
+            try:
+                sync_participant_to_cloud({
+                    'study_id': study_id,
+                    'program': program,
+                    'year_level': year_level,
+                    'python_exp': python_exp,
+                    'sql_exp': sql_exp,
+                    'other_languages': other_languages,
+                    'db_course': db_course,
+                    'consent': consent,
+                    'sequence_id': sequence_id,
+                    'status': 'in_progress'
+                }, local_db_path=db_path)
+            except Exception:
+                pass
 
         # Create Session 1
         cursor.execute("""

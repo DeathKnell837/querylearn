@@ -6,6 +6,13 @@ token = "sbp_oauth_f67ea76247cae31ebb4b2a5d0857344971fb2211"
 url = "https://api.supabase.com/v1/projects/jjndlvtzqowvbcrjlzro/database/query"
 
 ddl = """
+-- Drop old foreign key constraints if they exist to prevent sync blocking
+ALTER TABLE IF EXISTS sessions DROP CONSTRAINT IF EXISTS sessions_participant_id_fkey;
+ALTER TABLE IF EXISTS task_attempts DROP CONSTRAINT IF EXISTS task_attempts_session_id_fkey;
+ALTER TABLE IF EXISTS task_results DROP CONSTRAINT IF EXISTS task_results_session_id_fkey;
+ALTER TABLE IF EXISTS comprehension_responses DROP CONSTRAINT IF EXISTS comprehension_responses_session_id_fkey;
+ALTER TABLE IF EXISTS survey_responses DROP CONSTRAINT IF EXISTS survey_responses_session_id_fkey;
+
 CREATE TABLE IF NOT EXISTS participants (
     id SERIAL PRIMARY KEY,
     study_id TEXT UNIQUE NOT NULL,
@@ -23,29 +30,45 @@ CREATE TABLE IF NOT EXISTS participants (
 
 CREATE TABLE IF NOT EXISTS sessions (
     id SERIAL PRIMARY KEY,
-    participant_id INTEGER REFERENCES participants(id) ON DELETE CASCADE,
-    language TEXT,
+    study_id TEXT NOT NULL,
+    participant_id INTEGER,
+    language TEXT NOT NULL,
     form TEXT,
     sequence_order INTEGER,
     started_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     completed_at TIMESTAMPTZ
 );
 
+-- Ensure study_id and language exist on sessions
+ALTER TABLE sessions ADD COLUMN IF NOT EXISTS study_id TEXT;
+ALTER TABLE sessions ADD COLUMN IF NOT EXISTS language TEXT;
+ALTER TABLE sessions ADD COLUMN IF NOT EXISTS form TEXT;
+ALTER TABLE sessions ADD COLUMN IF NOT EXISTS sequence_order INTEGER;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_sessions_study_lang ON sessions(study_id, language);
+
 CREATE TABLE IF NOT EXISTS task_attempts (
     id SERIAL PRIMARY KEY,
-    session_id INTEGER REFERENCES sessions(id) ON DELETE CASCADE,
-    task_id TEXT,
-    attempt_number INTEGER,
+    study_id TEXT NOT NULL,
+    language TEXT NOT NULL,
+    task_id TEXT NOT NULL,
+    session_id INTEGER,
+    attempt_number INTEGER NOT NULL,
     submitted_code TEXT,
     result_status TEXT,
     error_message TEXT,
     submitted_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
+ALTER TABLE task_attempts ADD COLUMN IF NOT EXISTS study_id TEXT;
+ALTER TABLE task_attempts ADD COLUMN IF NOT EXISTS language TEXT;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_task_attempts_unique ON task_attempts(study_id, language, task_id, attempt_number);
+
 CREATE TABLE IF NOT EXISTS task_results (
     id SERIAL PRIMARY KEY,
-    session_id INTEGER REFERENCES sessions(id) ON DELETE CASCADE,
-    task_id TEXT,
+    study_id TEXT NOT NULL,
+    language TEXT NOT NULL,
+    task_id TEXT NOT NULL,
+    session_id INTEGER,
     success BOOLEAN,
     start_time TIMESTAMPTZ,
     end_time TIMESTAMPTZ,
@@ -56,15 +79,20 @@ CREATE TABLE IF NOT EXISTS task_results (
     source_lines INTEGER,
     source_chars INTEGER,
     failure_reason TEXT,
-    assistance TEXT
+    assistance TEXT,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE task_results ADD COLUMN IF NOT EXISTS study_id TEXT;
+ALTER TABLE task_results ADD COLUMN IF NOT EXISTS language TEXT;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_task_results_unique ON task_results(study_id, language, task_id);
 
 CREATE TABLE IF NOT EXISTS comprehension_responses (
     id SERIAL PRIMARY KEY,
-    study_id TEXT,
-    session_id INTEGER REFERENCES sessions(id) ON DELETE CASCADE,
-    item_id TEXT,
-    language TEXT,
+    study_id TEXT NOT NULL,
+    session_id INTEGER,
+    item_id TEXT NOT NULL,
+    language TEXT NOT NULL,
     form TEXT,
     explanation_score REAL,
     prediction_score REAL,
@@ -72,13 +100,19 @@ CREATE TABLE IF NOT EXISTS comprehension_responses (
     response_time REAL,
     response_time_seconds REAL,
     timed_out INTEGER DEFAULT 0,
-    learner_answer TEXT
+    learner_answer TEXT,
+    submitted_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE comprehension_responses ADD COLUMN IF NOT EXISTS study_id TEXT;
+ALTER TABLE comprehension_responses ADD COLUMN IF NOT EXISTS language TEXT;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_comp_unique ON comprehension_responses(study_id, language, item_id);
 
 CREATE TABLE IF NOT EXISTS survey_responses (
     id SERIAL PRIMARY KEY,
-    session_id INTEGER REFERENCES sessions(id) ON DELETE CASCADE,
-    language TEXT,
+    study_id TEXT NOT NULL,
+    session_id INTEGER,
+    language TEXT NOT NULL,
     q1 INTEGER,
     q2 INTEGER,
     q3 INTEGER,
@@ -93,9 +127,35 @@ CREATE TABLE IF NOT EXISTS survey_responses (
     submitted_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
+ALTER TABLE survey_responses ADD COLUMN IF NOT EXISTS study_id TEXT;
+ALTER TABLE survey_responses ADD COLUMN IF NOT EXISTS language TEXT;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_survey_unique ON survey_responses(study_id, language);
+
+-- Ensure explicit unique constraints for PostgREST upsert resolution
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'uq_sessions_study_lang') THEN
+        ALTER TABLE sessions ADD CONSTRAINT uq_sessions_study_lang UNIQUE (study_id, language);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'uq_task_results_study_lang_task') THEN
+        ALTER TABLE task_results ADD CONSTRAINT uq_task_results_study_lang_task UNIQUE (study_id, language, task_id);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'uq_task_attempts_unique') THEN
+        ALTER TABLE task_attempts ADD CONSTRAINT uq_task_attempts_unique UNIQUE (study_id, language, task_id, attempt_number);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'uq_comp_unique') THEN
+        ALTER TABLE comprehension_responses ADD CONSTRAINT uq_comp_unique UNIQUE (study_id, language, item_id);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'uq_survey_unique') THEN
+        ALTER TABLE survey_responses ADD CONSTRAINT uq_survey_unique UNIQUE (study_id, language);
+    END IF;
+END $$;
+
+-- Grants
 GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
 
+-- RLS setup with full anon access
 ALTER TABLE participants ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "anon_participants" ON participants;
 CREATE POLICY "anon_participants" ON participants FOR ALL TO anon USING (true) WITH CHECK (true);

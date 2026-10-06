@@ -294,25 +294,27 @@ def comprehension(language):
                     conn.commit()
                 conn.close()
 
-                # Sync to Supabase cloud
-                try:
-                    from services.cloud_db import sync_comprehension_to_cloud
-                    sync_comprehension_to_cloud({
-                        "study_id": study_id,
-                        "session_id": sess_id,
-                        "item_id": submitted_item_id,
-                        "language": language,
-                        "form": current_form,
-                        "explanation_score": exp_score,
-                        "prediction_score": pred_score,
-                        "condition_score": total_score,
-                        "response_time": resp_time,
-                        "response_time_seconds": resp_time,
-                        "timed_out": is_timed_out,
-                        "learner_answer": f"exp:{exp_choice},pred:{pred_choice}"
-                    })
-                except Exception:
-                    pass
+                # Sync to Supabase cloud (skipped during testing)
+                from flask import current_app
+                if not current_app.config.get('TESTING'):
+                    try:
+                        from services.cloud_db import sync_comprehension_to_cloud
+                        sync_comprehension_to_cloud({
+                            "study_id": study_id,
+                            "session_id": sess_id,
+                            "item_id": submitted_item_id,
+                            "language": language,
+                            "form": current_form,
+                            "explanation_score": exp_score,
+                            "prediction_score": pred_score,
+                            "condition_score": total_score,
+                            "response_time": resp_time,
+                            "response_time_seconds": resp_time,
+                            "timed_out": is_timed_out,
+                            "learner_answer": f"exp:{exp_choice},pred:{pred_choice}"
+                        }, local_db_path=get_research_db_path())
+                    except Exception:
+                        pass
             except Exception as e:
                 print(f"Error saving comprehension response: {e}")
 
@@ -404,26 +406,29 @@ def survey(language):
                 conn.commit()
                 conn.close()
 
-                # Sync survey response to Supabase cloud
-                try:
-                    from services.cloud_db import sync_survey_to_cloud
-                    sync_survey_to_cloud({
-                        "session_id": sess_id,
-                        "language": language,
-                        "q1": q1,
-                        "q2": q2,
-                        "q3": q3,
-                        "q4": q4,
-                        "q5": q5,
-                        "q6": q6,
-                        "q7": q7,
-                        "open_easiest": open_easiest,
-                        "open_hardest": open_hardest,
-                        "open_after_error": open_after_error,
-                        "open_preference": open_pref
-                    })
-                except Exception:
-                    pass
+                # Sync survey response to Supabase cloud (skipped during testing)
+                from flask import current_app
+                if not current_app.config.get('TESTING'):
+                    try:
+                        from services.cloud_db import sync_survey_to_cloud
+                        sync_survey_to_cloud({
+                            "study_id": session.get('study_id'),
+                            "session_id": sess_id,
+                            "language": language,
+                            "q1": q1,
+                            "q2": q2,
+                            "q3": q3,
+                            "q4": q4,
+                            "q5": q5,
+                            "q6": q6,
+                            "q7": q7,
+                            "open_easiest": open_easiest,
+                            "open_hardest": open_hardest,
+                            "open_after_error": open_after_error,
+                            "open_preference": open_pref
+                        }, local_db_path=get_research_db_path())
+                    except Exception:
+                        pass
             except Exception:
                 pass
 

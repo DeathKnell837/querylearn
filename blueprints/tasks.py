@@ -422,17 +422,21 @@ def log_attempt(session_id, language, form, task_id, code, status, error_msg):
         conn.commit()
         conn.close()
 
-        # Sync attempt to Supabase cloud database
+        # Sync attempt to Supabase cloud database (skipped during testing)
         try:
-            from services.cloud_db import sync_task_attempt_to_cloud
-            sync_task_attempt_to_cloud({
-                "session_id": session_id,
-                "task_id": task_id,
-                "attempt_number": attempt_number,
-                "submitted_code": code,
-                "result_status": status,
-                "error_message": str(error_msg)
-            })
+            from flask import has_app_context, current_app
+            if not (has_app_context() and current_app.config.get('TESTING')):
+                from services.cloud_db import sync_task_attempt_to_cloud
+                sync_task_attempt_to_cloud({
+                    "session_id": session_id,
+                    "study_id": session.get('study_id'),
+                    "language": language,
+                    "task_id": task_id,
+                    "attempt_number": attempt_number,
+                    "submitted_code": code,
+                    "result_status": status,
+                    "error_message": str(error_msg)
+                })
         except Exception:
             pass
     except Exception:
@@ -461,21 +465,25 @@ def log_task_result(session_id, language, form, task_id, success, elapsed, code,
         conn.commit()
         conn.close()
 
-        # Sync result to Supabase cloud database
+        # Sync result to Supabase cloud database (skipped during testing)
         try:
-            from services.cloud_db import sync_task_result_to_cloud
-            sync_task_result_to_cloud({
-                "session_id": session_id,
-                "task_id": task_id,
-                "success": bool(success),
-                "elapsed_seconds": elapsed,
-                "allocated_seconds": 480,
-                "attempt_count": attempt_count,
-                "final_code": code,
-                "source_lines": lines_count,
-                "source_chars": chars_count,
-                "failure_reason": failure_reason
-            })
+            from flask import has_app_context, current_app
+            if not (has_app_context() and current_app.config.get('TESTING')):
+                from services.cloud_db import sync_task_result_to_cloud
+                sync_task_result_to_cloud({
+                    "session_id": session_id,
+                    "study_id": session.get('study_id'),
+                    "language": language,
+                    "task_id": task_id,
+                    "success": bool(success),
+                    "elapsed_seconds": elapsed,
+                    "allocated_seconds": 480,
+                    "attempt_count": attempt_count,
+                    "final_code": code,
+                    "source_lines": lines_count,
+                    "source_chars": chars_count,
+                    "failure_reason": failure_reason
+                })
         except Exception:
             pass
     except Exception:

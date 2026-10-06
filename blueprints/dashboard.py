@@ -26,15 +26,20 @@ def require_researcher(f):
     wrapper.__name__ = f.__name__
     return wrapper
 
-@dashboard_bp.route('/')
-@require_researcher
-def overview():
-    # Sync latest cross-computer participant submissions from Supabase
+def _safe_sync_cloud():
     try:
+        if current_app and current_app.config.get('TESTING'):
+            return
         from services.cloud_db import sync_cloud_to_local
         sync_cloud_to_local(get_research_db_path())
     except Exception:
         pass
+
+@dashboard_bp.route('/')
+@require_researcher
+def overview():
+    # Sync latest cross-computer participant submissions from Supabase
+    _safe_sync_cloud()
 
     conn = sqlite3.connect(get_research_db_path())
     conn.row_factory = sqlite3.Row
@@ -225,6 +230,7 @@ def overview():
 @dashboard_bp.route('/participants')
 @require_researcher
 def participants():
+    _safe_sync_cloud()
     conn = sqlite3.connect(get_research_db_path())
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
@@ -236,6 +242,7 @@ def participants():
 @dashboard_bp.route('/results')
 @require_researcher
 def results():
+    _safe_sync_cloud()
     page = request.args.get('page', 1, type=int)
     if page < 1:
         page = 1
@@ -487,6 +494,7 @@ def seed_data():
 @dashboard_bp.route('/export/<type>')
 @require_researcher
 def export(type):
+    _safe_sync_cloud()
     if type == 'participants':
         csv_data = export_participants_csv(get_research_db_path())
         return Response(csv_data, mimetype="text/csv", headers={"Content-Disposition": "attachment;filename=participants_telemetry.csv"})

@@ -2,19 +2,31 @@ import unittest
 import os
 import sqlite3
 import tempfile
+import shutil
 import re
 from app import create_app
 from config import Config
+from database.init_research_db import init_research_db
 from services.pilot_data_seeder import STUDENT_PROFILES
-from services.cloud_db import get_next_cloud_study_id
-from services.export_service import export_results_csv, export_attempts_csv
+from services.cloud_db import get_next_cloud_study_id, sync_cloud_to_local
+from services.export_service import export_results_csv, export_attempts_csv, export_comprehension_csv, export_survey_csv
 
 
 class AcademicRevisionsTestCase(unittest.TestCase):
     def setUp(self):
+        # Create an isolated temporary test database to protect production research.db
+        self.test_dir = tempfile.mkdtemp()
+        self.test_db_path = os.path.join(self.test_dir, 'test_research.db')
+        if os.path.exists(Config.RESEARCH_DB):
+            shutil.copyfile(Config.RESEARCH_DB, self.test_db_path)
+
         self.app = create_app()
         self.app.config['TESTING'] = True
+        self.app.config['RESEARCH_DB'] = self.test_db_path
         self.client = self.app.test_client()
+
+    def tearDown(self):
+        shutil.rmtree(self.test_dir, ignore_errors=True)
 
     def test_no_freshman_in_student_profiles(self):
         """Verify that all pilot dataset profiles have year >= 2 (freshmen excluded)."""
@@ -47,8 +59,8 @@ class AcademicRevisionsTestCase(unittest.TestCase):
             }, follow_redirects=False)
             self.assertEqual(resp.status_code, 302)
 
-            # Check inserted participant in database
-            conn = sqlite3.connect(Config.RESEARCH_DB)
+            # Check inserted participant in isolated test database
+            conn = sqlite3.connect(self.test_db_path)
             cursor = conn.cursor()
             cursor.execute("SELECT year_level FROM participants ORDER BY id DESC LIMIT 1")
             row = cursor.fetchone()
@@ -58,7 +70,7 @@ class AcademicRevisionsTestCase(unittest.TestCase):
 
     def test_sequential_cloud_study_id_generator(self):
         """Verify that get_next_cloud_study_id returns sequentially unique IDs starting at or above P017."""
-        study_id = get_next_cloud_study_id(Config.RESEARCH_DB)
+        study_id = get_next_cloud_study_id(self.test_db_path)
         self.assertTrue(study_id.startswith('P'), f"Expected Study ID format PXXX, got {study_id}")
         match = re.match(r"^P(\d+)$", study_id)
         self.assertIsNotNone(match)
@@ -101,7 +113,7 @@ class AcademicRevisionsTestCase(unittest.TestCase):
 
     def test_csv_export_explicit_outcome_column(self):
         """Verify that results.csv and attempts.csv contain the explicit outcome column with CORRECT/WRONG."""
-        res_csv = export_results_csv(Config.RESEARCH_DB)
+        res_csv = export_results_csv(self.test_db_path)
         res_lines = res_csv.strip().splitlines()
         self.assertGreater(len(res_lines), 1)
         res_headers = [h.strip() for h in res_lines[0].split(',')]
@@ -120,7 +132,7 @@ class AcademicRevisionsTestCase(unittest.TestCase):
                 self.assertEqual(outcome_val, 'WRONG')
 
         # Check attempts.csv
-        att_csv = export_attempts_csv(Config.RESEARCH_DB)
+        att_csv = export_attempts_csv(self.test_db_path)
         att_lines = att_csv.strip().splitlines()
         self.assertGreater(len(att_lines), 1)
         att_headers = [h.strip() for h in att_lines[0].split(',')]
@@ -158,6 +170,51 @@ class AcademicRevisionsTestCase(unittest.TestCase):
         pdf_path = os.path.join(Config.BASE_DIR, "QueryLearn_System_Guide_and_Defense_Handbook.pdf")
         self.assertTrue(os.path.exists(pdf_path), f"Missing PDF handbook: {pdf_path}")
         self.assertGreater(os.path.getsize(pdf_path), 50000)
+
+    def test_cloud_to_local_sync_and_relational_integrity(self):
+        """Verify that sync_cloud_to_local populates participants, sessions, results, comp, and surveys with valid relational joins."""
+        clean_db_path = os.path.join(self.test_dir, 'clean_sync.db')
+        init_research_db(clean_db_path)
+
+        synced = sync_cloud_to_local(clean_db_path)
+        self.assertTrue(synced, "sync_cloud_to_local must return True when pulling from cloud")
+
+        conn = sqlite3.connect(clean_db_path)
+        c = conn.cursor()
+
+        # 1. Verify participants and sessions exist
+        part_count = c.execute("SELECT COUNT(*) FROM participants").fetchone()[0]
+        sess_count = c.execute("SELECT COUNT(*) FROM sessions").fetchone()[0]
+        self.assertGreaterEqual(part_count, 16, "Must sync at least 16 pilot participants from cloud")
+        self.assertEqual(sess_count, part_count * 2, "Each participant must have exactly 2 local sessions (SQL and Python)")
+
+        # 2. Verify task results join correctly to sessions
+        c.execute("""
+            SELECT s.language, COUNT(r.id), SUM(CASE WHEN r.success = 1 THEN 1 ELSE 0 END)
+            FROM task_results r
+            JOIN sessions s ON r.session_id = s.id
+            GROUP BY s.language
+        """)
+        lang_rows = {row[0]: (row[1], row[2]) for row in c.fetchall()}
+        self.assertIn('sql', lang_rows, "SQL task results must join to local sessions")
+        self.assertIn('python', lang_rows, "Python task results must join to local sessions")
+        self.assertGreater(lang_rows['sql'][0], 0)
+        self.assertGreater(lang_rows['python'][0], 0)
+
+        # 3. Verify comprehension responses join to sessions
+        c.execute("""
+            SELECT COUNT(cr.id)
+            FROM comprehension_responses cr
+            JOIN sessions s ON cr.session_id = s.id
+        """)
+        comp_joined_count = c.execute("SELECT COUNT(cr.id) FROM comprehension_responses cr JOIN sessions s ON cr.session_id = s.id").fetchone()[0]
+        self.assertGreater(comp_joined_count, 0, "Comprehension responses must join to local sessions")
+
+        # 4. Verify survey responses join to sessions
+        survey_joined_count = c.execute("SELECT COUNT(sr.id) FROM survey_responses sr JOIN sessions s ON sr.session_id = s.id").fetchone()[0]
+        self.assertGreater(survey_joined_count, 0, "Survey responses must join to local sessions")
+
+        conn.close()
 
 
 if __name__ == '__main__':
