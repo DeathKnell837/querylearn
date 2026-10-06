@@ -84,8 +84,13 @@
             <div class="db-status-card" style="flex: 1;">
                 <div class="db-status-row"><span>Filtered Results</span><span id="kpi-total" style="color: white; font-weight: bold;">{{ total_records }}</span></div>
             </div>
-            <div class="db-status-card" style="flex: 1;">
-                <div class="db-status-row"><span>Success Rate</span><span id="kpi-rate" style="color: #10b981; font-weight: bold;">{{ success_rate }}%</span></div>
+            <div class="db-status-card" style="flex: 1.3;">
+                <div class="db-status-row">
+                    <span>Outcome (Right / Wrong)</span>
+                    <span id="kpi-rate" style="font-weight: bold; font-size: 0.88rem;">
+                        <span style="color: #10b981;">{{ stats.success_count if stats else 0 }} Right</span> / <span style="color: #ef4444;">{{ stats.wrong_count if stats else 0 }} Wrong</span> ({{ success_rate }}% Right)
+                    </span>
+                </div>
             </div>
             <div class="db-status-card" style="flex: 1;">
                 <div class="db-status-row"><span>Median Duration</span><span id="kpi-time" style="color: #38bdf8; font-weight: bold;">{{ med_time }}s</span></div>
@@ -126,7 +131,7 @@
                         <th>Language</th>
                         <th>Form</th>
                         <th>Task ID</th>
-                        <th>Success</th>
+                        <th>Outcome (Right / Wrong)</th>
                         <th>Median/Time (s)</th>
                         <th>Attempts</th>
                         <th>Failure Reason</th>
@@ -146,9 +151,15 @@
                         <td><span style="background: rgba(255,255,255,0.06); padding: 0.15rem 0.45rem; border-radius: 4px; font-family: var(--font-mono); font-size: 0.82rem;">{{ r.task_id }}</span></td>
                         <td>
                             {% if r.success %}
-                                <span style="background-color: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600;">Passed</span>
+                                <span style="background-color: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 0.25rem 0.65rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    Right (Correct)
+                                </span>
                             {% else %}
-                                <span style="background-color: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600;">Failed</span>
+                                <span style="background-color: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 0.25rem 0.65rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                    Wrong (Incorrect)
+                                </span>
                             {% endif %}
                         </td>
                         <td>{{ r.elapsed_seconds }}s</td>

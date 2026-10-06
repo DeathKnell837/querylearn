@@ -29,11 +29,18 @@ def require_researcher(f):
 @dashboard_bp.route('/')
 @require_researcher
 def overview():
+    # Sync latest cross-computer participant submissions from Supabase
+    try:
+        from services.cloud_db import sync_cloud_to_local
+        sync_cloud_to_local(get_research_db_path())
+    except Exception:
+        pass
+
     conn = sqlite3.connect(get_research_db_path())
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
-    # 1. Overall Language Stats (Success Rate)
+    # 1. Overall Language Stats (Success & Failure Breakdown)
     cursor.execute("""
         SELECT 
             s.language,
@@ -48,11 +55,17 @@ def overview():
     sql_stats = lang_stats.get('sql', {'successful_tasks': 0, 'total_attempts': 0})
     py_stats = lang_stats.get('python', {'successful_tasks': 0, 'total_attempts': 0})
 
-    sql_total = sql_stats['total_attempts'] or 1
-    sql_success_pct = round((sql_stats['successful_tasks'] / sql_total) * 100, 1) if sql_stats['total_attempts'] else 0
+    sql_total = sql_stats['total_attempts'] or 0
+    sql_correct = sql_stats['successful_tasks'] or 0
+    sql_wrong = max(0, sql_total - sql_correct)
+    sql_success_pct = round((sql_correct / sql_total) * 100, 1) if sql_total else 0.0
+    sql_fail_pct = round((sql_wrong / sql_total) * 100, 1) if sql_total else 0.0
 
-    py_total = py_stats['total_attempts'] or 1
-    py_success_pct = round((py_stats['successful_tasks'] / py_total) * 100, 1) if py_stats['total_attempts'] else 0
+    py_total = py_stats['total_attempts'] or 0
+    py_correct = py_stats['successful_tasks'] or 0
+    py_wrong = max(0, py_total - py_correct)
+    py_success_pct = round((py_correct / py_total) * 100, 1) if py_total else 0.0
+    py_fail_pct = round((py_wrong / py_total) * 100, 1) if py_total else 0.0
 
     # 2. Median Duration per condition
     cursor.execute("""
@@ -144,10 +157,18 @@ def overview():
             s_list = group['success']
             t_list = group['times']
             a_list = group['attempts']
-            succ_pct = round((sum(s_list) / len(s_list)) * 100, 1) if s_list else 0.0
+            t_total = len(s_list)
+            t_right = sum(s_list)
+            t_wrong = max(0, t_total - t_right)
+            succ_pct = round((t_right / t_total) * 100, 1) if t_total else 0.0
+            fail_pct = round((t_wrong / t_total) * 100, 1) if t_total else 0.0
             med_time = round(statistics.median(t_list), 1) if t_list else 0.0
             avg_att = round(sum(a_list) / len(a_list), 1) if a_list else 0.0
+            task_breakdown[tid][f"{lang}_total"] = t_total
+            task_breakdown[tid][f"{lang}_right"] = t_right
+            task_breakdown[tid][f"{lang}_wrong"] = t_wrong
             task_breakdown[tid][f"{lang}_success"] = succ_pct
+            task_breakdown[tid][f"{lang}_fail"] = fail_pct
             task_breakdown[tid][f"{lang}_median_time"] = med_time
             task_breakdown[tid][f"{lang}_time"] = med_time
             task_breakdown[tid][f"{lang}_attempts"] = avg_att
@@ -177,8 +198,16 @@ def overview():
     conn.close()
 
     metrics = {
+        "sql_correct_count": sql_correct,
+        "sql_wrong_count": sql_wrong,
+        "sql_total_count": sql_total,
         "sql_success_rate": sql_success_pct,
+        "sql_fail_rate": sql_fail_pct,
+        "python_correct_count": py_correct,
+        "python_wrong_count": py_wrong,
+        "python_total_count": py_total,
         "python_success_rate": py_success_pct,
+        "python_fail_rate": py_fail_pct,
         "sql_median_time": sql_median_time,
         "python_median_time": py_median_time,
         "paired_time_ratio": paired_time_ratio,
@@ -254,7 +283,9 @@ def results():
     stat_row = cursor.fetchone()
     total_matching = stat_row['total_matching'] or 0
     success_count = stat_row['success_count'] or 0
+    wrong_count = max(0, total_matching - success_count)
     success_rate = round((success_count / total_matching * 100), 1) if total_matching > 0 else 0.0
+    wrong_rate = round((wrong_count / total_matching * 100), 1) if total_matching > 0 else 0.0
 
     # Compute median duration across ALL matching rows
     cursor.execute(f"""
@@ -285,7 +316,10 @@ def results():
 
     summary_stats = {
         "total_results": total_matching,
+        "success_count": success_count,
+        "wrong_count": wrong_count,
         "success_rate": success_rate,
+        "wrong_rate": wrong_rate,
         "median_time": median_time,
         "avg_time": median_time
     }

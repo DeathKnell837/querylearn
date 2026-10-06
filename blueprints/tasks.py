@@ -421,6 +421,20 @@ def log_attempt(session_id, language, form, task_id, code, status, error_msg):
         """, (session_id, task_id, attempt_number, code, status, str(error_msg)))
         conn.commit()
         conn.close()
+
+        # Sync attempt to Supabase cloud database
+        try:
+            from services.cloud_db import sync_task_attempt_to_cloud
+            sync_task_attempt_to_cloud({
+                "session_id": session_id,
+                "task_id": task_id,
+                "attempt_number": attempt_number,
+                "submitted_code": code,
+                "result_status": status,
+                "error_message": str(error_msg)
+            })
+        except Exception:
+            pass
     except Exception:
         pass
 
@@ -446,5 +460,23 @@ def log_task_result(session_id, language, form, task_id, success, elapsed, code,
         """, (session_id, task_id, 1 if success else 0, str(int(elapsed)), elapsed, attempt_count, code, lines_count, chars_count, failure_reason))
         conn.commit()
         conn.close()
+
+        # Sync result to Supabase cloud database
+        try:
+            from services.cloud_db import sync_task_result_to_cloud
+            sync_task_result_to_cloud({
+                "session_id": session_id,
+                "task_id": task_id,
+                "success": bool(success),
+                "elapsed_seconds": elapsed,
+                "allocated_seconds": 480,
+                "attempt_count": attempt_count,
+                "final_code": code,
+                "source_lines": lines_count,
+                "source_chars": chars_count,
+                "failure_reason": failure_reason
+            })
+        except Exception:
+            pass
     except Exception:
         pass

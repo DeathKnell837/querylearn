@@ -31,7 +31,7 @@ def export_participants_csv(db_path):
     """)
 
 def export_results_csv(db_path):
-    """Item 3: Export results.csv with all required columns joined across tables."""
+    """Item 3: Export results.csv with all required columns joined across tables, including explicit outcome."""
     return get_csv_string_from_query(db_path, """
         SELECT
             p.study_id,
@@ -45,6 +45,7 @@ def export_results_csv(db_path):
             r.allocated_seconds,
             r.attempt_count,
             r.success,
+            CASE WHEN r.success = 1 THEN 'CORRECT' ELSE 'WRONG' END AS outcome,
             r.failure_reason,
             r.source_lines,
             r.source_chars
@@ -87,7 +88,7 @@ def export_comprehension_csv(db_path):
     """)
 
 def export_attempts_csv(db_path):
-    """Export all individual code execution attempts with participant and session details."""
+    """Export all individual code execution attempts with participant and session details, including explicit outcome."""
     return get_csv_string_from_query(db_path, """
         SELECT
             p.study_id,
@@ -96,6 +97,7 @@ def export_attempts_csv(db_path):
             ta.task_id,
             ta.attempt_number,
             ta.result_status,
+            CASE WHEN ta.result_status = 'correct' THEN 'CORRECT' ELSE 'WRONG' END AS outcome,
             ta.error_message,
             ta.submitted_code,
             ta.submitted_at

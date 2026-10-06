@@ -2,6 +2,7 @@ import sqlite3
 from flask import Blueprint, render_template, redirect, url_for, request, session, flash
 from config import Config
 from services.sequence_manager import get_next_sequence, get_sequence_details
+from services.cloud_db import get_next_cloud_study_id, sync_participant_to_cloud
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -14,6 +15,11 @@ def register():
             year_level = int(year_level_raw) if year_level_raw else 2
         except (ValueError, TypeError):
             year_level = 2
+        # Strict enforcement: 1st Year (Freshman) excluded per thesis panel directive
+        if year_level < 2:
+            year_level = 2
+        if year_level > 4:
+            year_level = 4
         sql_exp = request.form.get('sql_exp') or 'novice'
         python_exp = request.form.get('python_exp') or 'novice'
         db_course = request.form.get('db_course') or 'yes'
@@ -24,13 +30,11 @@ def register():
         sequence_id = get_next_sequence(Config.RESEARCH_DB, python_exp)
         seq_info = get_sequence_details(sequence_id)
 
+        # Generate next sequential study_id via shared cloud database (Supabase)
+        study_id = get_next_cloud_study_id(Config.RESEARCH_DB)
+
         conn = sqlite3.connect(Config.RESEARCH_DB)
         cursor = conn.cursor()
-
-        # Generate next sequential study_id
-        cursor.execute("SELECT COUNT(*) FROM participants")
-        count = cursor.fetchone()[0] + 1
-        study_id = f"P{count:03d}"
 
         # Insert participant
         cursor.execute("""
@@ -40,6 +44,23 @@ def register():
         """, (study_id, program, year_level, python_exp, sql_exp, other_languages, db_course, consent, sequence_id))
         
         participant_id = cursor.lastrowid
+
+        # Asynchronously/safely sync participant to Supabase cloud database
+        try:
+            sync_participant_to_cloud({
+                'study_id': study_id,
+                'program': program,
+                'year_level': year_level,
+                'python_exp': python_exp,
+                'sql_exp': sql_exp,
+                'other_languages': other_languages,
+                'db_course': db_course,
+                'consent': consent,
+                'sequence_id': sequence_id,
+                'status': 'in_progress'
+            })
+        except Exception:
+            pass
 
         # Create Session 1
         cursor.execute("""

@@ -83,16 +83,18 @@
                 <!-- 4 Performance Metric Tiles in Responsive Grid -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
                     
-                    <!-- Tile 1: Success Rates -->
+                    <!-- Tile 1: Overall Evaluation (Pass vs. Fail / Right vs. Wrong) -->
                     <div style="background: #0d1220; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem;">
-                        <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.35rem; font-weight: 600;">Success Rates</div>
-                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                            <span style="font-size: 1.15rem; font-weight: 700; color: #10b981;">{{ m.sql_success_rate }}%</span>
-                            <span style="font-size: 0.8rem; color: #64748b; font-weight: 600;">SQL</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 0.25rem;">
-                            <span style="font-size: 1.15rem; font-weight: 700; color: #c084fc;">{{ m.python_success_rate }}%</span>
-                            <span style="font-size: 0.8rem; color: #64748b; font-weight: 600;">Python</span>
+                        <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.35rem; font-weight: 600;">Overall Evaluation (Pass vs. Fail)</div>
+                        <div style="margin-top: 0.35rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 0.88rem;">
+                                <span style="color: #10b981; font-weight: 700;">SQL: {{ m.sql_correct_count }} Right / {{ m.sql_wrong_count }} Wrong</span>
+                                <span style="color: #cbd5e1; font-weight: 600;">{{ m.sql_success_rate }}% Right <span style="color: #ef4444; font-size: 0.78rem;">({{ m.sql_fail_rate }}% Wrong)</span></span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 0.88rem; margin-top: 0.35rem;">
+                                <span style="color: #c084fc; font-weight: 700;">Python: {{ m.python_correct_count }} Right / {{ m.python_wrong_count }} Wrong</span>
+                                <span style="color: #cbd5e1; font-weight: 600;">{{ m.python_success_rate }}% Right <span style="color: #ef4444; font-size: 0.78rem;">({{ m.python_fail_rate }}% Wrong)</span></span>
+                            </div>
                         </div>
                     </div>
 
@@ -179,8 +181,8 @@
                         <thead>
                             <tr>
                                 <th>Task</th>
-                                <th>SQL Success</th>
-                                <th>Py Success</th>
+                                <th>SQL Performance (Right vs. Wrong)</th>
+                                <th>Python Performance (Right vs. Wrong)</th>
                                 <th>SQL Median Time</th>
                                 <th>Py Median Time</th>
                             </tr>
@@ -190,10 +192,20 @@
                             <tr>
                                 <td><strong style="color: #60a5fa;">{{ t.task_id }}</strong></td>
                                 <td>
-                                    <span style="color: #10b981; font-weight: 600;">{{ t.sql_success or '--' }}%</span>
+                                    <div style="font-weight: 700; color: #10b981; font-size: 0.88rem;">
+                                        {{ t.sql_right if t.sql_right is defined else 0 }} Right / {{ t.sql_wrong if t.sql_wrong is defined else 0 }} Wrong
+                                    </div>
+                                    <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 0.15rem;">
+                                        {{ t.sql_success or '0.0' }}% Right <span style="color: #ef4444;">({{ t.sql_fail or '0.0' }}% Wrong)</span>
+                                    </div>
                                 </td>
                                 <td>
-                                    <span style="color: #a855f7; font-weight: 600;">{{ t.python_success or '--' }}%</span>
+                                    <div style="font-weight: 700; color: #c084fc; font-size: 0.88rem;">
+                                        {{ t.python_right if t.python_right is defined else 0 }} Right / {{ t.python_wrong if t.python_wrong is defined else 0 }} Wrong
+                                    </div>
+                                    <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 0.15rem;">
+                                        {{ t.python_success or '0.0' }}% Right <span style="color: #ef4444;">({{ t.python_fail or '0.0' }}% Wrong)</span>
+                                    </div>
                                 </td>
                                 <td>{{ t.sql_median_time or t.sql_time or '--' }}s</td>
                                 <td>{{ t.python_median_time or t.python_time or '--' }}s</td>

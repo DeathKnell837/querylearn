@@ -42,3 +42,10 @@ class Config:
     # Researcher default credentials
     DEFAULT_RESEARCHER = 'admin'
     DEFAULT_PASSWORD = 'querylearn2026'
+
+    # Cloud Persistence (Supabase PostgreSQL REST API)
+    SUPABASE_URL = os.environ.get('SUPABASE_URL', 'https://jjndlvtzqowvbcrjlzro.supabase.co')
+    SUPABASE_KEY = os.environ.get(
+        'SUPABASE_KEY',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqbmRsdnR6cW93dmJjcmpsenJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA0MzA1MzYsImV4cCI6MjA3NjAwNjUzNn0.Bh6JJEQdBn0wrqRSc1ycdjJe4siCh2oS85RwCSMyh8E'
+    )

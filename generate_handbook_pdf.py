@@ -1,5 +1,6 @@
 import os
 import sys
+import shutil
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -33,9 +34,9 @@ class NumberedCanvas(canvas.Canvas):
         
         # Header on pages 2+
         if self._pageNumber > 1:
-            self.drawString(54, 755, "QueryLearn — Visual System Guide & Oral Defense Handbook")
+            self.drawString(54, 755, "QueryLearn — Visual System Guide, Architecture & Oral Defense Handbook")
             self.setFont("Helvetica", 8)
-            self.drawRightString(558, 755, "Screen-by-Screen Walkthrough")
+            self.drawRightString(558, 755, "Thesis & Evaluation Documentation")
             self.setStrokeColor(colors.HexColor("#CBD5E1"))
             self.setLineWidth(0.5)
             self.line(54, 747, 558, 747)
@@ -80,8 +81,8 @@ def build_visual_guide_pdf(output_filename):
         'DocTitle',
         parent=styles['Heading1'],
         fontName='Helvetica-Bold',
-        fontSize=20,
-        leading=24,
+        fontSize=19,
+        leading=23,
         textColor=c_primary,
         spaceAfter=3
     )
@@ -90,8 +91,8 @@ def build_visual_guide_pdf(output_filename):
         'DocSub',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=10,
-        leading=14,
+        fontSize=9.5,
+        leading=13.5,
         textColor=colors.HexColor("#475569"),
         spaceAfter=10
     )
@@ -167,7 +168,7 @@ def build_visual_guide_pdf(output_filename):
     )
 
     def teacher_box(text):
-        content = f"<b>🗣️ What you say to your teacher:</b> \"{text}\""
+        content = f"<b>🗣️ What you say to your teacher / defense panel:</b> \"{text}\""
         t = Table([[Paragraph(content, say_style)]], colWidths=[504])
         t.setStyle(TableStyle([
             ('BACKGROUND', (0,0), (-1,-1), c_green_bg),
@@ -179,12 +180,11 @@ def build_visual_guide_pdf(output_filename):
         ]))
         return t
 
-    def screen_card(img_path, title, what_it_does, key_elements, teacher_say, img_height=150):
+    def screen_card(img_path, title, what_it_does, key_elements, teacher_say, img_height=145):
         items = []
         items.append(Paragraph(f"<b>{title}</b>", h1_style))
         items.append(HRFlowable(width="100%", thickness=1, color=c_blue, spaceBefore=1, spaceAfter=4))
         
-        # Screenshot image wrapped in a styled border table
         if os.path.exists(img_path):
             img = Image(img_path, width=496, height=img_height)
             t_img = Table([[img]], colWidths=[504])
@@ -201,8 +201,7 @@ def build_visual_guide_pdf(output_filename):
             items.append(t_img)
             items.append(Spacer(1, 3))
         
-        # Details table
-        desc_content = f"<b>What this screen does:</b> {what_it_does}<br/><b>Key parts:</b> {key_elements}"
+        desc_content = f"<b>What this screen does:</b> {what_it_does}<br/><b>Key elements:</b> {key_elements}"
         t_desc = Table([[Paragraph(desc_content, box_text_style)]], colWidths=[504])
         t_desc.setStyle(TableStyle([
             ('BACKGROUND', (0,0), (-1,-1), c_blue_bg),
@@ -218,19 +217,57 @@ def build_visual_guide_pdf(output_filename):
         items.append(Spacer(1, 6))
         return KeepTogether(items)
 
+    def diagram_card(img_path, title, subtitle, technical_desc, panel_talking_point, img_height=265):
+        items = []
+        items.append(Paragraph(f"<b>{title}</b>", h1_style))
+        items.append(Paragraph(subtitle, subtitle_style))
+        items.append(HRFlowable(width="100%", thickness=1, color=c_blue, spaceBefore=1, spaceAfter=4))
+
+        if os.path.exists(img_path):
+            img = Image(img_path, width=496, height=img_height)
+            t_img = Table([[img]], colWidths=[504])
+            t_img.setStyle(TableStyle([
+                ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#080C14")),
+                ('BOX', (0,0), (-1,-1), 1, c_border),
+                ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+                ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+                ('TOPPADDING', (0,0), (-1,-1), 3),
+                ('BOTTOMPADDING', (0,0), (-1,-1), 3),
+                ('LEFTPADDING', (0,0), (-1,-1), 3),
+                ('RIGHTPADDING', (0,0), (-1,-1), 3),
+            ]))
+            items.append(t_img)
+            items.append(Spacer(1, 4))
+
+        desc_content = f"<b>Formal Specification:</b> {technical_desc}"
+        t_desc = Table([[Paragraph(desc_content, box_text_style)]], colWidths=[504])
+        t_desc.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,-1), c_blue_bg),
+            ('BOX', (0,0), (-1,-1), 1, c_blue_border),
+            ('TOPPADDING', (0,0), (-1,-1), 3),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 3),
+            ('LEFTPADDING', (0,0), (-1,-1), 6),
+            ('RIGHTPADDING', (0,0), (-1,-1), 6),
+        ]))
+        items.append(t_desc)
+        items.append(Spacer(1, 3))
+        items.append(teacher_box(panel_talking_point))
+        items.append(Spacer(1, 6))
+        return KeepTogether(items)
+
     story = []
 
     # ==========================================
     # PAGE 1: TITLE & EXECUTIVE SUMMARY
     # ==========================================
-    story.append(Paragraph("QueryLearn: Visual System Guide &amp; Defense Handbook", title_style))
-    story.append(Paragraph("A Complete Screen-by-Screen Walkthrough with Pictures, Explanations, and Spoken Defense Answers", subtitle_style))
+    story.append(Paragraph("QueryLearn: Visual System Guide, Architecture &amp; Defense Handbook", title_style))
+    story.append(Paragraph("Complete Engineering Diagrams, Screen-by-Screen Walkthrough, Cloud Architecture, and Oral Defense Answers", subtitle_style))
 
     summary_table = [
-        [Paragraph("<b>Project Overview:</b> QueryLearn is an online research lab comparing whether beginner students learn data querying faster and with less frustration using declarative SQL or procedural Python.", body_style),
-         Paragraph("<b>Target Learners:</b> College freshmen and novice students with little or no formal database background.", body_style)],
-        [Paragraph("<b>Fair Testing Plan:</b> A 2×2 Crossover Design where every student tries both languages in balanced orders to remove intelligence or practice bias.", body_style),
-         Paragraph("<b>What Is Measured:</b> Reading comprehension (/18), writing success (%), time spent (s), attempt count, and mental effort ratings.", body_style)]
+        [Paragraph("<b>Project Overview:</b> QueryLearn is an online research lab comparing whether student programmers learn data querying faster and with less frustration using declarative SQL or procedural Python.", body_style),
+         Paragraph("<b>Target Demographic:</b> 2nd to 4th Year Computing Students (Sophomore, Junior, Senior in BSCS/BSIT/BSIS) with novice-to-intermediate backgrounds (1st-year freshmen excluded per panel guidelines).", body_style)],
+        [Paragraph("<b>Fair Testing Plan:</b> A 2×2 Crossover Design where every student tries both languages in balanced Latin Square orders to eliminate order and learning bias.", body_style),
+         Paragraph("<b>Cloud Persistence:</b> Shared Supabase PostgreSQL database ensures unique sequential Study IDs (P017, P018+) and live real-time telemetry across multiple laboratory computers.", body_style)]
     ]
     t_sum = Table(summary_table, colWidths=[250, 254])
     t_sum.setStyle(TableStyle([
@@ -251,9 +288,9 @@ def build_visual_guide_pdf(output_filename):
     comp_data = [
         [Paragraph("<b>Feature</b>", table_header), Paragraph("<b>SQL (Declarative)</b>", table_header), Paragraph("<b>Python (Procedural / Loops)</b>", table_header)],
         [Paragraph("<b>How you think</b>", table_cell), Paragraph("You describe <b>WHAT</b> data you want. The database engine figures out how to fetch it.", table_cell), Paragraph("You describe <b>HOW</b> to get the data, writing every single loop and dictionary step.", table_cell)],
-        [Paragraph("<b>Simple filter</b>", table_cell), Paragraph("<code>SELECT name FROM Students WHERE year = 1;</code>", table_cell), Paragraph("<code>for s in students:<br/>&nbsp;&nbsp;if s['year'] == 1: result.append(s['name'])</code>", table_cell)],
+        [Paragraph("<b>Simple filter</b>", table_cell), Paragraph("<code>SELECT name FROM Students WHERE year = 2;</code>", table_cell), Paragraph("<code>for s in students:<br/>&nbsp;&nbsp;if s['year'] == 2: result.append(s['name'])</code>", table_cell)],
         [Paragraph("<b>Joining tables</b>", table_cell), Paragraph("<code>JOIN Courses ON Enrollments.course_id = ...</code>", table_cell), Paragraph("Must build a dictionary lookup or write nested loops by hand.", table_cell)],
-        [Paragraph("<b>What we study</b>", table_cell), Paragraph("Do beginners find SQL natural, or do keywords feel like a foreign language?", table_cell), Paragraph("Do beginners prefer Python because they already know loops, or is it too tedious?", table_cell)]
+        [Paragraph("<b>What we study</b>", table_cell), Paragraph("Do novices find SQL natural, or do keywords feel like a foreign language?", table_cell), Paragraph("Do novices prefer Python because they already know loops, or is it too tedious?", table_cell)]
     ]
     t_comp = Table(comp_data, colWidths=[80, 212, 212])
     t_comp.setStyle(TableStyle([
@@ -297,7 +334,49 @@ def build_visual_guide_pdf(output_filename):
     story.append(PageBreak())
 
     # ==========================================
-    # PAGE 2: SCREENS 1 & 2
+    # PAGE 2: FORMAL SOFTWARE ENGINEERING DIAGRAMS (1 of 3)
+    # ==========================================
+    story.append(diagram_card(
+        img_path=os.path.join(os.path.dirname(__file__), "diagrams", "01_system_architecture.png"),
+        title="1. System Architecture Diagram",
+        subtitle="Four-Tier Layered Architecture: Client Presentation, Application Routing, Sandboxed Execution, and Distributed Persistence",
+        technical_desc="Decoupled into four distinct layers: (1) Client Presentation Layer (CodeMirror 5 editors, server countdown clocks, Chart.js); (2) Server Application Layer (Flask Blueprints implementing Latin Square crossover sequencing); (3) Sandboxed Execution Layer (Read-Only SQLite URI engine mode=ro, restricted Python subprocess, and Automated Grading Oracle with 3 hidden test cases); and (4) Distributed Persistence Layer (Supabase PostgreSQL 17 for real-time cross-computer synchronization with local SQLite fallback).",
+        panel_talking_point="We designed QueryLearn with a decoupled 4-tier architecture to guarantee security and multi-machine reliability. Student code is executed in isolated read-only sandboxes, while research telemetry synchronizes to a shared Supabase PostgreSQL cloud database so the evaluation panel can view live results across different laboratory computers simultaneously.",
+        img_height=265
+    ))
+
+    story.append(PageBreak())
+
+    # ==========================================
+    # PAGE 3: FORMAL SOFTWARE ENGINEERING DIAGRAMS (2 of 3)
+    # ==========================================
+    story.append(diagram_card(
+        img_path=os.path.join(os.path.dirname(__file__), "diagrams", "02_system_context_dfd0.png"),
+        title="2. System Context Diagram (DFD Level 0)",
+        subtitle="High-Level Environmental Boundary, External Entities, and Bidirectional Information Flows",
+        technical_desc="The Level 0 Context Diagram formalizes the platform boundary and primary data flows between the system and its two external actors: the Student Participant (2nd to 4th year computing students providing registration demographics, code submissions, and Likert survey responses) and the Researcher / Thesis Panel (accessing real-time pass/fail telemetry, paired time ratios, and downloading CSV datasets).",
+        panel_talking_point="This context diagram proves the bounded scope of our research tool: QueryLearn is not an LMS or social platform, but a focused empirical evaluation instrument engineered strictly to measure and compare declarative SQL against procedural Python in a controlled, double-blind environment.",
+        img_height=265
+    ))
+
+    story.append(PageBreak())
+
+    # ==========================================
+    # PAGE 4: FORMAL SOFTWARE ENGINEERING DIAGRAMS (3 of 3)
+    # ==========================================
+    story.append(diagram_card(
+        img_path=os.path.join(os.path.dirname(__file__), "diagrams", "03_use_case_diagram.png"),
+        title="3. Formal UML Use Case Diagram",
+        subtitle="Actor Goals, Operational Boundaries, and Included Verification / Cloud Sync Dependencies",
+        technical_desc="Depicts 14 discrete use cases organized within the QueryLearn platform boundary. The Participant actor executes registration (UC-01), reference exploration (UC-02), readiness checks (UC-03), sandboxed query execution (UC-04), task submission (UC-05 with include dependencies for automated oracle grading and Supabase cloud sync), reading comprehension (UC-06), and post-condition feedback (UC-07). The Researcher actor authenticates (UC-09), monitors live participants (UC-10), reviews Pass vs. Fail telemetry (UC-11), inspects paired time ratios (UC-12), triggers scaling benchmarks (UC-13), and exports datasets (UC-14).",
+        panel_talking_point="Every use case in this diagram maps directly to our experimental protocol. Participant use cases collect our primary empirical telemetry (reading accuracy, task correctness, time-on-task, and cognitive ratings), while researcher use cases compute real-time medians and export clean data for statistical hypothesis testing.",
+        img_height=265
+    ))
+
+    story.append(PageBreak())
+
+    # ==========================================
+    # PAGE 5: SCREENS 1 & 2
     # ==========================================
     story.append(screen_card(
         img_path="screenshots/01_homepage.png",
@@ -311,16 +390,16 @@ def build_visual_guide_pdf(output_filename):
     story.append(screen_card(
         img_path="screenshots/02_register.png",
         title="Screen 2: Registration &amp; Ethics Consent Wizard",
-        what_it_does="Collects student background (program, year level, prior SQL and Python experience) and presents official ethics consent before assigning an anonymous Study ID.",
-        key_elements="Program dropdown (BSCS, BSIT, BSIS), experience selectors, ethics agreement checkbox, and automatic assignment to a balanced testing sequence (Sequences 1 to 4).",
-        teacher_say="We protect student privacy by generating an anonymous Study ID (like P001 or P017). Students are automatically assigned to one of four balanced sequences so condition ordering is counterbalanced.",
+        what_it_does="Collects student background (degree program, year level [restricted to 2nd Year & Above], prior SQL and Python experience) and presents official ethics consent before assigning an anonymous, sequentially unique Study ID (P017+ via Supabase cloud).",
+        key_elements="Degree program dropdown (BSCS, BSIT, BSIS), Year Level dropdown (2nd, 3rd, 4th Year; freshmen excluded), experience selectors, ethics agreement checkbox, and automatic assignment to a balanced testing sequence (Sequences 1 to 4).",
+        teacher_say="We protect student privacy by generating an anonymous Study ID (like P017 or P018) via our shared Supabase cloud persistence layer. In accordance with the panel's directive, freshmen are excluded, focusing the sample strictly on 2nd to 4th year computing students across balanced Latin Square sequences.",
         img_height=140
     ))
 
     story.append(PageBreak())
 
     # ==========================================
-    # PAGE 3: SCREENS 3 & 4
+    # PAGE 6: SCREENS 3 & 4
     # ==========================================
     story.append(screen_card(
         img_path="screenshots/03_instructions.png",
@@ -343,7 +422,7 @@ def build_visual_guide_pdf(output_filename):
     story.append(PageBreak())
 
     # ==========================================
-    # PAGE 4: SCREENS 5 & 6
+    # PAGE 7: SCREENS 5 & 6
     # ==========================================
     story.append(screen_card(
         img_path="screenshots/06_task_sql.png",
@@ -366,7 +445,7 @@ def build_visual_guide_pdf(output_filename):
     story.append(PageBreak())
 
     # ==========================================
-    # PAGE 5: SCREENS 7 & 8
+    # PAGE 8: SCREENS 7 & 8
     # ==========================================
     story.append(screen_card(
         img_path="screenshots/08_survey.png",
@@ -380,51 +459,57 @@ def build_visual_guide_pdf(output_filename):
     story.append(screen_card(
         img_path="screenshots/09_dashboard.png",
         title="Screen 8: Researcher Analytics Dashboard",
-        what_it_does="The secure administrative portal showing live telemetry, comparative statistics between SQL and Python, completion rates, and raw CSV data downloads.",
-        key_elements="Comparative Productivity Summary, Median Comprehension Score out of 18, Task Success Rate charts, participant registry, and one-click CSV export buttons for statistical packages.",
-        teacher_say="The dashboard gives researchers complete visibility. It calculates medians, tracks time-on-task, and exports raw data for statistical analysis in SPSS or R.",
+        what_it_does="The secure administrative portal showing live telemetry, comparative statistics between SQL and Python, completion rates, explicit Right vs. Wrong (Pass/Fail) ratios, and raw CSV data downloads.",
+        key_elements="Tile 1 with explicit Right vs. Wrong counts (e.g. 14 Right / 2 Wrong) and split percentages (87.5% Right, 12.5% Wrong), Task Telemetry Table (T1-T6), and one-click CSV export buttons.",
+        teacher_say="The dashboard gives researchers complete visibility. It calculates medians, tracks time-on-task, shows exact Right vs. Wrong counts and percentages, and exports raw data for statistical analysis in SPSS or R.",
         img_height=145
     ))
 
     story.append(PageBreak())
 
     # ==========================================
-    # PAGE 6: DEFENSE Q&A CHEAT SHEET
+    # PAGE 9: DEFENSE Q&A CHEAT SHEET
     # ==========================================
-    story.append(Paragraph("Oral Defense Cheat Sheet: Top 10 Questions Your Teachers Will Ask", h1_style))
+    story.append(Paragraph("Oral Defense Cheat Sheet: Top Questions Your Evaluation Panel Will Ask", h1_style))
     story.append(HRFlowable(width="100%", thickness=1, color=c_blue, spaceBefore=1, spaceAfter=5))
-    story.append(Paragraph("Study these 10 questions and speak the green answers clearly during your defense presentation:", body_style))
+    story.append(Paragraph("Study these 12 questions and speak the green answers clearly during your defense presentation:", body_style))
     story.append(Spacer(1, 3))
 
     qa_simple = [
         ("1. 'Why did you build a web app instead of just giving students Google Forms or paper?'",
          "Because a web app records exact millisecond typing time, tracks every failed attempt, executes code safely in a sandbox, and auto-grades solutions against edge cases without human bias."),
 
-        ("2. 'How can freshmen or students with zero experience answer these tasks?'",
+        ("2. 'How can students with no prior formal database course answer these tasks?'",
          "We provided three beginner scaffolds: (1) a Reference Guide with plain-English summaries, (2) an untimed practice sandbox with a readiness check, and (3) a collapsible 'Need Help?' quick reference box inside the task window. All references use fake course data so they don't give away task answers."),
 
-        ("3. 'What if a student just guesses or hardcodes the answer like print([1, 2, 3])?'",
+        ("3. 'Why are first-year freshmen excluded from the participant demographic?'",
+         "Per evaluation panel directive, freshmen have not yet completed foundational algorithmic programming courses. Restricting our evaluation population to 2nd, 3rd, and 4th-year students ensures participants have baseline programming literacy, allowing our experiment to measure the genuine readability differences of SQL without confounding complete programming novice barriers."),
+
+        ("4. 'How does the platform handle multiple students registering on different laboratory computers?'",
+         "QueryLearn connects to a shared Supabase PostgreSQL cloud database. When a student registers on any computer or serverless instance, it atomically queries the shared database to assign the next sequentially unique Study ID (P017, P018, P019, etc.), and instantly synchronizes all task attempts and surveys so the teacher's dashboard displays aggregated live results across the entire laboratory in real-time."),
+
+        ("5. 'What if a student just guesses or hardcodes the answer like print([1, 2, 3])?'",
          "They cannot cheat! The system tests their code against hidden test datasets with edge cases (like tie scores, missing values, and empty rows). If their code does not genuinely calculate the right logic, it fails automatically."),
 
-        ("4. 'What are the main metrics or numbers you are collecting?'",
-         "We collect four primary numbers: (1) Reading score (out of 18), (2) Task success rate (percentage solved), (3) Time spent solving each task (seconds), and (4) Number of attempts (from 1 to 5). We also collect self-reported mental effort and fatigue ratings."),
+        ("6. 'What are the main metrics or numbers you are collecting?'",
+         "We collect four primary numbers: (1) Reading score (out of 18), (2) Task success rate (exact Right vs. Wrong counts and percentages), (3) Time spent solving each task (seconds), and (4) Number of attempts (from 1 to 5). We also collect self-reported mental effort and fatigue ratings."),
 
-        ("5. 'Why do you test code comprehension before task writing?'",
+        ("7. 'Why do you test code comprehension before task writing?'",
          "Because reading and writing are two different cognitive skills. Testing comprehension first lets us measure how easily a beginner understands the syntax before they have to worry about typing speed or syntax typos."),
 
-        ("6. 'Why does each task have an 8-minute timer?'",
+        ("8. 'Why does each task have an 8-minute timer?'",
          "To keep the experiment controlled and standardized. If there were no timer, one student might spend 40 minutes on one task, which ruins the time comparison and exhausts the participant."),
 
-        ("7. 'What happens if the timer runs out before they finish?'",
+        ("9. 'What happens if the timer runs out before they finish?'",
          "The app automatically saves whatever they did, marks the task as timed out, and smoothly moves them to the next task so they don't get stuck forever."),
 
-        ("8. 'Why is Python longer than SQL for tasks 4, 5, and 6?'",
+        ("10. 'Why is Python longer than SQL for tasks 4, 5, and 6?'",
          "Because SQL has built-in database keywords like JOIN and GROUP BY, while in Python you have to manually build dictionaries, compute sums, and check set memberships. That difference in difficulty is exactly what this study is measuring!"),
 
-        ("9. 'How do you keep participant identities anonymous?'",
+        ("11. 'How do you keep participant identities anonymous?'",
          "Students never type their real name. The system assigns an anonymous Study ID (like P001, P002, P017). All research data and exports only use that ID, keeping participant privacy 100% protected."),
 
-        ("10. 'What will you do with the final data collected in the dashboard?'",
+        ("12. 'What will you do with the final data collected in the dashboard?'",
          "We export the data as clean CSV files and run standard statistical tests (like Wilcoxon paired tests for ratings and paired t-tests for task times) to prove whether SQL or Python was statistically significantly better.")
     ]
 
@@ -443,3 +528,19 @@ def build_visual_guide_pdf(output_filename):
 if __name__ == '__main__':
     target = os.path.join(r"C:\Users\USER\.gemini\antigravity\scratch\querylearn", "QueryLearn_System_Guide_and_Defense_Handbook.pdf")
     build_visual_guide_pdf(target)
+
+    # Also copy to artifact directory and Desktop as requested
+    artifact_path = r"C:\Users\USER\.gemini\antigravity\brain\69d68b2e-edce-45bf-9ec4-95830b667527\QueryLearn_System_Guide_and_Defense_Handbook.pdf"
+    desktop_path = r"C:\Users\USER\Desktop\QueryLearn_System_Guide_and_Defense_Handbook.pdf"
+
+    try:
+        shutil.copy2(target, artifact_path)
+        print(f"Copied handbook to artifact dir: {artifact_path}")
+    except Exception as e:
+        print(f"Artifact copy notice: {e}")
+
+    try:
+        shutil.copy2(target, desktop_path)
+        print(f"Copied handbook to Desktop: {desktop_path}")
+    except Exception as e:
+        print(f"Desktop copy notice: {e}")
