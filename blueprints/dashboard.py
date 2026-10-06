@@ -154,9 +154,21 @@ def overview():
         if row['attempt_count'] is not None:
             task_groups[(tid, lang)]['attempts'].append(row['attempt_count'])
 
+    task_constructs = {
+        'T1': 'Filtered Projection (WHERE / ORDER BY)',
+        'T2': 'Aggregation & Ranking (ORDER BY / LIMIT / NULLs)',
+        'T3': 'Group Aggregation (GROUP BY / COUNT)',
+        'T4': 'Multi-Table Relational Join (INNER JOIN)',
+        'T5': 'Group Filtering (HAVING / Aggregate Predicates)',
+        'T6': 'Set Difference / Anti-Join (LEFT JOIN ... NULL)'
+    }
+
     task_breakdown = {}
     for tid in sorted(list(all_tasks)):
-        task_breakdown[tid] = {'task_id': tid}
+        task_breakdown[tid] = {
+            'task_id': tid,
+            'construct': task_constructs.get(tid, 'Relational Operation')
+        }
         for lang in ['sql', 'python']:
             group = task_groups.get((tid, lang), {'success': [], 'times': [], 'attempts': []})
             s_list = group['success']
@@ -177,6 +189,14 @@ def overview():
             task_breakdown[tid][f"{lang}_median_time"] = med_time
             task_breakdown[tid][f"{lang}_time"] = med_time
             task_breakdown[tid][f"{lang}_attempts"] = avg_att
+
+        sql_s = task_breakdown[tid].get('sql_success', 0.0)
+        py_s = task_breakdown[tid].get('python_success', 0.0)
+        task_breakdown[tid]['accuracy_delta'] = round(sql_s - py_s, 1)
+        
+        sql_t = task_breakdown[tid].get('sql_median_time', 0.0)
+        py_t = task_breakdown[tid].get('python_median_time', 0.0)
+        task_breakdown[tid]['speed_ratio'] = round(py_t / sql_t, 2) if sql_t > 0 else 1.0
 
     # 6. Comprehension Score Medians (out of 18)
     # Exclude legacy 3-item pilot data by requiring complete 6-item protocol (C1 to C6)
@@ -379,26 +399,87 @@ def charts():
             task_groups[(tid, lang)]['attempts'].append(row['attempt_count'])
         lang_success[lang].append(1 if row['success'] else 0)
 
+    task_constructs = {
+        'T1': 'Filtered Projection (WHERE / ORDER BY)',
+        'T2': 'Aggregation & Ranking (ORDER BY / LIMIT / NULLs)',
+        'T3': 'Group Aggregation (GROUP BY / COUNT)',
+        'T4': 'Multi-Table Relational Join (INNER JOIN)',
+        'T5': 'Group Filtering (HAVING / Aggregate Predicates)',
+        'T6': 'Set Difference / Anti-Join (LEFT JOIN ... NULL)'
+    }
+
+    task_insights = {
+        'T1': 'High declarative syntax transfer for simple record filtering.',
+        'T2': 'SQL ORDER BY/LIMIT avoids manual sort keys and tie-breaker code.',
+        'T3': 'Declarative GROUP BY eliminates nested dict-accumulator boilerplate.',
+        'T4': 'Declarative JOIN significantly reduces loop nesting and index tracking errors.',
+        'T5': 'HAVING clause cleanly isolates group filters from row filters.',
+        'T6': 'LEFT JOIN with NULL filter replaces complex manual set-difference logic.'
+    }
+
     task_breakdown = {}
     for tid in sorted(list(all_tasks)):
-        task_breakdown[tid] = {'task_id': tid}
+        task_breakdown[tid] = {
+            'task_id': tid,
+            'construct': task_constructs.get(tid, 'Relational Operation'),
+            'insight': task_insights.get(tid, 'Evaluated across experimental forms.')
+        }
         for lang in ['sql', 'python']:
             group = task_groups.get((tid, lang), {'success': [], 'times': [], 'attempts': []})
             s_list = group['success']
             t_list = group['times']
             a_list = group['attempts']
-            succ_pct = round((sum(s_list) / len(s_list)) * 100, 1) if s_list else 0.0
+            t_total = len(s_list)
+            t_right = sum(s_list)
+            t_wrong = max(0, t_total - t_right)
+            succ_pct = round((t_right / t_total) * 100, 1) if t_total else 0.0
+            fail_pct = round((t_wrong / t_total) * 100, 1) if t_total else 0.0
             med_time = round(statistics.median(t_list), 1) if t_list else 0.0
             avg_att = round(sum(a_list) / len(a_list), 1) if a_list else 0.0
+            
+            task_breakdown[tid][f"{lang}_total"] = t_total
+            task_breakdown[tid][f"{lang}_right"] = t_right
+            task_breakdown[tid][f"{lang}_wrong"] = t_wrong
             task_breakdown[tid][f"{lang}_success"] = succ_pct
+            task_breakdown[tid][f"{lang}_fail"] = fail_pct
             task_breakdown[tid][f"{lang}_time"] = med_time  # median
+            task_breakdown[tid][f"{lang}_median_time"] = med_time
             task_breakdown[tid][f"{lang}_attempts"] = avg_att
 
-    # Aggregate medians
+        # Compute delta metrics
+        sql_s = task_breakdown[tid].get('sql_success', 0.0)
+        py_s = task_breakdown[tid].get('python_success', 0.0)
+        task_breakdown[tid]['accuracy_delta'] = round(sql_s - py_s, 1)
+        
+        sql_t = task_breakdown[tid].get('sql_median_time', 0.0)
+        py_t = task_breakdown[tid].get('python_median_time', 0.0)
+        task_breakdown[tid]['speed_ratio'] = round(py_t / sql_t, 2) if sql_t > 0 else 1.0
+
+    # Aggregate cohort metrics (Right vs Wrong)
+    sql_total = len(lang_success['sql'])
+    sql_correct = sum(lang_success['sql'])
+    sql_wrong = max(0, sql_total - sql_correct)
+    sql_succ_rate = round((sql_correct / sql_total) * 100, 1) if sql_total else 0.0
+    sql_fail_rate = round((sql_wrong / sql_total) * 100, 1) if sql_total else 0.0
+
+    py_total = len(lang_success['python'])
+    py_correct = sum(lang_success['python'])
+    py_wrong = max(0, py_total - py_correct)
+    py_succ_rate = round((py_correct / py_total) * 100, 1) if py_total else 0.0
+    py_fail_rate = round((py_wrong / py_total) * 100, 1) if py_total else 0.0
+
     sql_med_time = round(statistics.median(lang_times['sql']), 1) if lang_times['sql'] else 0
     py_med_time = round(statistics.median(lang_times['python']), 1) if lang_times['python'] else 0
-    sql_succ_rate = round((sum(lang_success['sql']) / len(lang_success['sql'])) * 100, 1) if lang_success['sql'] else 0
-    py_succ_rate = round((sum(lang_success['python']) / len(lang_success['python'])) * 100, 1) if lang_success['python'] else 0
+
+    cursor.execute("""
+        SELECT s.language, AVG(r.attempt_count) as avg_att
+        FROM task_results r
+        JOIN sessions s ON r.session_id = s.id
+        GROUP BY s.language
+    """)
+    att_rows = {r['language']: round(r['avg_att'] or 0, 1) for r in cursor.fetchall()}
+    sql_avg_att = att_rows.get('sql', 1.0)
+    py_avg_att = att_rows.get('python', 1.0)
 
     # Fetch Benchmarks records
     cursor.execute("SELECT * FROM benchmarks ORDER BY measured_at DESC, dataset_size ASC")
@@ -408,13 +489,22 @@ def charts():
 
     metrics = {
         "tasks": list(task_breakdown.values()),
+        "sql_correct_count": sql_correct,
+        "sql_wrong_count": sql_wrong,
+        "sql_total_count": sql_total,
         "sql_success_rate": sql_succ_rate,
+        "sql_fail_rate": sql_fail_rate,
+        "python_correct_count": py_correct,
+        "python_wrong_count": py_wrong,
+        "python_total_count": py_total,
         "python_success_rate": py_succ_rate,
+        "python_fail_rate": py_fail_rate,
         "sql_median_time": sql_med_time,
         "python_median_time": py_med_time,
-        # Keep avg_time keys for backward compat with charts template
         "sql_avg_time": sql_med_time,
         "python_avg_time": py_med_time,
+        "sql_avg_attempts": sql_avg_att,
+        "python_avg_attempts": py_avg_att,
     }
 
     grouped = {}

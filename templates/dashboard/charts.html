@@ -220,24 +220,24 @@
         <!-- KPI Summary Strip -->
         <div class="kpi-row">
             <div class="kpi-box">
-                <span class="kpi-label">SQL Success Rate</span>
+                <span class="kpi-label">SQL Accuracy & Outcomes</span>
                 <span class="kpi-val" style="color: #10b981;">{{ m.sql_success_rate }}%</span>
-                <span class="kpi-desc">Cohort passing rate</span>
+                <span class="kpi-desc">{{ m.sql_correct_count }} Right · {{ m.sql_wrong_count }} Wrong (N={{ m.sql_total_count }})</span>
             </div>
             <div class="kpi-box">
-                <span class="kpi-label">Python Success Rate</span>
+                <span class="kpi-label">Python Accuracy & Outcomes</span>
                 <span class="kpi-val" style="color: #c084fc;">{{ m.python_success_rate }}%</span>
-                <span class="kpi-desc">Cohort passing rate</span>
+                <span class="kpi-desc">{{ m.python_correct_count }} Right · {{ m.python_wrong_count }} Wrong (N={{ m.python_total_count }})</span>
             </div>
             <div class="kpi-box">
-                <span class="kpi-label">SQL Avg Duration</span>
-                <span class="kpi-val" style="color: #38bdf8;">{{ m.sql_avg_time }}s</span>
-                <span class="kpi-desc">vs Python {{ m.python_avg_time }}s</span>
+                <span class="kpi-label">Median Duration</span>
+                <span class="kpi-val" style="color: #38bdf8;">{{ m.sql_median_time }}s <span style="font-size: 0.95rem; color: #94a3b8; font-weight: 500;">vs {{ m.python_median_time }}s</span></span>
+                <span class="kpi-desc">SQL is {% if m.sql_median_time and m.sql_median_time > 0 %}{{ (m.python_median_time / m.sql_median_time)|round(1) }}x{% else %}--{% endif %} faster on paired tasks</span>
             </div>
             <div class="kpi-box">
-                <span class="kpi-label">Average Retries</span>
-                <span class="kpi-val" style="color: #fbbf24;">{{ m.sql_avg_attempts }}</span>
-                <span class="kpi-desc">SQL attempts vs Py {{ m.python_avg_attempts }}</span>
+                <span class="kpi-label">Accuracy Advantage</span>
+                <span class="kpi-val" style="color: #34d399;">+{{ (m.sql_success_rate - m.python_success_rate)|round(1) }}%</span>
+                <span class="kpi-desc">SQL declarative cohort advantage</span>
             </div>
         </div>
 
@@ -245,7 +245,7 @@
         <div class="section-tabs">
             <button class="section-tab-btn active" id="tab-btn-telemetry" onclick="switchSection('telemetry')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
-                Participant Telemetry & Metrics
+                Participant Telemetry & Accuracy Analysis
             </button>
             <button class="section-tab-btn" id="tab-btn-benchmarks" onclick="switchSection('benchmarks')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
@@ -253,25 +253,25 @@
             </button>
         </div>
 
-        <!-- SECTION 1: PARTICIPANT TELEMETRY (4 Charts) -->
+        <!-- SECTION 1: PARTICIPANT TELEMETRY (4 Charts + Evaluation Matrix Table) -->
         <div id="section-telemetry" style="display: block;">
             <div class="analytics-grid">
                 
-                <!-- Chart 1: Success Rate Comparison -->
+                <!-- Chart 1: Task Accuracy Breakdown (Right vs Wrong) -->
                 <div class="analytics-card">
                     <div class="analytics-card-header">
                         <div>
                             <h3 class="analytics-card-title">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                Task Success Rate Comparison
+                                Task Outcome Distribution (Right vs. Wrong)
                             </h3>
-                            <p class="analytics-card-sub">Percentage of correct submissions per task (T1 &ndash; T6)</p>
+                            <p class="analytics-card-sub">Correct (Right) vs Incorrect (Wrong) participant solutions per task (T1 &ndash; T6)</p>
                         </div>
                         <span class="analytics-pill pill-green">
                             {% if m.sql_success_rate >= m.python_success_rate %}
-                                SQL +{{ (m.sql_success_rate - m.python_success_rate)|round(1) }}%
+                                SQL +{{ (m.sql_success_rate - m.python_success_rate)|round(1) }}% Advantage
                             {% else %}
-                                Python +{{ (m.python_success_rate - m.sql_success_rate)|round(1) }}%
+                                Python +{{ (m.python_success_rate - m.sql_success_rate)|round(1) }}% Advantage
                             {% endif %}
                         </span>
                     </div>
@@ -286,9 +286,9 @@
                         <div>
                             <h3 class="analytics-card-title">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                                Mean Completion Duration
+                                Median Completion Duration
                             </h3>
-                            <p class="analytics-card-sub">Average elapsed seconds spent solving each task</p>
+                            <p class="analytics-card-sub">Median elapsed seconds spent solving each task</p>
                         </div>
                         <span class="analytics-pill pill-blue">Lower is Faster</span>
                     </div>
@@ -297,17 +297,17 @@
                     </div>
                 </div>
                 
-                <!-- Chart 3: Overall Cohort Success Share -->
+                <!-- Chart 3: Overall Cohort Outcome Share -->
                 <div class="analytics-card">
                     <div class="analytics-card-header">
                         <div>
                             <h3 class="analytics-card-title">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 10 10"></path></svg>
-                                Overall Accuracy Distribution
+                                Cohort Evaluation Outcomes (Pass / Fail)
                             </h3>
-                            <p class="analytics-card-sub">Total correct outcomes: SQL vs Python</p>
+                            <p class="analytics-card-sub">Overall submission breakdown across all participants</p>
                         </div>
-                        <span class="analytics-pill pill-purple">Cohort Aggregate</span>
+                        <span class="analytics-pill pill-purple">Total N={{ m.sql_total_count + m.python_total_count }}</span>
                     </div>
                     <div style="position: relative; height: 260px; width: 100%;">
                         <canvas id="overallSuccessChart"></canvas>
@@ -329,6 +329,113 @@
                     <div style="position: relative; height: 260px; width: 100%;">
                         <canvas id="attemptChart"></canvas>
                     </div>
+                </div>
+            </div>
+
+            <!-- Empirical Task Evaluation Matrix (Right vs. Wrong Detailed Breakdown) -->
+            <div class="db-results-card" style="width: 100%; margin-top: 1.5rem; margin-bottom: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+                    <div>
+                        <h3 class="db-card-label" style="margin-bottom: 0.25rem; font-size: 1.05rem; color: #f8fafc;">
+                            Empirical Task Evaluation Matrix & Outcome Breakdown
+                        </h3>
+                        <p style="margin: 0; font-size: 0.8rem; color: #94a3b8;">
+                            Detailed per-task analysis comparing novice learner accuracy, Right (Pass) vs. Wrong (Fail) counts, and execution ratios across core relational constructs.
+                        </p>
+                    </div>
+                    <span class="analytics-pill pill-blue">
+                        Cross-Condition N={{ m.sql_total_count + m.python_total_count }} Submissions
+                    </span>
+                </div>
+                
+                <div style="overflow-x: auto; width: 100%;">
+                    <table class="db-dark-table">
+                        <thead>
+                            <tr>
+                                <th style="min-width: 180px;">Task & Construct</th>
+                                <th style="min-width: 200px;">SQL Evaluation (Right vs. Wrong)</th>
+                                <th style="min-width: 200px;">Python Evaluation (Right vs. Wrong)</th>
+                                <th>Accuracy Delta</th>
+                                <th>Median Duration</th>
+                                <th style="min-width: 220px;">Construct Finding / Qualitative Synthesis</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in m.tasks %}
+                            <tr>
+                                <td>
+                                    <div>
+                                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.2rem;">
+                                            <strong style="color: #60a5fa; font-size: 1rem;">{{ t.task_id }}</strong>
+                                            <span style="font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 4px; background: rgba(59, 130, 246, 0.1); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.2);">
+                                                Form A & B
+                                            </span>
+                                        </div>
+                                        <div style="font-size: 0.78rem; color: #cbd5e1; font-weight: 500;">
+                                            {{ t.construct or 'Relational Operation' }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                                        <span style="font-weight: 700; color: #10b981; font-size: 0.88rem;">
+                                            {{ t.sql_right if t.sql_right is defined else 0 }} Right <span style="color: #64748b; font-weight: 400;">/</span> <span style="color: #ef4444; font-weight: 600;">{{ t.sql_wrong if t.sql_wrong is defined else 0 }} Wrong</span>
+                                        </span>
+                                        <span style="font-size: 0.82rem; font-weight: 700; color: #f8fafc;">{{ t.sql_success or '0.0' }}%</span>
+                                    </div>
+                                    <div style="width: 100%; height: 6px; background: rgba(239, 68, 68, 0.35); border-radius: 9999px; overflow: hidden; display: flex;" title="SQL: {{ t.sql_success }}% Right, {{ t.sql_fail }}% Wrong">
+                                        <div style="width: {{ t.sql_success or 0 }}%; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 9999px;"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                                        <span style="font-weight: 700; color: #c084fc; font-size: 0.88rem;">
+                                            {{ t.python_right if t.python_right is defined else 0 }} Right <span style="color: #64748b; font-weight: 400;">/</span> <span style="color: #ef4444; font-weight: 600;">{{ t.python_wrong if t.python_wrong is defined else 0 }} Wrong</span>
+                                        </span>
+                                        <span style="font-size: 0.82rem; font-weight: 700; color: #f8fafc;">{{ t.python_success or '0.0' }}%</span>
+                                    </div>
+                                    <div style="width: 100%; height: 6px; background: rgba(239, 68, 68, 0.35); border-radius: 9999px; overflow: hidden; display: flex;" title="Python: {{ t.python_success }}% Right, {{ t.python_fail }}% Wrong">
+                                        <div style="width: {{ t.python_success or 0 }}%; height: 100%; background: linear-gradient(90deg, #a855f7, #c084fc); border-radius: 9999px;"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if t.accuracy_delta is defined and t.accuracy_delta > 0 %}
+                                        <span style="display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.76rem; font-weight: 700; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">
+                                            +{{ t.accuracy_delta }}% SQL
+                                        </span>
+                                    {% elif t.accuracy_delta is defined and t.accuracy_delta < 0 %}
+                                        <span style="display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.76rem; font-weight: 700; background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3);">
+                                            +{{ (t.accuracy_delta * -1)|round(1) }}% Python
+                                        </span>
+                                    {% else %}
+                                        <span style="display: inline-flex; align-items: center; padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.76rem; font-weight: 600; background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.25);">
+                                            Parity (0.0%)
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div style="font-size: 0.85rem; font-weight: 600;">
+                                        <span style="color: #38bdf8;">{{ t.sql_median_time or t.sql_time or '--' }}s</span>
+                                        <span style="color: #64748b; margin: 0 0.25rem;">vs</span>
+                                        <span style="color: #fb923c;">{{ t.python_median_time or t.python_time or '--' }}s</span>
+                                    </div>
+                                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 0.15rem;">
+                                        Ratio: {% if t.speed_ratio is defined and t.speed_ratio %}{{ t.speed_ratio }}x{% else %}1.0x{% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <p style="margin: 0; font-size: 0.78rem; color: #94a3b8; line-height: 1.45;">
+                                        {{ t.insight or 'Evaluated across experimental conditions.' }}
+                                    </p>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: #64748b; padding: 2rem;">No task telemetry recorded yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -481,26 +588,46 @@
         drawBorder: false
     };
 
-    // 1. Success Rate Comparison (Emerald Cyan vs Electric Violet)
+    // 1. Task Outcome Distribution Comparison (Stacked Right vs. Wrong)
     new Chart(document.getElementById('successChart'), {
         type: 'bar',
         data: {
             labels: labels,
             datasets: [
                 {
-                    label: 'SQL Success (%)',
-                    data: tasks.map(t => t.sql_success || 0),
+                    label: 'SQL Right',
+                    data: tasks.map(t => t.sql_right || 0),
                     backgroundColor: '#10b981',
                     hoverBackgroundColor: '#059669',
-                    borderRadius: 6,
+                    stack: 'sql',
+                    borderRadius: 4,
                     borderSkipped: false
                 },
                 {
-                    label: 'Python Success (%)',
-                    data: tasks.map(t => t.python_success || 0),
+                    label: 'SQL Wrong',
+                    data: tasks.map(t => t.sql_wrong || 0),
+                    backgroundColor: '#f43f5e',
+                    hoverBackgroundColor: '#e11d48',
+                    stack: 'sql',
+                    borderRadius: 4,
+                    borderSkipped: false
+                },
+                {
+                    label: 'Python Right',
+                    data: tasks.map(t => t.python_right || 0),
                     backgroundColor: '#8b5cf6',
                     hoverBackgroundColor: '#7c3aed',
-                    borderRadius: 6,
+                    stack: 'python',
+                    borderRadius: 4,
+                    borderSkipped: false
+                },
+                {
+                    label: 'Python Wrong',
+                    data: tasks.map(t => t.python_wrong || 0),
+                    backgroundColor: '#fb7185',
+                    hoverBackgroundColor: '#f43f5e',
+                    stack: 'python',
+                    borderRadius: 4,
                     borderSkipped: false
                 }
             ]
@@ -511,19 +638,26 @@
             plugins: {
                 legend: {
                     position: 'top',
-                    labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 16 }
+                    labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 14 }
                 },
                 tooltip: {
                     backgroundColor: '#0b0f19',
                     borderColor: 'rgba(255,255,255,0.1)',
                     borderWidth: 1,
                     padding: 10,
-                    callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw}%` }
+                    callbacks: {
+                        label: ctx => ` ${ctx.dataset.label}: ${ctx.raw} learners`
+                    }
                 }
             },
             scales: {
                 x: { grid: { display: false } },
-                y: { beginAtZero: true, max: 100, grid: gridOptions, ticks: { callback: v => v + '%' } }
+                y: {
+                    stacked: true,
+                    beginAtZero: true,
+                    grid: gridOptions,
+                    ticks: { precision: 0 }
+                }
             }
         }
     });
@@ -575,35 +709,41 @@
         }
     });
     
-    // 3. Overall Success Rate (Doughnut with Vibrant Rings)
+    // 3. Overall Cohort Outcomes (Doughnut with Vibrant Rings)
     new Chart(document.getElementById('overallSuccessChart'), {
         type: 'doughnut',
         data: {
-            labels: ['SQL Success', 'Python Success'],
+            labels: ['SQL Right (Pass)', 'SQL Wrong (Fail)', 'Python Right (Pass)', 'Python Wrong (Fail)'],
             datasets: [{
-                data: [{{ m.sql_success_rate }}, {{ m.python_success_rate }}],
-                backgroundColor: ['#06b6d4', '#d946ef'],
-                hoverBackgroundColor: ['#0891b2', '#c026d3'],
+                data: [{{ m.sql_correct_count }}, {{ m.sql_wrong_count }}, {{ m.python_correct_count }}, {{ m.python_wrong_count }}],
+                backgroundColor: ['#10b981', '#f43f5e', '#8b5cf6', '#fb7185'],
+                hoverBackgroundColor: ['#059669', '#e11d48', '#7c3aed', '#f43f5e'],
                 borderWidth: 0,
-                borderRadius: 6,
-                spacing: 5
+                borderRadius: 4,
+                spacing: 4
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            cutout: '72%',
+            cutout: '70%',
             plugins: {
                 legend: {
                     position: 'bottom',
-                    labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 16 }
+                    labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 12 }
                 },
                 tooltip: {
                     backgroundColor: '#0b0f19',
                     borderColor: 'rgba(255,255,255,0.1)',
                     borderWidth: 1,
                     padding: 10,
-                    callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}%` }
+                    callbacks: {
+                        label: ctx => {
+                            const total = {{ m.sql_total_count + m.python_total_count }};
+                            const pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
+                            return ` ${ctx.label}: ${ctx.raw} (${pct}%)`;
+                        }
+                    }
                 }
             }
         }
