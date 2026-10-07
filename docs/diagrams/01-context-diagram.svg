@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3508 2480" width="3508" height="2480">
+<defs>
+  <marker id="arrow-r" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto">
+    <path d="M 0 1 L 14 7 L 0 13 Z" fill="#000000" />
+  </marker>
+  <marker id="arrow-l" markerWidth="14" markerHeight="14" refX="2" refY="7" orient="auto">
+    <path d="M 14 1 L 0 7 L 14 13 Z" fill="#000000" />
+  </marker>
+</defs>
+<rect width="3508" height="2480" fill="#FFFFFF" />
+<text x="1754" y="190" font-family="Arial, Helvetica, sans-serif" font-size="64" font-weight="bold" fill="#000000" text-anchor="middle">QueryLearn System Context Diagram (DFD Level 0)</text>
+<text x="1754" y="2360" font-family="Arial, Helvetica, sans-serif" font-size="44" fill="#000000" text-anchor="middle">Figure 1. Context Diagram of QueryLearn</text>
+<rect x="200" y="650" width="420" height="1300" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
+<text x="410" y="1315" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="bold" fill="#000000" text-anchor="middle">Participant</text>
+<rect x="2888" y="650" width="420" height="1300" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
+<text x="3098" y="1315" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="bold" fill="#000000" text-anchor="middle">Researcher</text>
+<circle cx="1754" cy="1300" r="500" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
+<text x="1754" y="1280" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="bold" fill="#000000" text-anchor="middle">QueryLearn</text>
+<text x="1754" y="1345" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="bold" fill="#000000" text-anchor="middle">System</text>
+<line x1="620" y1="880" x2="1482.7068006749892" y2="880" stroke="#000000" stroke-width="4" marker-end="url(#arrow-r)" />
+<rect x="777.3534003374946" y="832" width="548" height="40" fill="#FFFFFF" />
+<text x="1051.3534003374946" y="862" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#000000" text-anchor="middle">registration and consent</text>
+<line x1="620" y1="1000" x2="1354.0" y2="1000" stroke="#000000" stroke-width="4" marker-end="url(#arrow-r)" />
+<rect x="818.0" y="952" width="338" height="40" fill="#FFFFFF" />
+<text x="987.0" y="982" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#000000" text-anchor="middle">task solutions</text>
+<line x1="620" y1="1120" x2="1287.523848412376" y2="1120" stroke="#000000" stroke-width="4" marker-end="url(#arrow-r)" />
+<rect x="711.261924206188" y="1072" width="485" height="40" fill="#FFFFFF" />
+<text x="953.761924206188" y="1102" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#000000" text-anchor="middle">comprehension answers</text>
+<line x1="620" y1="1240" x2="1257.6130541603657" y2="1240" stroke="#000000" stroke-width="4" marker-end="url(#arrow-r)" />
+<rect x="748.8065270801828" y="1192" width="380" height="40" fill="#FFFFFF" />
+<text x="938.8065270801828" y="1222" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#000000" text-anchor="middle">survey responses</text>
+<line x1="1264.1020514433644" y1="1400" x2="620" y2="1400" stroke="#000000" stroke-width="4" marker-end="url(#arrow-l)" />
+<rect x="762.5510257216822" y="1352" width="359" height="40" fill="#FFFFFF" />
+<text x="942.0510257216822" y="1382" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#000000" text-anchor="middle">task statements</text>
+<line x1="1305.001113587127" y1="1520" x2="620" y2="1520" stroke="#000000" stroke-width="4" marker-end="url(#arrow-l)" />
+<rect x="688.5005567935635" y="1472" width="548" height="40" fill="#FFFFFF" />
+<text x="962.5005567935635" y="1502" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#000000" text-anchor="middle">language reference guide</text>
+<line x1="1387.3939444035327" y1="1640" x2="620" y2="1640" stroke="#000000" stroke-width="4" marker-end="url(#arrow-l)" />
+<rect x="813.6969722017664" y="1592" width="380" height="40" fill="#FFFFFF" />
+<text x="1003.6969722017664" y="1622" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#000000" text-anchor="middle">session progress</text>
+<line x1="2888" y1="920" x2="2078.9615361854385" y2="920" stroke="#000000" stroke-width="4" marker-end="url(#arrow-l)" />
+<rect x="2282.9807680927192" y="872" width="401" height="40" fill="#FFFFFF" />
+<text x="2483.4807680927192" y="902" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#000000" text-anchor="middle">login credentials</text>
+<line x1="2888" y1="1060" x2="2192.634243989226" y2="1060" stroke="#000000" stroke-width="4" marker-end="url(#arrow-l)" />
+<rect x="2339.817121994613" y="1012" width="401" height="40" fill="#FFFFFF" />
+<text x="2540.317121994613" y="1042" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#000000" text-anchor="middle">filter selections</text>
+<line x1="2250.3869458396343" y1="1240" x2="2888" y2="1240" stroke="#000000" stroke-width="4" marker-end="url(#arrow-r)" />
+<rect x="2337.1934729198174" y="1192" width="464" height="40" fill="#FFFFFF" />
+<text x="2569.1934729198174" y="1222" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#000000" text-anchor="middle">participant registry</text>
+<line x1="2247.5585071701225" y1="1380" x2="2888" y2="1380" stroke="#000000" stroke-width="4" marker-end="url(#arrow-r)" />
+<rect x="2419.7792535850613" y="1332" width="296" height="40" fill="#FFFFFF" />
+<text x="2567.7792535850613" y="1362" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#000000" text-anchor="middle">task results</text>
+<line x1="2202.998886412873" y1="1520" x2="2888" y2="1520" stroke="#000000" stroke-width="4" marker-end="url(#arrow-r)" />
+<rect x="2302.999443206437" y="1472" width="485" height="40" fill="#FFFFFF" />
+<text x="2545.499443206437" y="1502" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#000000" text-anchor="middle">comparative analytics</text>
+<line x1="2100.9870314579493" y1="1660" x2="2888" y2="1660" stroke="#000000" stroke-width="4" marker-end="url(#arrow-r)" />
+<rect x="2272.9935157289747" y="1612" width="443" height="40" fill="#FFFFFF" />
+<text x="2494.4935157289747" y="1642" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#000000" text-anchor="middle">exported data files</text>
+</svg>
