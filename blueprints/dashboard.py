@@ -134,7 +134,7 @@ def overview():
             return None
         correct_count = sum(1 for r in l_rows if r['success'] == 1)
         total_mins = sum(
-            (r['elapsed_seconds'] / 60.0) if (r['success'] == 1 and r['elapsed_seconds'] is not None) else (480.0 / 60.0)
+            (r['elapsed_seconds'] / 60.0) if (r['success'] == 1 and r['elapsed_seconds'] is not None) else (Config.TASK_TIMEOUT_SECONDS / 60.0)
             for r in l_rows
         )
         return round(60.0 * correct_count / total_mins, 1) if total_mins > 0 else 0.0

@@ -55,9 +55,9 @@
         <!-- Workspace Top Bar -->
         <header class="ws-topbar">
             <!-- Timer Pill (Orange) -->
-            <div id="timer-pill" class="ws-timer-pill">
+            <div id="timer-pill" class="ws-timer-pill" title="Maximum time allocated for this task. Submit anytime once ready.">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                <span id="timer-text">{{ "%02d:%02d"|format((remaining_seconds|default(480)) // 60, (remaining_seconds|default(480)) % 60) }} remaining</span>
+                <span id="timer-text">{{ "%02d:%02d"|format((remaining_seconds|default(300)) // 60, (remaining_seconds|default(300)) % 60) }} remaining</span>
             </div>
 
             <!-- Centered Progress Group -->
@@ -211,8 +211,11 @@
     const TASK_NUM = {{ current_task_num }};
     const LANGUAGE = "sql";
     const FORM = "{{ current_form }}";
+    const TOTAL_SECONDS = {{ total_seconds | default(300) }};
+    const serverRemaining = {{ remaining_seconds | default(300) }};
+    const timerStorageKey = `ql_task_timer_${LANGUAGE}_${TASK_NUM}`;
+
     let attempts = 1;
-    let timerSeconds = {{ remaining_seconds | default(480) }};
     let isSubmitting = false;
 
     // Init CodeMirror
@@ -261,34 +264,69 @@
         }, 3200);
     }
 
-    // Initial timer display check
-    if (timerSeconds <= 60) {
-        document.getElementById('timer-pill').classList.add('urgent');
-    }
-    if (timerSeconds <= 0) {
-        showToast("Time expired! Submitting task...", true);
-        submitCode(true);
+    // Persistent Wall-Clock Timer using sessionStorage
+    let targetEndTime;
+    const storedTarget = sessionStorage.getItem(timerStorageKey);
+    const now = Date.now();
+
+    if (storedTarget) {
+        targetEndTime = parseInt(storedTarget, 10);
+        const calcRemaining = Math.round((targetEndTime - now) / 1000);
+        if (isNaN(targetEndTime) || calcRemaining <= 0) {
+            targetEndTime = now + (Math.max(0, serverRemaining) * 1000);
+            sessionStorage.setItem(timerStorageKey, targetEndTime.toString());
+        }
+    } else {
+        targetEndTime = now + (Math.max(0, serverRemaining) * 1000);
+        sessionStorage.setItem(timerStorageKey, targetEndTime.toString());
     }
 
-    // Countdown Timer
-    const timerInterval = setInterval(() => {
-        timerSeconds--;
-        if (timerSeconds < 0) timerSeconds = 0;
+    function getRemainingSeconds() {
+        return Math.max(0, Math.round((targetEndTime - Date.now()) / 1000));
+    }
+
+    let timerSeconds = getRemainingSeconds();
+
+    function updateTimerUI() {
+        timerSeconds = getRemainingSeconds();
         const mins = Math.floor(timerSeconds / 60);
         const secs = timerSeconds % 60;
-        document.getElementById('timer-text').textContent = 
-            `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} remaining`;
+        const timerText = document.getElementById('timer-text');
+        const timerPill = document.getElementById('timer-pill');
 
-        if (timerSeconds <= 60) {
-            document.getElementById('timer-pill').classList.add('urgent');
+        if (timerText) {
+            timerText.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} remaining`;
         }
 
-        if (timerSeconds === 0) {
+        if (timerPill) {
+            if (timerSeconds <= 60) {
+                timerPill.classList.add('urgent');
+            } else {
+                timerPill.classList.remove('urgent');
+            }
+        }
+
+        if (timerSeconds <= 0 && !isSubmitting) {
             clearInterval(timerInterval);
-            showToast("Time expired! Submitting task...", true);
+            sessionStorage.removeItem(timerStorageKey);
+            showToast("Time limit reached! Submitting task...", true);
             submitCode(true);
         }
-    }, 1000);
+    }
+
+    // Run initial display update
+    updateTimerUI();
+
+    // Wall-clock interval: always calculates delta against Date.now()
+    const timerInterval = setInterval(updateTimerUI, 1000);
+
+    // Instant re-sync when tab regains focus or visibility
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            updateTimerUI();
+        }
+    });
+    window.addEventListener('focus', updateTimerUI);
 
     // Run & Submit with in-flight lock and live table rendering
     async function submitCode(isTimeout = false) {
@@ -313,7 +351,7 @@
                     task_id: TASK_NUM, 
                     form: FORM,
                     timed_out: isTimeout,
-                    elapsed_seconds: 480 - timerSeconds
+                    elapsed_seconds: Math.max(1, TOTAL_SECONDS - timerSeconds)
                 })
             });
             const data = await resp.json();
@@ -326,6 +364,7 @@
             }
 
             if (data.correct) {
+                sessionStorage.removeItem(timerStorageKey);
                 showToast("✓ Correct! Passed all test cases. Moving to next task...");
                 setTimeout(() => {
                     window.location.href = data.next_task_url;
@@ -333,6 +372,7 @@
             } else {
                 showToast("✗ " + (data.feedback || "Incorrect query result"), true);
                 if (data.task_complete) {
+                    sessionStorage.removeItem(timerStorageKey);
                     setTimeout(() => {
                         window.location.href = data.next_task_url;
                     }, 1400);
@@ -370,6 +410,7 @@
     async function skipTask() {
         if (!confirm("Skip this task and move to the next item?")) return;
         try {
+            sessionStorage.removeItem(timerStorageKey);
             const resp = await fetch('/api/skip', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

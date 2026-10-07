@@ -227,21 +227,41 @@
 {% block extra_js %}
 <script>
 (function() {
-    let remaining = {{ remaining_seconds }};
-    const startTime = Date.now();
+    const compItemId = "{{ item.item_id }}";
+    const compStorageKey = `ql_comp_timer_${compItemId}`;
+    const serverRemaining = {{ remaining_seconds | default(180) }};
+    const now = Date.now();
+    let targetEndTime;
+
+    const storedTarget = sessionStorage.getItem(compStorageKey);
+    if (storedTarget) {
+        targetEndTime = parseInt(storedTarget, 10);
+        const calcRemaining = Math.round((targetEndTime - now) / 1000);
+        if (isNaN(targetEndTime) || calcRemaining <= 0) {
+            targetEndTime = now + (Math.max(0, serverRemaining) * 1000);
+            sessionStorage.setItem(compStorageKey, targetEndTime.toString());
+        }
+    } else {
+        targetEndTime = now + (Math.max(0, serverRemaining) * 1000);
+        sessionStorage.setItem(compStorageKey, targetEndTime.toString());
+    }
+
     const timerBox = document.getElementById('timer-box');
     const timerDisplay = document.getElementById('countdown-display');
     const form = document.getElementById('comp-form');
     const timedOutInput = document.getElementById('timed_out_field');
     const responseTimeInput = document.getElementById('response_time_field');
+    const startTime = Date.now();
 
     function updateTimer() {
+        const remaining = Math.max(0, Math.round((targetEndTime - Date.now()) / 1000));
         if (remaining <= 0) {
             timerDisplay.textContent = '00:00';
             timerBox.style.color = '#ef4444';
             timerBox.style.borderColor = 'rgba(239, 68, 68, 0.5)';
             timedOutInput.value = '1';
             responseTimeInput.value = '180.0';
+            sessionStorage.removeItem(compStorageKey);
             
             // Remove required attribute on timeout so form can auto-submit cleanly
             document.querySelectorAll('input[type="radio"]').forEach(r => r.removeAttribute('required'));
@@ -260,19 +280,17 @@
             timerBox.style.color = '#f59e0b';
             timerBox.style.borderColor = 'rgba(245, 158, 11, 0.5)';
         }
-
-        remaining--;
     }
 
     // Run immediately and every 1s
     updateTimer();
-    const interval = setInterval(function() {
-        if (remaining < 0) {
-            clearInterval(interval);
-        } else {
-            updateTimer();
-        }
-    }, 1000);
+    const interval = setInterval(updateTimer, 1000);
+
+    // Instant re-sync when tab visibility changes or gains focus
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) updateTimer();
+    });
+    window.addEventListener('focus', updateTimer);
 
     // Form submit handler
     form.addEventListener('submit', function(e) {
@@ -289,6 +307,7 @@
             return;
         }
 
+        sessionStorage.removeItem(compStorageKey);
         const elapsedSecs = ((Date.now() - startTime) / 1000).toFixed(1);
         responseTimeInput.value = Math.min(180.0, parseFloat(elapsedSecs));
     });

@@ -134,39 +134,54 @@ def task(language, task_id):
         session['current_session_id'] = session_id
 
     # --- Item 4: Server-side timer initialization / lookup ---
-    remaining_seconds = Config.TASK_TIMEOUT_SECONDS
-    if session_id:
-        try:
-            conn = sqlite3.connect(get_research_db_path())
-            cursor = conn.cursor()
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS task_timers (
-                    session_id INTEGER,
-                    task_id TEXT,
-                    task_started_at TEXT,
-                    PRIMARY KEY (session_id, task_id)
-                )
-            """)
-            cursor.execute(
-                "SELECT task_started_at FROM task_timers WHERE session_id = ? AND task_id = ?",
-                (session_id, formatted_task_id)
-            )
-            row = cursor.fetchone()
-            if row and row[0]:
-                started = datetime.datetime.fromisoformat(row[0])
-                now = datetime.datetime.now()
-                elapsed = (now - started).total_seconds()
-                remaining_seconds = max(0, int(Config.TASK_TIMEOUT_SECONDS - elapsed))
-            else:
-                now_str = datetime.datetime.now().isoformat()
+    total_seconds = Config.TASK_TIMEOUT_SECONDS
+    remaining_seconds = total_seconds
+
+    timer_session_key = f"timer_start_{session_id}_{formatted_task_id}"
+    started_iso = session.get(timer_session_key)
+    now = datetime.datetime.now()
+
+    if not started_iso:
+        db_started = None
+        if session_id:
+            try:
+                conn = sqlite3.connect(get_research_db_path())
+                cursor = conn.cursor()
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS task_timers (
+                        session_id INTEGER,
+                        task_id TEXT,
+                        task_started_at TEXT,
+                        PRIMARY KEY (session_id, task_id)
+                    )
+                """)
                 cursor.execute(
-                    "INSERT INTO task_timers (session_id, task_id, task_started_at) VALUES (?, ?, ?)",
-                    (session_id, formatted_task_id, now_str)
+                    "SELECT task_started_at FROM task_timers WHERE session_id = ? AND task_id = ?",
+                    (session_id, formatted_task_id)
                 )
-                conn.commit()
-            conn.close()
-        except Exception:
-            pass
+                row = cursor.fetchone()
+                if row and row[0]:
+                    db_started = row[0]
+                else:
+                    now_str = now.isoformat()
+                    cursor.execute(
+                        "INSERT INTO task_timers (session_id, task_id, task_started_at) VALUES (?, ?, ?)",
+                        (session_id, formatted_task_id, now_str)
+                    )
+                    conn.commit()
+                    db_started = now_str
+                conn.close()
+            except Exception:
+                pass
+        started_iso = db_started or now.isoformat()
+        session[timer_session_key] = started_iso
+
+    try:
+        started = datetime.datetime.fromisoformat(started_iso)
+        elapsed = (now - started).total_seconds()
+        remaining_seconds = max(0, int(total_seconds - elapsed))
+    except Exception:
+        remaining_seconds = total_seconds
 
     template_name = 'task_sql.html' if language == 'sql' else 'task_python.html'
     return render_template(
@@ -175,7 +190,8 @@ def task(language, task_id):
         current_task_num=task_num,
         current_form=current_form,
         schema=SCHEMA_METADATA,
-        remaining_seconds=remaining_seconds
+        remaining_seconds=remaining_seconds,
+        total_seconds=total_seconds
     )
 
 

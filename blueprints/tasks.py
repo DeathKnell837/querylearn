@@ -47,7 +47,18 @@ def fetch_table_as_dicts(db_path, table_name):
 
 
 def _get_server_elapsed(session_id, task_id):
-    """Item 4: Get elapsed seconds calculated from server-side task_started_at timestamp."""
+    """Item 4: Get elapsed seconds calculated from server session or server-side task_started_at timestamp."""
+    try:
+        import datetime
+        timer_session_key = f"timer_start_{session_id}_{task_id}"
+        started_iso = session.get(timer_session_key)
+        if started_iso:
+            started = datetime.datetime.fromisoformat(started_iso)
+            now = datetime.datetime.now()
+            return (now - started).total_seconds()
+    except Exception:
+        pass
+
     try:
         conn = sqlite3.connect(Config.RESEARCH_DB)
         cursor = conn.cursor()
@@ -179,12 +190,13 @@ def submit():
         elapsed_seconds = client_elapsed
 
     if timed_out:
+        session.pop(f"timer_start_{session_id}_{formatted_task_id}", None)
         log_attempt(session_id, language, form, formatted_task_id, code, "timed_out", "Time limit reached.")
         log_task_result(session_id, language, form, formatted_task_id, False, min(elapsed_seconds, Config.TASK_TIMEOUT_SECONDS), code, failure_reason="timed_out")
         session['highest_unlocked_task'] = max(session.get('highest_unlocked_task', 1), current_num + 1)
         return jsonify({
             "correct": False,
-            "feedback": "Time limit of 8 minutes exceeded for this task.",
+            "feedback": f"Time limit of {Config.TASK_TIMEOUT_SECONDS // 60} minutes reached for this task.",
             "task_complete": True,
             "next_task_url": next_url
         })
@@ -302,6 +314,7 @@ def submit():
         extra_payload["error"] = learner_res.get('error')
 
     if is_correct:
+        session.pop(f"timer_start_{session_id}_{formatted_task_id}", None)
         log_task_result(session_id, language, form, formatted_task_id, True, elapsed_seconds, code)
         session['highest_unlocked_task'] = max(session.get('highest_unlocked_task', 1), current_num + 1)
         return jsonify({
@@ -321,6 +334,7 @@ def submit():
         conn.close()
 
         if attempts_so_far >= 5:
+            session.pop(f"timer_start_{session_id}_{formatted_task_id}", None)
             log_task_result(session_id, language, form, formatted_task_id, False, elapsed_seconds, code, failure_reason="max_attempts_reached")
             session['highest_unlocked_task'] = max(session.get('highest_unlocked_task', 1), current_num + 1)
             return jsonify({
@@ -355,11 +369,12 @@ def skip():
     formatted_task_id = f"T{current_num}"
 
     session_id = session['current_session_id']
+    session.pop(f"timer_start_{session_id}_{formatted_task_id}", None)
 
     # Don't re-log if already recorded
     if not _is_already_submitted(session_id, formatted_task_id):
         log_attempt(session_id, language, form, formatted_task_id, "", "abandoned", "Task skipped by participant.")
-        log_task_result(session_id, language, form, formatted_task_id, False, 480, "", failure_reason="abandoned")
+        log_task_result(session_id, language, form, formatted_task_id, False, Config.TASK_TIMEOUT_SECONDS, "", failure_reason="abandoned")
 
     session['highest_unlocked_task'] = max(session.get('highest_unlocked_task', 1), current_num + 1)
 
@@ -477,8 +492,8 @@ def log_task_result(session_id, language, form, task_id, success, elapsed, code,
 
         cursor.execute("""
             INSERT INTO task_results (session_id, task_id, success, start_time, end_time, elapsed_seconds, allocated_seconds, attempt_count, final_code, source_lines, source_chars, failure_reason)
-            VALUES (?, ?, ?, datetime('now', '-' || ? || ' seconds'), datetime('now'), ?, 480, ?, ?, ?, ?, ?)
-        """, (session_id, task_id, 1 if success else 0, str(int(elapsed)), elapsed, attempt_count, code, lines_count, chars_count, failure_reason))
+            VALUES (?, ?, ?, datetime('now', '-' || ? || ' seconds'), datetime('now'), ?, ?, ?, ?, ?, ?, ?)
+        """, (session_id, task_id, 1 if success else 0, str(int(elapsed)), elapsed, Config.TASK_TIMEOUT_SECONDS, attempt_count, code, lines_count, chars_count, failure_reason))
         conn.commit()
         conn.close()
 
@@ -494,7 +509,7 @@ def log_task_result(session_id, language, form, task_id, success, elapsed, code,
                     "task_id": task_id,
                     "success": bool(success),
                     "elapsed_seconds": elapsed,
-                    "allocated_seconds": 480,
+                    "allocated_seconds": Config.TASK_TIMEOUT_SECONDS,
                     "attempt_count": attempt_count,
                     "final_code": code,
                     "source_lines": lines_count,

@@ -28,7 +28,7 @@ class Config:
     HIDDEN_TESTS = os.path.join(BASE_DIR, 'database', 'hidden_tests.json')
 
     # Task settings
-    TASK_TIMEOUT_SECONDS = 480        # 8 minutes per task
+    TASK_TIMEOUT_SECONDS = 300        # 5 minutes per task (standard for novice debugging)
     CODE_EXECUTION_TIMEOUT = 10       # 10 seconds for code execution
     COMPREHENSION_MAX_TIME = 180      # 3 minutes per comprehension item
     TASKS_PER_FORM = 6

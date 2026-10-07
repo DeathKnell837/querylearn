@@ -34,12 +34,12 @@ with app.test_request_context('/'):
     # 5. Task SQL
     t1_a = get_task('A', '1')
     with open('screenshots_html/task_sql.html', 'w', encoding='utf-8') as f:
-        f.write(render_template('task_sql.html', task=t1_a, current_task_num=1, total_tasks=6, schema=SCHEMA_METADATA, remaining_seconds=480, max_attempts=5, current_attempt=1, condition_language='sql'))
+        f.write(render_template('task_sql.html', task=t1_a, current_task_num=1, total_tasks=6, schema=SCHEMA_METADATA, remaining_seconds=300, max_attempts=5, current_attempt=1, condition_language='sql'))
 
     # 6. Task Python
     t1_b = get_task('B', '1')
     with open('screenshots_html/task_python.html', 'w', encoding='utf-8') as f:
-        f.write(render_template('task_python.html', task=t1_b, current_task_num=1, total_tasks=6, schema=SCHEMA_METADATA, remaining_seconds=480, max_attempts=5, current_attempt=1, condition_language='python'))
+        f.write(render_template('task_python.html', task=t1_b, current_task_num=1, total_tasks=6, schema=SCHEMA_METADATA, remaining_seconds=300, max_attempts=5, current_attempt=1, condition_language='python'))
 
     # 7. Survey
     with open('screenshots_html/survey.html', 'w', encoding='utf-8') as f:

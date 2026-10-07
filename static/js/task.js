@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize Timer
     const timerEl = document.getElementById('task-timer');
     if (timerEl) {
-        const allocated = parseInt(timerEl.dataset.allocated || 480, 10);
+        const allocated = parseInt(timerEl.dataset.allocated || 300, 10);
         taskTimer = new TaskTimer('task-timer', allocated, handleTimeout);
         taskTimer.start();
     }
