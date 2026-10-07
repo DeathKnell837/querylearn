@@ -30,6 +30,12 @@
         <button class="ws-rail-btn" title="Schema / Data" onclick="toggleSchema()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
         </button>
+        <button class="ws-rail-btn" title="Quick Reference (Syntax Examples)" onclick="openRefModal()" id="ref-rail-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+        </button>
         <button class="ws-rail-btn" title="How to Complete This Task (?)" onclick="openGuideModal()" id="guide-rail-btn">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
@@ -130,8 +136,6 @@
                             </div>
                         </div>
                     </div>
-                    {% set ref_lang = 'python' %}
-                    {% include '_quick_ref.html' %}
                 </div>
 
                 <!-- Right Code Editor Window -->
@@ -446,10 +450,17 @@
                 </div>
             </div>
         </div>
-        <div class="ws-guide-modal-footer">
-            <button class="btn btn-primary" style="width: 100%; justify-content: center; background: linear-gradient(135deg, #7c3aed, #a855f7);" onclick="closeGuideModal()">Got it, let's start</button>
+        <div class="ws-guide-modal-footer" style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+            <button type="button" class="btn btn-outline" style="font-size: 0.85rem; padding: 0.5rem 1rem;" onclick="closeGuideModal(); openRefModal();">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.25rem;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                Quick Reference
+            </button>
+            <button type="button" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.5rem 1.25rem; background: linear-gradient(135deg, #7c3aed, #a855f7);" onclick="closeGuideModal()">Got it, let's start</button>
         </div>
     </div>
 </div>
+
+{% set ref_lang = 'python' %}
+{% include '_quick_ref.html' %}
 </body>
 </html>

@@ -756,6 +756,34 @@ body {
   background: rgba(255, 255, 255, 0.01);
 }
 
+/* Workspace Quick Reference Modal */
+.ws-ref-card {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 0.65rem 0.85rem;
+}
+
+.ws-ref-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  margin-bottom: 0.3rem;
+}
+
+.ws-ref-code {
+  display: block;
+  background: #080c14;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 0.45rem 0.65rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.82rem;
+  color: #a5b4fc;
+  white-space: pre-wrap;
+  line-height: 1.45;
+}
+
 /* ==========================================================================
    PAGE 2: DASHBOARD (Matching Reference 2 Exactly)
    ========================================================================== */
