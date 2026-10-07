@@ -102,11 +102,11 @@ class AcademicRevisionsTestCase(unittest.TestCase):
         self.assertNotIn('Overall Evaluation (Pass vs. Fail)', html)
         self.assertNotIn('Task Telemetry & Evaluation Analysis', html)
 
-        # Sample data banner when seeded participants exist
-        self.assertIn('Sample data: these 16 participants are generated for testing and are not study results.', html)
+        # Ensure sample data banner is completely removed
+        self.assertNotIn('Sample data: these 16 participants are generated for testing and are not study results.', html)
 
     def test_badges_and_headers_in_results(self):
-        """Verify that results page displays Correct and Incorrect pills, Time (s) column, and sample data banner."""
+        """Verify that results page displays Correct and Incorrect pills, and Time (s) column."""
         with self.client.session_transaction() as sess:
             sess['is_researcher'] = True
             sess['researcher_name'] = 'admin'
@@ -120,7 +120,7 @@ class AcademicRevisionsTestCase(unittest.TestCase):
         self.assertIn('Correct', html)
         self.assertNotIn('Right (Correct)', html)
         self.assertNotIn('Wrong (Incorrect)', html)
-        self.assertIn('Sample data: these 16 participants are generated for testing and are not study results.', html)
+        self.assertNotIn('Sample data: these 16 participants are generated for testing and are not study results.', html)
 
     def test_comparison_page_clean_wording_and_matrix(self):
         """Verify that comparison page displays neutral What it tests, Accuracy difference, 0 pts, and clean duration."""
@@ -139,7 +139,7 @@ class AcademicRevisionsTestCase(unittest.TestCase):
         self.assertIn('0 pts', html)
         self.assertNotIn('Qualitative Synthesis', html)
         self.assertNotIn('Empirical Task Evaluation Matrix', html)
-        self.assertIn('Sample data: these 16 participants are generated for testing and are not study results.', html)
+        self.assertNotIn('Sample data: these 16 participants are generated for testing and are not study results.', html)
 
     def test_csv_export_explicit_outcome_column(self):
         """Verify that results.csv and attempts.csv contain the explicit outcome column with CORRECT/WRONG."""
