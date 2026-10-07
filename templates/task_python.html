@@ -294,7 +294,11 @@
                 out.style.color = "#ef4444";
                 showToast(data.error, true);
             } else {
-                out.textContent = data.output || "(Process finished with no output)";
+                let outText = data.output || "(Process finished with no output)";
+                if (outText.trim() === '[]') {
+                    outText = "[]\n\n(Tip: The list is empty because no records matched your filter condition. Adjust your if-condition and run again.)";
+                }
+                out.textContent = outText;
                 out.style.color = "#93c5fd";
                 showToast("Python code executed successfully");
             }

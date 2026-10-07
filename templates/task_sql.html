@@ -404,7 +404,10 @@
 
         thead.innerHTML = '<tr>' + cols.map(c => `<th>${c}</th>`).join('') + '</tr>';
         if (!rows || rows.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="${cols.length || 1}" style="text-align: center; color: #64748b; padding: 1.25rem;">0 rows returned</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="${cols.length || 1}" style="text-align: center; color: #94a3b8; padding: 1.5rem; font-size: 0.88rem;">
+                <div style="font-weight: 600; color: #cbd5e1; margin-bottom: 0.25rem;">0 rows returned</div>
+                <div style="font-size: 0.78rem; color: #64748b;">The query executed successfully on the database, but no records matched your filter condition. Adjust your filter values and click Run Query again.</div>
+            </td></tr>`;
             return;
         }
 
