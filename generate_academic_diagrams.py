@@ -1,9 +1,10 @@
 """
 Academic Publication Diagram Generator for QueryLearn.
 Produces:
-1. Context Diagram (DFD Level 0) - Figure 1
-2. Layered Architecture Diagram - Figure 2
-3. Formal UML Use Case Diagram - Figure 3
+1. Context Diagram (DFD Level 0) - Figure 1 (01-context-diagram)
+2. Layered Architecture Diagram - Figure 2 (02-architecture-diagram: Simple publication version, names only, >=14pt)
+   + Detailed Version (02b-architecture-detailed: Comprehensive engineering view with confirmed versions)
+3. UML Use Case Diagram - Figure 3 (03-use-case-diagram: Actor connection from hand/side, <<include>> >=12pt)
 
 Strict styling rules:
 - Pure white background (#FFFFFF)
@@ -15,7 +16,6 @@ Strict styling rules:
 - Right-angle connectors only (orthogonal), no diagonal or curved lines
 - No line may cross another line or pass through any box, oval, or text
 - Arrow labels sit above their arrow on a white background and never touch a box
-- Aligned to grid with equal spacing
 - Saved as SVG and 3508x2480 PNG (A4 landscape at 300 DPI) in docs/diagrams
 """
 
@@ -40,28 +40,27 @@ os.makedirs(DIAGRAMS_DIR, exist_ok=True)
 def build_context_diagram_svg() -> str:
     """
     DFD Level 0 Context Diagram.
-    Center: 'QueryLearn System' circle.
-    Left: 'Participant' rectangle.
-    Right: 'Researcher' rectangle.
-    All connections are straight horizontal orthogonal arrows.
-    Arrow labels sit above arrow on white background.
-    Zero crossing lines, zero diagonal lines, zero curves.
+    - Arrow label text increased to >=14pt (56px @ 300 DPI).
+    - Labels placed above arrows on white background pads.
+    - Arrow entry points spaced evenly around the circle (exact 150px vertical delta).
+    - Straight horizontal right-angle arrows.
+    - Zero crossing lines.
     """
     w, h = 3508, 2480
     cx, cy = 1754, 1300
-    radius = 500
+    radius = 460
 
-    p_x0, p_x1 = 200, 620
-    r_x0, r_x1 = 2888, 3308
+    p_x0, p_x1 = 150, 550
+    r_x0, r_x1 = 2958, 3358
 
     svg = []
     svg.append(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}">')
     svg.append('<defs>')
-    svg.append('  <marker id="arrow-r" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto">')
-    svg.append('    <path d="M 0 1 L 14 7 L 0 13 Z" fill="#000000" />')
+    svg.append('  <marker id="arrow-r" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto">')
+    svg.append('    <path d="M 0 1 L 16 8 L 0 15 Z" fill="#000000" />')
     svg.append('  </marker>')
-    svg.append('  <marker id="arrow-l" markerWidth="14" markerHeight="14" refX="2" refY="7" orient="auto">')
-    svg.append('    <path d="M 14 1 L 0 7 L 14 13 Z" fill="#000000" />')
+    svg.append('  <marker id="arrow-l" markerWidth="16" markerHeight="16" refX="2" refY="8" orient="auto">')
+    svg.append('    <path d="M 16 1 L 0 8 L 16 15 Z" fill="#000000" />')
     svg.append('  </marker>')
     svg.append('</defs>')
 
@@ -75,27 +74,29 @@ def build_context_diagram_svg() -> str:
     svg.append('<text x="1754" y="2360" font-family="Arial, Helvetica, sans-serif" font-size="44" fill="#000000" text-anchor="middle">Figure 1. Context Diagram of QueryLearn</text>')
 
     # Participant Entity (Left)
-    svg.append(f'<rect x="{p_x0}" y="650" width="{p_x1 - p_x0}" height="1300" fill="#F2F2F2" stroke="#000000" stroke-width="4" />')
-    svg.append(f'<text x="{(p_x0 + p_x1) // 2}" y="1315" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="bold" fill="#000000" text-anchor="middle">Participant</text>')
+    svg.append(f'<rect x="{p_x0}" y="700" width="{p_x1 - p_x0}" height="1200" fill="#F2F2F2" stroke="#000000" stroke-width="4" />')
+    svg.append(f'<text x="{(p_x0 + p_x1) // 2}" y="1315" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="bold" fill="#000000" text-anchor="middle">Participant</text>')
 
     # Researcher Entity (Right)
-    svg.append(f'<rect x="{r_x0}" y="650" width="{r_x1 - r_x0}" height="1300" fill="#F2F2F2" stroke="#000000" stroke-width="4" />')
-    svg.append(f'<text x="{(r_x0 + r_x1) // 2}" y="1315" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="bold" fill="#000000" text-anchor="middle">Researcher</text>')
+    svg.append(f'<rect x="{r_x0}" y="700" width="{r_x1 - r_x0}" height="1200" fill="#F2F2F2" stroke="#000000" stroke-width="4" />')
+    svg.append(f'<text x="{(r_x0 + r_x1) // 2}" y="1315" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="bold" fill="#000000" text-anchor="middle">Researcher</text>')
 
     # QueryLearn System Entity (Center Circle)
     svg.append(f'<circle cx="{cx}" cy="{cy}" r="{radius}" fill="#F2F2F2" stroke="#000000" stroke-width="4" />')
-    svg.append(f'<text x="{cx}" y="{cy - 20}" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="bold" fill="#000000" text-anchor="middle">QueryLearn</text>')
-    svg.append(f'<text x="{cx}" y="{cy + 45}" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="bold" fill="#000000" text-anchor="middle">System</text>')
+    svg.append(f'<text x="{cx}" y="{cy - 25}" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="bold" fill="#000000" text-anchor="middle">QueryLearn</text>')
+    svg.append(f'<text x="{cx}" y="{cy + 45}" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="bold" fill="#000000" text-anchor="middle">System</text>')
 
-    # --- LEFT FLOWS (Participant <-> System) ---
+    # --- LEFT FLOWS: Participant <-> System ---
+    # 7 entry points evenly spaced vertically around equator (cy=1300): step = 120px
+    # y = 940, 1060, 1180, 1300, 1420, 1540, 1660
     left_flows = [
-        ("registration and consent", 880, "right"),
-        ("task solutions", 1000, "right"),
-        ("comprehension answers", 1120, "right"),
-        ("survey responses", 1240, "right"),
-        ("task statements", 1400, "left"),
-        ("language reference guide", 1520, "left"),
-        ("session progress", 1640, "left"),
+        ("registration and consent", 940, "right"),
+        ("task solutions", 1060, "right"),
+        ("comprehension answers", 1180, "right"),
+        ("survey responses", 1300, "right"),
+        ("task statements", 1420, "left"),
+        ("language reference guide", 1540, "left"),
+        ("session progress", 1660, "left"),
     ]
 
     for label, y_pos, direction in left_flows:
@@ -107,26 +108,26 @@ def build_context_diagram_svg() -> str:
         line_end = circle_edge_x
 
         if direction == "right":
-            # Participant to System: arrowhead at circle edge
             svg.append(f'<line x1="{line_start}" y1="{y_pos}" x2="{line_end}" y2="{y_pos}" stroke="#000000" stroke-width="4" marker-end="url(#arrow-r)" />')
         else:
-            # System to Participant: arrowhead at Participant box
             svg.append(f'<line x1="{line_end}" y1="{y_pos}" x2="{line_start}" y2="{y_pos}" stroke="#000000" stroke-width="4" marker-end="url(#arrow-l)" />')
 
-        # Label above arrow on white background
+        # Label >= 14pt (56px) above arrow on white background
         label_x = (line_start + line_end) / 2
-        approx_w = len(label) * 21 + 44
-        svg.append(f'<rect x="{label_x - approx_w / 2}" y="{y_pos - 48}" width="{approx_w}" height="40" fill="#FFFFFF" />')
-        svg.append(f'<text x="{label_x}" y="{y_pos - 18}" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#000000" text-anchor="middle">{label}</text>')
+        approx_w = len(label) * 27 + 40
+        svg.append(f'<rect x="{label_x - approx_w / 2}" y="{y_pos - 70}" width="{approx_w}" height="54" fill="#FFFFFF" />')
+        svg.append(f'<text x="{label_x}" y="{y_pos - 26}" font-family="Arial, Helvetica, sans-serif" font-size="56" fill="#000000" text-anchor="middle">{label}</text>')
 
-    # --- RIGHT FLOWS (System <-> Researcher) ---
+    # --- RIGHT FLOWS: System <-> Researcher ---
+    # 6 entry points evenly spaced vertically around equator (cy=1300): step = 130px
+    # y = 975, 1105, 1235, 1365, 1495, 1625
     right_flows = [
-        ("login credentials", 920, "left"),
-        ("filter selections", 1060, "left"),
-        ("participant registry", 1240, "right"),
-        ("task results", 1380, "right"),
-        ("comparative analytics", 1520, "right"),
-        ("exported data files", 1660, "right"),
+        ("login credentials", 975, "left"),
+        ("filter selections", 1105, "left"),
+        ("participant registry", 1235, "right"),
+        ("task results", 1365, "right"),
+        ("comparative analytics", 1495, "right"),
+        ("exported data files", 1625, "right"),
     ]
 
     for label, y_pos, direction in right_flows:
@@ -138,36 +139,176 @@ def build_context_diagram_svg() -> str:
         line_end = r_x0
 
         if direction == "left":
-            # Researcher to System: arrowhead at circle edge
             svg.append(f'<line x1="{line_end}" y1="{y_pos}" x2="{line_start}" y2="{y_pos}" stroke="#000000" stroke-width="4" marker-end="url(#arrow-l)" />')
         else:
-            # System to Researcher: arrowhead at Researcher box
             svg.append(f'<line x1="{line_start}" y1="{y_pos}" x2="{line_end}" y2="{y_pos}" stroke="#000000" stroke-width="4" marker-end="url(#arrow-r)" />')
 
         label_x = (line_start + line_end) / 2
-        approx_w = len(label) * 21 + 44
-        svg.append(f'<rect x="{label_x - approx_w / 2}" y="{y_pos - 48}" width="{approx_w}" height="40" fill="#FFFFFF" />')
-        svg.append(f'<text x="{label_x}" y="{y_pos - 18}" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#000000" text-anchor="middle">{label}</text>')
+        approx_w = len(label) * 27 + 40
+        svg.append(f'<rect x="{label_x - approx_w / 2}" y="{y_pos - 70}" width="{approx_w}" height="54" fill="#FFFFFF" />')
+        svg.append(f'<text x="{label_x}" y="{y_pos - 26}" font-family="Arial, Helvetica, sans-serif" font-size="56" fill="#000000" text-anchor="middle">{label}</text>')
 
     svg.append('</svg>')
     return '\n'.join(svg)
 
 
 # ==============================================================================
-# DIAGRAM 2: LAYERED ARCHITECTURE DIAGRAM
+# DIAGRAM 2: ARCHITECTURE DIAGRAM (SIMPLE PAPER VERSION)
 # ==============================================================================
-def build_architecture_diagram_svg() -> str:
+def build_simple_architecture_diagram_svg() -> str:
     """
-    Layered System Architecture Diagram.
-    4 horizontal layers stacked top to bottom:
-    - Presentation Layer (Browser Client)
-    - Application Layer (Flask 3.1 Web Framework)
-    - Services Layer (Domain Logic & Orchestration)
-    - Data Layer (Local & Ephemeral Serverless Storage)
-    Dashed box around Layers 2, 3, 4 labeled 'Hosted on Vercel (serverless)'
-    Clear gaps in dashed boundary so arrows do not cross.
-    Stepped right-angle connectors with labels sitting above horizontal arrow segments.
-    Wording: '2x2 counterbalanced crossover with four sequences'
+    Simple Architecture Diagram for Paper (Figure 2).
+    - Names only inside boxes, NO bullet lists.
+    - Text >= 14pt (56px-58px @ 300 DPI) inside boxes.
+    - 4 layers: Presentation, Application, Services, Data.
+    - Dashed 'Hosted on Vercel (serverless)' box enclosing Layers 2, 3, 4.
+    - Clear gaps for labeled arrows.
+    - Labeled arrows >= 14pt (56px).
+    """
+    w, h = 3508, 2480
+    svg = []
+    svg.append(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}">')
+    svg.append('<defs>')
+    svg.append('  <marker id="arrow-d" markerWidth="16" markerHeight="16" refX="8" refY="14" orient="auto">')
+    svg.append('    <path d="M 1 0 L 8 16 L 15 0 Z" fill="#000000" />')
+    svg.append('  </marker>')
+    svg.append('  <marker id="arrow-u" markerWidth="16" markerHeight="16" refX="8" refY="2" orient="auto">')
+    svg.append('    <path d="M 1 16 L 8 0 L 15 16 Z" fill="#000000" />')
+    svg.append('  </marker>')
+    svg.append('</defs>')
+
+    # Background
+    svg.append(f'<rect width="{w}" height="{h}" fill="#FFFFFF" />')
+
+    # Title
+    svg.append('<text x="1754" y="160" font-family="Arial, Helvetica, sans-serif" font-size="64" font-weight="bold" fill="#000000" text-anchor="middle">QueryLearn Layered System Architecture</text>')
+
+    # Caption
+    svg.append('<text x="1754" y="2380" font-family="Arial, Helvetica, sans-serif" font-size="44" fill="#000000" text-anchor="middle">Figure 2. Layered Architecture Diagram of QueryLearn</text>')
+
+    # Dashed Boundary: Hosted on Vercel (serverless)
+    # y = 680 to 2260
+    dashed_top_y = 690
+    svg.append(f'<line x1="140" y1="{dashed_top_y}" x2="700" y2="{dashed_top_y}" stroke="#000000" stroke-width="4" stroke-dasharray="16,12" />')
+    svg.append(f'<line x1="1300" y1="{dashed_top_y}" x2="2200" y2="{dashed_top_y}" stroke="#000000" stroke-width="4" stroke-dasharray="16,12" />')
+    svg.append(f'<line x1="2800" y1="{dashed_top_y}" x2="3368" y2="{dashed_top_y}" stroke="#000000" stroke-width="4" stroke-dasharray="16,12" />')
+    svg.append(f'<line x1="140" y1="{dashed_top_y}" x2="140" y2="2260" stroke="#000000" stroke-width="4" stroke-dasharray="16,12" />')
+    svg.append('<line x1="140" y1="2260" x2="3368" y2="2260" stroke="#000000" stroke-width="4" stroke-dasharray="16,12" />')
+    svg.append(f'<line x1="3368" y1="{dashed_top_y}" x2="3368" y2="2260" stroke="#000000" stroke-width="4" stroke-dasharray="16,12" />')
+    svg.append(f'<text x="3330" y="{dashed_top_y + 40}" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="bold" font-style="italic" fill="#000000" text-anchor="end">Hosted on Vercel (serverless)</text>')
+
+    # --- LAYER 1: Presentation Layer ---
+    # y = 220, height = 330
+    svg.append('<rect x="180" y="220" width="3148" height="330" fill="#F2F2F2" stroke="#000000" stroke-width="4" />')
+    svg.append('<text x="220" y="270" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="bold" fill="#000000">Presentation Layer (Browser Client)</text>')
+
+    p_boxes = [
+        ("HTML User Interface", 220),
+        ("CodeMirror Editor", 990),
+        ("Task & Clock Timers", 1760),
+        ("Chart.js Visualizations", 2530),
+    ]
+    for title, bx in p_boxes:
+        svg.append(f'<rect x="{bx}" y="295" width="730" height="225" fill="#FFFFFF" stroke="#000000" stroke-width="3" />')
+        svg.append(f'<text x="{bx + 365}" y="420" font-family="Arial, Helvetica, sans-serif" font-size="56" font-weight="bold" fill="#000000" text-anchor="middle">{title}</text>')
+
+    # Gap 1 (y = 550 to 740): Labeled arrows >= 14pt (56px)
+    svg.append('<line x1="1000" y1="550" x2="1000" y2="740" stroke="#000000" stroke-width="4" marker-end="url(#arrow-d)" />')
+    svg.append('<rect x="440" y="618" width="520" height="54" fill="#FFFFFF" />')
+    svg.append('<text x="700" y="658" font-family="Arial, Helvetica, sans-serif" font-size="54" fill="#000000" text-anchor="middle">HTTP Requests</text>')
+
+    svg.append('<line x1="2500" y1="740" x2="2500" y2="550" stroke="#000000" stroke-width="4" marker-end="url(#arrow-u)" />')
+    svg.append('<rect x="2540" y="618" width="550" height="54" fill="#FFFFFF" />')
+    svg.append('<text x="2815" y="658" font-family="Arial, Helvetica, sans-serif" font-size="54" fill="#000000" text-anchor="middle">HTTP Responses</text>')
+
+    # --- LAYER 2: Application Layer (Flask) ---
+    # y = 740, height = 330
+    svg.append('<rect x="180" y="740" width="3148" height="330" fill="#F2F2F2" stroke="#000000" stroke-width="4" />')
+    svg.append('<text x="220" y="790" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="bold" fill="#000000">Application Layer (Flask Web Framework)</text>')
+
+    app_boxes = [
+        ("auth_bp", 220),
+        ("experiment_bp", 990),
+        ("tasks_bp", 1760),
+        ("dashboard_bp", 2530),
+    ]
+    for title, bx in app_boxes:
+        svg.append(f'<rect x="{bx}" y="815" width="730" height="225" fill="#FFFFFF" stroke="#000000" stroke-width="3" />')
+        svg.append(f'<text x="{bx + 365}" y="940" font-family="Arial, Helvetica, sans-serif" font-size="56" font-weight="bold" fill="#000000" text-anchor="middle">{title}</text>')
+
+    # Gap 2 (y = 1070 to 1240): Labeled arrows
+    svg.append('<line x1="1000" y1="1070" x2="1000" y2="1240" stroke="#000000" stroke-width="4" marker-end="url(#arrow-d)" />')
+    svg.append('<rect x="410" y="1128" width="550" height="54" fill="#FFFFFF" />')
+    svg.append('<text x="685" y="1168" font-family="Arial, Helvetica, sans-serif" font-size="54" fill="#000000" text-anchor="middle">Service Invocations</text>')
+
+    svg.append('<line x1="2500" y1="1240" x2="2500" y2="1070" stroke="#000000" stroke-width="4" marker-end="url(#arrow-u)" />')
+    svg.append('<rect x="2540" y="1128" width="530" height="54" fill="#FFFFFF" />')
+    svg.append('<text x="2805" y="1168" font-family="Arial, Helvetica, sans-serif" font-size="54" fill="#000000" text-anchor="middle">Execution Results</text>')
+
+    # --- LAYER 3: Services Layer ---
+    # y = 1240, height = 480
+    svg.append('<rect x="180" y="1240" width="3148" height="480" fill="#F2F2F2" stroke="#000000" stroke-width="4" />')
+    svg.append('<text x="220" y="1290" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="bold" fill="#000000">Services Layer (Domain Logic & Orchestration)</text>')
+
+    srv_row1 = [
+        ("task_catalog", 220),
+        ("sql_runner", 990),
+        ("python_runner", 1760),
+        ("answer_checker", 2530),
+    ]
+    for title, bx in srv_row1:
+        svg.append(f'<rect x="{bx}" y="1315" width="730" height="175" fill="#FFFFFF" stroke="#000000" stroke-width="3" />')
+        svg.append(f'<text x="{bx + 365}" y="1420" font-family="Arial, Helvetica, sans-serif" font-size="56" font-weight="bold" fill="#000000" text-anchor="middle">{title}</text>')
+
+    srv_row2 = [
+        ("sequence_manager", 220),
+        ("comprehension_items", 990),
+        ("benchmark_runner", 1760),
+        ("export_service", 2530),
+    ]
+    for title, bx in srv_row2:
+        svg.append(f'<rect x="{bx}" y="1515" width="730" height="175" fill="#FFFFFF" stroke="#000000" stroke-width="3" />')
+        svg.append(f'<text x="{bx + 365}" y="1620" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="bold" fill="#000000" text-anchor="middle">{title}</text>')
+
+    # Gap 3 (y = 1720 to 1890): Labeled arrows
+    svg.append('<line x1="1000" y1="1720" x2="1000" y2="1890" stroke="#000000" stroke-width="4" marker-end="url(#arrow-d)" />')
+    svg.append('<rect x="360" y="1778" width="600" height="54" fill="#FFFFFF" />')
+    svg.append('<text x="660" y="1818" font-family="Arial, Helvetica, sans-serif" font-size="54" fill="#000000" text-anchor="middle">Database Operations</text>')
+
+    svg.append('<line x1="2500" y1="1890" x2="2500" y2="1720" stroke="#000000" stroke-width="4" marker-end="url(#arrow-u)" />')
+    svg.append('<rect x="2540" y="1778" width="530" height="54" fill="#FFFFFF" />')
+    svg.append('<text x="2805" y="1818" font-family="Arial, Helvetica, sans-serif" font-size="54" fill="#000000" text-anchor="middle">Data Result Sets</text>')
+
+    # --- LAYER 4: Data Layer ---
+    # y = 1890, height = 340
+    svg.append('<rect x="180" y="1890" width="3148" height="340" fill="#F2F2F2" stroke="#000000" stroke-width="4" />')
+    svg.append('<text x="220" y="1940" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="bold" fill="#000000">Data Layer (Local & Ephemeral Serverless Storage)</text>')
+
+    data_boxes = [
+        ("research.db (SQLite)", 220),
+        ("experiment_a.db (SQLite)", 990),
+        ("experiment_b.db (SQLite)", 1760),
+        ("hidden_tests.json (JSON)", 2530),
+    ]
+    for title, bx in data_boxes:
+        svg.append(f'<rect x="{bx}" y="1965" width="730" height="235" fill="#FFFFFF" stroke="#000000" stroke-width="3" />')
+        svg.append(f'<text x="{bx + 365}" y="2095" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="bold" fill="#000000" text-anchor="middle">{title}</text>')
+
+    svg.append('</svg>')
+    return '\n'.join(svg)
+
+
+# ==============================================================================
+# DIAGRAM 2b: ARCHITECTURE DIAGRAM (DETAILED DENSE VERSION)
+# ==============================================================================
+def build_detailed_architecture_diagram_svg() -> str:
+    """
+    Detailed Architecture Diagram (02b-architecture-detailed).
+    Contains full itemized bullets with confirmed versions:
+    - Flask 3.1.1, CodeMirror 5.65.13, Chart.js 4.4.4
+    - 21 Web Templates confirmed
+    - 36 Hidden Test Datasets confirmed
+    - '2x2 counterbalanced crossover with four sequences'
     """
     w, h = 3508, 2480
     svg = []
@@ -185,40 +326,30 @@ def build_architecture_diagram_svg() -> str:
     svg.append(f'<rect width="{w}" height="{h}" fill="#FFFFFF" />')
 
     # Title
-    svg.append('<text x="1754" y="160" font-family="Arial, Helvetica, sans-serif" font-size="64" font-weight="bold" fill="#000000" text-anchor="middle">QueryLearn Layered System Architecture</text>')
+    svg.append('<text x="1754" y="160" font-family="Arial, Helvetica, sans-serif" font-size="64" font-weight="bold" fill="#000000" text-anchor="middle">QueryLearn Detailed System Architecture</text>')
 
     # Caption
-    svg.append('<text x="1754" y="2380" font-family="Arial, Helvetica, sans-serif" font-size="44" fill="#000000" text-anchor="middle">Figure 2. Layered Architecture Diagram of QueryLearn</text>')
+    svg.append('<text x="1754" y="2380" font-family="Arial, Helvetica, sans-serif" font-size="44" fill="#000000" text-anchor="middle">Figure 2b. Detailed Engineering Architecture Diagram of QueryLearn</text>')
 
-    # Vercel Serverless Dashed Box (Encloses Application, Services, and Data layers)
-    # y = 680 to 2260, x = 140 to 3368
-    # Top dashed line has gaps at x=800..1200 and x=2300..2700 so arrows pass through clear gaps
+    # Dashed Boundary: Hosted on Vercel (serverless)
     dashed_top_y = 690
-    # Segment 1: x = 140 to 750
     svg.append(f'<line x1="140" y1="{dashed_top_y}" x2="750" y2="{dashed_top_y}" stroke="#000000" stroke-width="4" stroke-dasharray="16,12" />')
-    # Segment 2: x = 1250 to 2250
     svg.append(f'<line x1="1250" y1="{dashed_top_y}" x2="2250" y2="{dashed_top_y}" stroke="#000000" stroke-width="4" stroke-dasharray="16,12" />')
-    # Segment 3: x = 2750 to 3368
     svg.append(f'<line x1="2750" y1="{dashed_top_y}" x2="3368" y2="{dashed_top_y}" stroke="#000000" stroke-width="4" stroke-dasharray="16,12" />')
-    # Left, bottom, and right dashed lines
     svg.append(f'<line x1="140" y1="{dashed_top_y}" x2="140" y2="2260" stroke="#000000" stroke-width="4" stroke-dasharray="16,12" />')
     svg.append('<line x1="140" y1="2260" x2="3368" y2="2260" stroke="#000000" stroke-width="4" stroke-dasharray="16,12" />')
     svg.append(f'<line x1="3368" y1="{dashed_top_y}" x2="3368" y2="2260" stroke="#000000" stroke-width="4" stroke-dasharray="16,12" />')
-    # Label for Vercel Dashed Box
     svg.append(f'<text x="3330" y="{dashed_top_y + 36}" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="bold" font-style="italic" fill="#000000" text-anchor="end">Hosted on Vercel (serverless)</text>')
 
-    # ==========================================
-    # LAYER 1: Presentation Layer
-    # ==========================================
-    # y = 220, height = 330
+    # LAYER 1: Presentation
     svg.append('<rect x="180" y="220" width="3148" height="330" fill="#F2F2F2" stroke="#000000" stroke-width="4" />')
     svg.append('<text x="220" y="268" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="bold" fill="#000000">Presentation Layer (Browser Client)</text>')
 
     p_boxes = [
-        ("HTML User Interface", ["Jinja2 Web Templates", "Responsive Navigation Layout", "Study Protocol Views (11 Templates)"], 220),
-        ("Code Editors", ["CodeMirror 5 Workspace", "SQL Syntax Highlighting", "Procedural Python Mode"], 990),
+        ("HTML User Interface", ["Jinja2 Web Templates (21 Total Views)", "Responsive Navigation Layout", "Participant & Researcher Views"], 220),
+        ("Code Editors", ["CodeMirror 5.65.13 Workspace", "SQL Syntax Highlighting Mode", "Procedural Python Indentation Mode"], 990),
         ("Client-Side Timers", ["timer.js Engine", "8-Min Task Countdown Clocks", "3-Min Comprehension Timer"], 1760),
-        ("Data Visualizations", ["Chart.js 4 Engine", "Outcome Split Visualizations", "Headline Performance Metrics"], 2530),
+        ("Data Visualizations", ["Chart.js 4.4.4 Engine", "Outcome Split Visualizations", "Headline Performance Metrics"], 2530),
     ]
     for title, items, bx in p_boxes:
         svg.append(f'<rect x="{bx}" y="290" width="730" height="230" fill="#FFFFFF" stroke="#000000" stroke-width="3" />')
@@ -226,26 +357,18 @@ def build_architecture_diagram_svg() -> str:
         for idx, itm in enumerate(items):
             svg.append(f'<text x="{bx + 30}" y="{380 + idx * 36}" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; {itm}</text>')
 
-    # Gap 1 (y = 550 to 740): Stepped right-angle connector
-    # Downward request: from Layer 1 at (1000, 550) -> down to y=645 -> horizontal to x=1000? Or straight vertical through gap:
-    # Downward arrow at x = 1000: from (1000, 550) straight down to (1000, 740) through clear gap (x=750..1250)
+    # Gap 1
     svg.append('<line x1="1000" y1="550" x2="1000" y2="740" stroke="#000000" stroke-width="4" marker-end="url(#arrow-d)" />')
-    # Label with white background centered to the left of the arrow
     svg.append('<rect x="420" y="625" width="550" height="38" fill="#FFFFFF" />')
     svg.append('<text x="695" y="652" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#000000" text-anchor="middle">HTTP Requests (form data, code, parameters)</text>')
 
-    # Upward response: from Layer 2 at (2500, 740) straight up to (2500, 550) through clear gap (x=2250..2750)
     svg.append('<line x1="2500" y1="740" x2="2500" y2="550" stroke="#000000" stroke-width="4" marker-end="url(#arrow-u)" />')
-    # Label with white background centered to the right of the arrow
     svg.append('<rect x="2530" y="625" width="540" height="38" fill="#FFFFFF" />')
     svg.append('<text x="2800" y="652" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#000000" text-anchor="middle">HTTP Responses (rendered HTML, JSON, CSV)</text>')
 
-    # ==========================================
-    # LAYER 2: Application Layer (Flask)
-    # ==========================================
-    # y = 740, height = 330
+    # LAYER 2: Application
     svg.append('<rect x="180" y="740" width="3148" height="330" fill="#F2F2F2" stroke="#000000" stroke-width="4" />')
-    svg.append('<text x="220" y="788" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="bold" fill="#000000">Application Layer (Flask 3.1 Web Framework)</text>')
+    svg.append('<text x="220" y="788" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="bold" fill="#000000">Application Layer (Flask 3.1.1 Web Framework)</text>')
 
     app_boxes = [
         ("auth_bp", ["Participant Registration (/register)", "Demographic Intake (Year 2-4)", "Researcher Login (/researcher/login)"], 220),
@@ -259,7 +382,7 @@ def build_architecture_diagram_svg() -> str:
         for idx, itm in enumerate(items):
             svg.append(f'<text x="{bx + 30}" y="{900 + idx * 36}" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; {itm}</text>')
 
-    # Gap 2 (y = 1070 to 1240): Downward arrow at x=1000, Upward arrow at x=2500
+    # Gap 2
     svg.append('<line x1="1000" y1="1070" x2="1000" y2="1240" stroke="#000000" stroke-width="4" marker-end="url(#arrow-d)" />')
     svg.append('<rect x="420" y="1135" width="550" height="38" fill="#FFFFFF" />')
     svg.append('<text x="695" y="1162" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#000000" text-anchor="middle">Function Calls (code evaluation, sequencing)</text>')
@@ -268,10 +391,7 @@ def build_architecture_diagram_svg() -> str:
     svg.append('<rect x="2530" y="1135" width="540" height="38" fill="#FFFFFF" />')
     svg.append('<text x="2800" y="1162" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#000000" text-anchor="middle">Execution Results (grading, metrics, CSV bytes)</text>')
 
-    # ==========================================
-    # LAYER 3: Services Layer
-    # ==========================================
-    # y = 1240, height = 480
+    # LAYER 3: Services
     svg.append('<rect x="180" y="1240" width="3148" height="480" fill="#F2F2F2" stroke="#000000" stroke-width="4" />')
     svg.append('<text x="220" y="1288" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="bold" fill="#000000">Services Layer (Domain Logic & Orchestration)</text>')
 
@@ -301,7 +421,7 @@ def build_architecture_diagram_svg() -> str:
         else:
             svg.append(f'<text x="{bx + 30}" y="1605" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; {desc}</text>')
 
-    # Gap 3 (y = 1720 to 1890): Downward arrow at x=1000, Upward arrow at x=2500
+    # Gap 3
     svg.append('<line x1="1000" y1="1720" x2="1000" y2="1890" stroke="#000000" stroke-width="4" marker-end="url(#arrow-d)" />')
     svg.append('<rect x="420" y="1785" width="550" height="38" fill="#FFFFFF" />')
     svg.append('<text x="695" y="1812" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#000000" text-anchor="middle">SQL Queries (SELECT, INSERT) & JSON Reads</text>')
@@ -310,10 +430,7 @@ def build_architecture_diagram_svg() -> str:
     svg.append('<rect x="2530" y="1785" width="540" height="38" fill="#FFFFFF" />')
     svg.append('<text x="2800" y="1812" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#000000" text-anchor="middle">Query Result Sets & Hidden Test Payloads</text>')
 
-    # ==========================================
-    # LAYER 4: Data Layer
-    # ==========================================
-    # y = 1890, height = 340
+    # LAYER 4: Data
     svg.append('<rect x="180" y="1890" width="3148" height="340" fill="#F2F2F2" stroke="#000000" stroke-width="4" />')
     svg.append('<text x="220" y="1938" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="bold" fill="#000000">Data Layer (Local & Ephemeral Serverless Storage)</text>')
 
@@ -321,7 +438,7 @@ def build_architecture_diagram_svg() -> str:
         ("research.db (SQLite)", ["Copied to /tmp on Vercel initialization", "Tables: participants, sessions, task_attempts", "task_results, task_timers, comprehension, surveys"], 220),
         ("experiment_a.db (SQLite)", ["Copied to /tmp on Vercel initialization", "Form A Relational Database (mode=ro)", "Tables: Students, Courses, Enrollments"], 990),
         ("experiment_b.db (SQLite)", ["Copied to /tmp on Vercel initialization", "Form B Relational Database (mode=ro)", "Tables: Students, Courses, Enrollments"], 1760),
-        ("hidden_tests.json", ["JSON Edge-Case Test Datasets", "36 Total Hidden Test Datasets", "3 Edge-Case Datasets per Task (T1-T6, Forms A & B)"], 2530),
+        ("hidden_tests.json (JSON)", ["JSON Edge-Case Test Datasets", "36 Total Hidden Test Datasets", "3 Edge-Case Datasets per Task (T1-T6, Forms A & B)"], 2530),
     ]
     for title, items, bx in data_boxes:
         svg.append(f'<rect x="{bx}" y="1960" width="730" height="240" fill="#FFFFFF" stroke="#000000" stroke-width="3" />')
@@ -338,20 +455,18 @@ def build_architecture_diagram_svg() -> str:
 # ==============================================================================
 def build_use_case_diagram_svg() -> str:
     """
-    UML Use Case Diagram.
-    One large rectangle 'QueryLearn' as system boundary.
-    Stick figure actors outside: Participant (left), Researcher (right).
-    Ovals inside with short verb phrases.
-    Orthogonal right-angle connectors only (no diagonal lines, no curves).
-    <<include>> dashed right-angle arrows from Solve tasks to Submit solution.
-    Zero crossing lines!
+    UML Use Case Diagram (Figure 3).
+    - Actor lines leave from the actor's hand or side, NEVER passing through the body.
+    - <<include>> labels >=12pt (48px @ 300 DPI), placed above the dashed line on white background without overlapping.
+    - Pure right-angle orthogonal routing throughout.
+    - Zero line crossings.
     """
     w, h = 3508, 2480
     svg = []
     svg.append(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}">')
     svg.append('<defs>')
-    svg.append('  <marker id="arrow-inc" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto">')
-    svg.append('    <path d="M 0 1 L 14 7 L 0 13 Z" fill="#000000" />')
+    svg.append('  <marker id="arrow-inc" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto">')
+    svg.append('    <path d="M 0 1 L 16 8 L 0 15 Z" fill="#000000" />')
     svg.append('  </marker>')
     svg.append('</defs>')
 
@@ -364,43 +479,48 @@ def build_use_case_diagram_svg() -> str:
     # Caption
     svg.append('<text x="1754" y="2380" font-family="Arial, Helvetica, sans-serif" font-size="44" fill="#000000" text-anchor="middle">Figure 3. Use Case Diagram of QueryLearn</text>')
 
-    # --- System Boundary Rectangle ---
-    # x = 460 to 3048 (w = 2588, h = 2070, y = 220..2290)
+    # System Boundary Rectangle: QueryLearn
     sb_x0, sb_y0, sb_w, sb_h = 460, 220, 2588, 2070
     svg.append(f'<rect x="{sb_x0}" y="{sb_y0}" width="{sb_w}" height="{sb_h}" fill="none" stroke="#000000" stroke-width="4" />')
     svg.append(f'<text x="{sb_x0 + 40}" y="{sb_y0 + 55}" font-family="Arial, Helvetica, sans-serif" font-size="46" font-weight="bold" fill="#000000">QueryLearn</text>')
 
     # --- ACTOR: Participant (Left) ---
-    p_cx, p_cy = 230, 1265
+    p_cx, p_cy = 200, 1265
     # Head
     svg.append(f'<circle cx="{p_cx}" cy="{p_cy - 100}" r="35" fill="none" stroke="#000000" stroke-width="4" />')
     # Torso
     svg.append(f'<line x1="{p_cx}" y1="{p_cy - 65}" x2="{p_cx}" y2="{p_cy + 40}" stroke="#000000" stroke-width="4" />')
-    # Arms
-    svg.append(f'<line x1="{p_cx - 65}" y1="{p_cy - 25}" x2="{p_cx + 65}" y2="{p_cy - 25}" stroke="#000000" stroke-width="4" />')
+    # Left arm (points down-left)
+    svg.append(f'<line x1="{p_cx}" y1="{p_cy - 25}" x2="{p_cx - 65}" y2="{p_cy}" stroke="#000000" stroke-width="4" />')
+    # Right arm (extends horizontally right as the hand connecting to system)
+    # Leaves from side at (200, 1240) to hand at (275, 1240)
+    p_hand_x, p_hand_y = 275, p_cy - 25
+    svg.append(f'<line x1="{p_cx}" y1="{p_cy - 25}" x2="{p_hand_x}" y2="{p_hand_y}" stroke="#000000" stroke-width="4" />')
     # Left leg
     svg.append(f'<line x1="{p_cx}" y1="{p_cy + 40}" x2="{p_cx - 60}" y2="{p_cy + 140}" stroke="#000000" stroke-width="4" />')
     # Right leg
     svg.append(f'<line x1="{p_cx}" y1="{p_cy + 40}" x2="{p_cx + 60}" y2="{p_cy + 140}" stroke="#000000" stroke-width="4" />')
-    # Actor Label
+    # Label
     svg.append(f'<text x="{p_cx}" y="{p_cy + 195}" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="bold" fill="#000000" text-anchor="middle">Participant</text>')
-    p_arm_x, p_arm_y = p_cx + 65, p_cy - 25  # (295, 1240)
 
     # --- ACTOR: Researcher (Right) ---
-    r_cx, r_cy = 3278, 1200
+    r_cx, r_cy = 3308, 1200
     # Head
     svg.append(f'<circle cx="{r_cx}" cy="{r_cy - 100}" r="35" fill="none" stroke="#000000" stroke-width="4" />')
     # Torso
     svg.append(f'<line x1="{r_cx}" y1="{r_cy - 65}" x2="{r_cx}" y2="{r_cy + 40}" stroke="#000000" stroke-width="4" />')
-    # Arms
-    svg.append(f'<line x1="{r_cx - 65}" y1="{r_cy - 25}" x2="{r_cx + 65}" y2="{r_cy - 25}" stroke="#000000" stroke-width="4" />')
+    # Right arm (points down-right)
+    svg.append(f'<line x1="{r_cx}" y1="{r_cy - 25}" x2="{r_cx + 65}" y2="{r_cy}" stroke="#000000" stroke-width="4" />')
+    # Left arm (extends horizontally left as the hand connecting to system)
+    # Leaves from side at (3308, 1175) to hand at (3233, 1175)
+    r_hand_x, r_hand_y = 3233, r_cy - 25
+    svg.append(f'<line x1="{r_cx}" y1="{r_cy - 25}" x2="{r_hand_x}" y2="{r_hand_y}" stroke="#000000" stroke-width="4" />')
     # Left leg
     svg.append(f'<line x1="{r_cx}" y1="{r_cy + 40}" x2="{r_cx - 60}" y2="{r_cy + 140}" stroke="#000000" stroke-width="4" />')
     # Right leg
     svg.append(f'<line x1="{r_cx}" y1="{r_cy + 40}" x2="{r_cx + 60}" y2="{r_cy + 140}" stroke="#000000" stroke-width="4" />')
-    # Actor Label
+    # Label
     svg.append(f'<text x="{r_cx}" y="{r_cy + 195}" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="bold" fill="#000000" text-anchor="middle">Researcher</text>')
-    r_arm_x, r_arm_y = r_cx - 65, r_cy - 25  # (3213, 1175)
 
     def draw_use_case(cx_val, cy_val, rx_val, ry_val, lines):
         svg.append(f'<ellipse cx="{cx_val}" cy="{cy_val}" rx="{rx_val}" ry="{ry_val}" fill="#F2F2F2" stroke="#000000" stroke-width="4" />')
@@ -411,10 +531,10 @@ def build_use_case_diagram_svg() -> str:
             svg.append(f'<text x="{cx_val}" y="{cy_val + 28}" font-family="Arial, Helvetica, sans-serif" font-size="28" fill="#000000" text-anchor="middle">{lines[1]}</text>')
 
     # --- PARTICIPANT USE CASES ---
-    # Primary column: cx = 860, rx = 270, ry = 62
     p_cx_col = 860
-    p_rx, p_ry = 270, 62
-    oval_left_edge = p_cx_col - p_rx  # 590
+    p_rx, p_ry = 260, 62
+    oval_left_edge = p_cx_col - p_rx   # 600
+    oval_right_edge = p_cx_col + p_rx  # 1120
 
     p_cases = [
         (["Register and give consent"], 390),
@@ -430,40 +550,35 @@ def build_use_case_diagram_svg() -> str:
     for lines, cy_val in p_cases:
         draw_use_case(p_cx_col, cy_val, p_rx, p_ry, lines)
 
-    # Orthogonal Actor Connectors (Participant -> Use Cases)
-    # Right-angle routing using distribution trunk at x = 380:
-    # 1. Horizontal line from Participant arm (295, 1240) to trunk (380, 1240)
-    svg.append(f'<line x1="{p_arm_x}" y1="{p_arm_y}" x2="380" y2="{p_arm_y}" stroke="#000000" stroke-width="3" />')
-    # 2. Vertical trunk line from top use case (y=390) to bottom use case (y=2140) at x=380
+    # Actor line leaves from Participant's HAND (275, 1240) to distribution trunk at x=380
+    svg.append(f'<line x1="{p_hand_x}" y1="{p_hand_y}" x2="380" y2="{p_hand_y}" stroke="#000000" stroke-width="3" />')
+    # Trunk line from y=390 to y=2140
     svg.append('<line x1="380" y1="390" x2="380" y2="2140" stroke="#000000" stroke-width="3" />')
-    # 3. Horizontal branches from trunk (x=380) straight to each oval (x=590)
+    # Branches from trunk to each oval
     for _, cy_val in p_cases:
         svg.append(f'<line x1="380" y1="{cy_val}" x2="{oval_left_edge}" y2="{cy_val}" stroke="#000000" stroke-width="3" />')
 
-    # Sub-Use Case: 'Submit solution'
-    # Positioned at cx = 1520, cy = 1265 (rx = 240, ry = 62)
-    sub_cx, sub_cy, sub_rx, sub_ry = 1520, 1265, 240, 62
+    # Included use case: Submit solution
+    # Shifted to cx=1720 to create a 390px clean clearance for <<include>> labels
+    sub_cx, sub_cy, sub_rx, sub_ry = 1720, 1265, 210, 62
+    sub_left_edge = sub_cx - sub_rx  # 1510
     draw_use_case(sub_cx, sub_cy, sub_rx, sub_ry, ["Submit solution"])
 
-    # Include Connectors (Right-angle routing only):
-    # From Solve SQL tasks (right edge: 1130, 1140) -> Submit solution (left edge: 1280, 1240)
-    # Segment 1: horizontal (1130, 1140) to (1220, 1140)
-    # Segment 2: vertical down (1220, 1140) to (1220, 1240)
-    # Segment 3: horizontal right (1220, 1240) to (1280, 1240) with arrowhead
-    svg.append('<path d="M 1130 1140 L 1220 1140 L 1220 1240 L 1280 1240" fill="none" stroke="#000000" stroke-width="3" stroke-dasharray="10,8" marker-end="url(#arrow-inc)" />')
-    svg.append('<rect x="1115" y="1105" width="130" height="30" fill="#FFFFFF" />')
-    svg.append('<text x="1180" y="1127" font-family="Arial, Helvetica, sans-serif" font-size="22" font-style="italic" fill="#000000" text-anchor="middle">&lt;&lt;include&gt;&gt;</text>')
+    # Include Connectors (Right-angle, <<include>> >=12pt placed ABOVE dashed line on white background):
+    # From Solve SQL tasks (1120, 1140) to Submit solution (1510, 1235)
+    # Horizontal segment from 1120 to 1420 (300px width), corner at 1420, label centered at 1270
+    svg.append(f'<path d="M {oval_right_edge} 1140 L 1420 1140 L 1420 1235 L {sub_left_edge} 1235" fill="none" stroke="#000000" stroke-width="3" stroke-dasharray="10,8" marker-end="url(#arrow-inc)" />')
+    # White background completely above dashed line (y=1080..1126, line is at 1140; x=1165..1375 strictly 45px away from oval and corner)
+    svg.append('<rect x="1165" y="1080" width="210" height="46" fill="#FFFFFF" />')
+    svg.append('<text x="1270" y="1116" font-family="Arial, Helvetica, sans-serif" font-size="42" font-style="italic" fill="#000000" text-anchor="middle">&lt;&lt;include&gt;&gt;</text>')
 
-    # From Solve Python tasks (right edge: 1130, 1390) -> Submit solution (left edge: 1280, 1290)
-    # Segment 1: horizontal (1130, 1390) to (1220, 1390)
-    # Segment 2: vertical up (1220, 1390) to (1220, 1290)
-    # Segment 3: horizontal right (1220, 1290) to (1280, 1290) with arrowhead
-    svg.append('<path d="M 1130 1390 L 1220 1390 L 1220 1290 L 1280 1290" fill="none" stroke="#000000" stroke-width="3" stroke-dasharray="10,8" marker-end="url(#arrow-inc)" />')
-    svg.append('<rect x="1115" y="1398" width="130" height="30" fill="#FFFFFF" />')
-    svg.append('<text x="1180" y="1420" font-family="Arial, Helvetica, sans-serif" font-size="22" font-style="italic" fill="#000000" text-anchor="middle">&lt;&lt;include&gt;&gt;</text>')
+    # From Solve Python tasks (1120, 1390) to Submit solution (1510, 1295)
+    svg.append(f'<path d="M {oval_right_edge} 1390 L 1420 1390 L 1420 1295 L {sub_left_edge} 1295" fill="none" stroke="#000000" stroke-width="3" stroke-dasharray="10,8" marker-end="url(#arrow-inc)" />')
+    # White background completely above dashed line (y=1330..1376, line is at 1390; x=1165..1375 strictly 45px away from oval and corner)
+    svg.append('<rect x="1165" y="1330" width="210" height="46" fill="#FFFFFF" />')
+    svg.append('<text x="1270" y="1366" font-family="Arial, Helvetica, sans-serif" font-size="42" font-style="italic" fill="#000000" text-anchor="middle">&lt;&lt;include&gt;&gt;</text>')
 
     # --- RESEARCHER USE CASES ---
-    # Column: cx = 2420, rx = 270, ry = 62
     r_cx_col = 2420
     r_rx, r_ry = 270, 62
     oval_right_edge = r_cx_col + r_rx  # 2690
@@ -480,13 +595,11 @@ def build_use_case_diagram_svg() -> str:
     for lines, cy_val in r_cases:
         draw_use_case(r_cx_col, cy_val, r_rx, r_ry, lines)
 
-    # Orthogonal Actor Connectors (Researcher -> Use Cases)
-    # Right-angle routing using distribution trunk at x = 3120:
-    # 1. Horizontal line from Researcher arm (3213, 1175) to trunk (3120, 1175)
-    svg.append(f'<line x1="{r_arm_x}" y1="{r_arm_y}" x2="3120" y2="{r_arm_y}" stroke="#000000" stroke-width="3" />')
-    # 2. Vertical trunk line from top use case (y=500) to bottom use case (y=1900) at x=3120
+    # Actor line leaves from Researcher's HAND (3233, 1175) to distribution trunk at x=3120
+    svg.append(f'<line x1="{r_hand_x}" y1="{r_hand_y}" x2="3120" y2="{r_hand_y}" stroke="#000000" stroke-width="3" />')
+    # Trunk line from y=500 to y=1900
     svg.append('<line x1="3120" y1="500" x2="3120" y2="1900" stroke="#000000" stroke-width="3" />')
-    # 3. Horizontal branches from trunk (x=3120) straight left to each oval (x=2690)
+    # Branches from trunk to each oval
     for _, cy_val in r_cases:
         svg.append(f'<line x1="3120" y1="{cy_val}" x2="{oval_right_edge}" y2="{cy_val}" stroke="#000000" stroke-width="3" />')
 
@@ -564,7 +677,8 @@ def generate_all():
 
     diagrams = [
         ("01-context-diagram", build_context_diagram_svg()),
-        ("02-architecture-diagram", build_architecture_diagram_svg()),
+        ("02-architecture-diagram", build_simple_architecture_diagram_svg()),
+        ("02b-architecture-detailed", build_detailed_architecture_diagram_svg()),
         ("03-use-case-diagram", build_use_case_diagram_svg()),
     ]
 

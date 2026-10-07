@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3508 2480" width="3508" height="2480">
 <defs>
-  <marker id="arrow-inc" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto">
-    <path d="M 0 1 L 14 7 L 0 13 Z" fill="#000000" />
+  <marker id="arrow-inc" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto">
+    <path d="M 0 1 L 16 8 L 0 15 Z" fill="#000000" />
   </marker>
 </defs>
 <rect width="3508" height="2480" fill="#FFFFFF" />
@@ -9,52 +9,54 @@
 <text x="1754" y="2380" font-family="Arial, Helvetica, sans-serif" font-size="44" fill="#000000" text-anchor="middle">Figure 3. Use Case Diagram of QueryLearn</text>
 <rect x="460" y="220" width="2588" height="2070" fill="none" stroke="#000000" stroke-width="4" />
 <text x="500" y="275" font-family="Arial, Helvetica, sans-serif" font-size="46" font-weight="bold" fill="#000000">QueryLearn</text>
-<circle cx="230" cy="1165" r="35" fill="none" stroke="#000000" stroke-width="4" />
-<line x1="230" y1="1200" x2="230" y2="1305" stroke="#000000" stroke-width="4" />
-<line x1="165" y1="1240" x2="295" y2="1240" stroke="#000000" stroke-width="4" />
-<line x1="230" y1="1305" x2="170" y2="1405" stroke="#000000" stroke-width="4" />
-<line x1="230" y1="1305" x2="290" y2="1405" stroke="#000000" stroke-width="4" />
-<text x="230" y="1460" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="bold" fill="#000000" text-anchor="middle">Participant</text>
-<circle cx="3278" cy="1100" r="35" fill="none" stroke="#000000" stroke-width="4" />
-<line x1="3278" y1="1135" x2="3278" y2="1240" stroke="#000000" stroke-width="4" />
-<line x1="3213" y1="1175" x2="3343" y2="1175" stroke="#000000" stroke-width="4" />
-<line x1="3278" y1="1240" x2="3218" y2="1340" stroke="#000000" stroke-width="4" />
-<line x1="3278" y1="1240" x2="3338" y2="1340" stroke="#000000" stroke-width="4" />
-<text x="3278" y="1395" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="bold" fill="#000000" text-anchor="middle">Researcher</text>
-<ellipse cx="860" cy="390" rx="270" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
+<circle cx="200" cy="1165" r="35" fill="none" stroke="#000000" stroke-width="4" />
+<line x1="200" y1="1200" x2="200" y2="1305" stroke="#000000" stroke-width="4" />
+<line x1="200" y1="1240" x2="135" y2="1265" stroke="#000000" stroke-width="4" />
+<line x1="200" y1="1240" x2="275" y2="1240" stroke="#000000" stroke-width="4" />
+<line x1="200" y1="1305" x2="140" y2="1405" stroke="#000000" stroke-width="4" />
+<line x1="200" y1="1305" x2="260" y2="1405" stroke="#000000" stroke-width="4" />
+<text x="200" y="1460" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="bold" fill="#000000" text-anchor="middle">Participant</text>
+<circle cx="3308" cy="1100" r="35" fill="none" stroke="#000000" stroke-width="4" />
+<line x1="3308" y1="1135" x2="3308" y2="1240" stroke="#000000" stroke-width="4" />
+<line x1="3308" y1="1175" x2="3373" y2="1200" stroke="#000000" stroke-width="4" />
+<line x1="3308" y1="1175" x2="3233" y2="1175" stroke="#000000" stroke-width="4" />
+<line x1="3308" y1="1240" x2="3248" y2="1340" stroke="#000000" stroke-width="4" />
+<line x1="3308" y1="1240" x2="3368" y2="1340" stroke="#000000" stroke-width="4" />
+<text x="3308" y="1395" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="bold" fill="#000000" text-anchor="middle">Researcher</text>
+<ellipse cx="860" cy="390" rx="260" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
 <text x="860" y="400" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Register and give consent</text>
-<ellipse cx="860" cy="640" rx="270" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
+<ellipse cx="860" cy="640" rx="260" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
 <text x="860" y="650" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Read language reference guide</text>
-<ellipse cx="860" cy="890" rx="270" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
+<ellipse cx="860" cy="890" rx="260" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
 <text x="860" y="900" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Complete readiness check</text>
-<ellipse cx="860" cy="1140" rx="270" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
+<ellipse cx="860" cy="1140" rx="260" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
 <text x="860" y="1150" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Solve SQL tasks</text>
-<ellipse cx="860" cy="1390" rx="270" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
+<ellipse cx="860" cy="1390" rx="260" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
 <text x="860" y="1400" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Solve Python tasks</text>
-<ellipse cx="860" cy="1640" rx="270" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
+<ellipse cx="860" cy="1640" rx="260" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
 <text x="860" y="1650" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Answer comprehension items</text>
-<ellipse cx="860" cy="1890" rx="270" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
+<ellipse cx="860" cy="1890" rx="260" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
 <text x="860" y="1900" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Answer post-condition survey</text>
-<ellipse cx="860" cy="2140" rx="270" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
+<ellipse cx="860" cy="2140" rx="260" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
 <text x="860" y="2150" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Complete counterbalanced sequence</text>
-<line x1="295" y1="1240" x2="380" y2="1240" stroke="#000000" stroke-width="3" />
+<line x1="275" y1="1240" x2="380" y2="1240" stroke="#000000" stroke-width="3" />
 <line x1="380" y1="390" x2="380" y2="2140" stroke="#000000" stroke-width="3" />
-<line x1="380" y1="390" x2="590" y2="390" stroke="#000000" stroke-width="3" />
-<line x1="380" y1="640" x2="590" y2="640" stroke="#000000" stroke-width="3" />
-<line x1="380" y1="890" x2="590" y2="890" stroke="#000000" stroke-width="3" />
-<line x1="380" y1="1140" x2="590" y2="1140" stroke="#000000" stroke-width="3" />
-<line x1="380" y1="1390" x2="590" y2="1390" stroke="#000000" stroke-width="3" />
-<line x1="380" y1="1640" x2="590" y2="1640" stroke="#000000" stroke-width="3" />
-<line x1="380" y1="1890" x2="590" y2="1890" stroke="#000000" stroke-width="3" />
-<line x1="380" y1="2140" x2="590" y2="2140" stroke="#000000" stroke-width="3" />
-<ellipse cx="1520" cy="1265" rx="240" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
-<text x="1520" y="1275" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Submit solution</text>
-<path d="M 1130 1140 L 1220 1140 L 1220 1240 L 1280 1240" fill="none" stroke="#000000" stroke-width="3" stroke-dasharray="10,8" marker-end="url(#arrow-inc)" />
-<rect x="1115" y="1105" width="130" height="30" fill="#FFFFFF" />
-<text x="1180" y="1127" font-family="Arial, Helvetica, sans-serif" font-size="22" font-style="italic" fill="#000000" text-anchor="middle">&lt;&lt;include&gt;&gt;</text>
-<path d="M 1130 1390 L 1220 1390 L 1220 1290 L 1280 1290" fill="none" stroke="#000000" stroke-width="3" stroke-dasharray="10,8" marker-end="url(#arrow-inc)" />
-<rect x="1115" y="1398" width="130" height="30" fill="#FFFFFF" />
-<text x="1180" y="1420" font-family="Arial, Helvetica, sans-serif" font-size="22" font-style="italic" fill="#000000" text-anchor="middle">&lt;&lt;include&gt;&gt;</text>
+<line x1="380" y1="390" x2="600" y2="390" stroke="#000000" stroke-width="3" />
+<line x1="380" y1="640" x2="600" y2="640" stroke="#000000" stroke-width="3" />
+<line x1="380" y1="890" x2="600" y2="890" stroke="#000000" stroke-width="3" />
+<line x1="380" y1="1140" x2="600" y2="1140" stroke="#000000" stroke-width="3" />
+<line x1="380" y1="1390" x2="600" y2="1390" stroke="#000000" stroke-width="3" />
+<line x1="380" y1="1640" x2="600" y2="1640" stroke="#000000" stroke-width="3" />
+<line x1="380" y1="1890" x2="600" y2="1890" stroke="#000000" stroke-width="3" />
+<line x1="380" y1="2140" x2="600" y2="2140" stroke="#000000" stroke-width="3" />
+<ellipse cx="1720" cy="1265" rx="210" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
+<text x="1720" y="1275" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Submit solution</text>
+<path d="M 1120 1140 L 1420 1140 L 1420 1235 L 1510 1235" fill="none" stroke="#000000" stroke-width="3" stroke-dasharray="10,8" marker-end="url(#arrow-inc)" />
+<rect x="1165" y="1080" width="210" height="46" fill="#FFFFFF" />
+<text x="1270" y="1116" font-family="Arial, Helvetica, sans-serif" font-size="42" font-style="italic" fill="#000000" text-anchor="middle">&lt;&lt;include&gt;&gt;</text>
+<path d="M 1120 1390 L 1420 1390 L 1420 1295 L 1510 1295" fill="none" stroke="#000000" stroke-width="3" stroke-dasharray="10,8" marker-end="url(#arrow-inc)" />
+<rect x="1165" y="1330" width="210" height="46" fill="#FFFFFF" />
+<text x="1270" y="1366" font-family="Arial, Helvetica, sans-serif" font-size="42" font-style="italic" fill="#000000" text-anchor="middle">&lt;&lt;include&gt;&gt;</text>
 <ellipse cx="2420" cy="500" rx="270" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
 <text x="2420" y="510" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Log in</text>
 <ellipse cx="2420" cy="780" rx="270" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
@@ -67,7 +69,7 @@
 <text x="2420" y="1630" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Run technical benchmarks</text>
 <ellipse cx="2420" cy="1900" rx="270" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
 <text x="2420" y="1910" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Export study data</text>
-<line x1="3213" y1="1175" x2="3120" y2="1175" stroke="#000000" stroke-width="3" />
+<line x1="3233" y1="1175" x2="3120" y2="1175" stroke="#000000" stroke-width="3" />
 <line x1="3120" y1="500" x2="3120" y2="1900" stroke="#000000" stroke-width="3" />
 <line x1="3120" y1="500" x2="2690" y2="500" stroke="#000000" stroke-width="3" />
 <line x1="3120" y1="780" x2="2690" y2="780" stroke="#000000" stroke-width="3" />

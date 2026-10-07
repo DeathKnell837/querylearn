@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3508 2480" width="3508" height="2480">
+<defs>
+  <marker id="arrow-d" markerWidth="14" markerHeight="14" refX="7" refY="12" orient="auto">
+    <path d="M 1 0 L 7 14 L 13 0 Z" fill="#000000" />
+  </marker>
+  <marker id="arrow-u" markerWidth="14" markerHeight="14" refX="7" refY="2" orient="auto">
+    <path d="M 1 14 L 7 0 L 13 14 Z" fill="#000000" />
+  </marker>
+</defs>
+<rect width="3508" height="2480" fill="#FFFFFF" />
+<text x="1754" y="160" font-family="Arial, Helvetica, sans-serif" font-size="64" font-weight="bold" fill="#000000" text-anchor="middle">QueryLearn Detailed System Architecture</text>
+<text x="1754" y="2380" font-family="Arial, Helvetica, sans-serif" font-size="44" fill="#000000" text-anchor="middle">Figure 2b. Detailed Engineering Architecture Diagram of QueryLearn</text>
+<line x1="140" y1="690" x2="750" y2="690" stroke="#000000" stroke-width="4" stroke-dasharray="16,12" />
+<line x1="1250" y1="690" x2="2250" y2="690" stroke="#000000" stroke-width="4" stroke-dasharray="16,12" />
+<line x1="2750" y1="690" x2="3368" y2="690" stroke="#000000" stroke-width="4" stroke-dasharray="16,12" />
+<line x1="140" y1="690" x2="140" y2="2260" stroke="#000000" stroke-width="4" stroke-dasharray="16,12" />
+<line x1="140" y1="2260" x2="3368" y2="2260" stroke="#000000" stroke-width="4" stroke-dasharray="16,12" />
+<line x1="3368" y1="690" x2="3368" y2="2260" stroke="#000000" stroke-width="4" stroke-dasharray="16,12" />
+<text x="3330" y="726" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="bold" font-style="italic" fill="#000000" text-anchor="end">Hosted on Vercel (serverless)</text>
+<rect x="180" y="220" width="3148" height="330" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
+<text x="220" y="268" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="bold" fill="#000000">Presentation Layer (Browser Client)</text>
+<rect x="220" y="290" width="730" height="230" fill="#FFFFFF" stroke="#000000" stroke-width="3" />
+<text x="250" y="335" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000">HTML User Interface</text>
+<text x="250" y="380" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Jinja2 Web Templates (21 Total Views)</text>
+<text x="250" y="416" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Responsive Navigation Layout</text>
+<text x="250" y="452" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Participant & Researcher Views</text>
+<rect x="990" y="290" width="730" height="230" fill="#FFFFFF" stroke="#000000" stroke-width="3" />
+<text x="1020" y="335" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000">Code Editors</text>
+<text x="1020" y="380" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; CodeMirror 5.65.13 Workspace</text>
+<text x="1020" y="416" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; SQL Syntax Highlighting Mode</text>
+<text x="1020" y="452" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Procedural Python Indentation Mode</text>
+<rect x="1760" y="290" width="730" height="230" fill="#FFFFFF" stroke="#000000" stroke-width="3" />
+<text x="1790" y="335" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000">Client-Side Timers</text>
+<text x="1790" y="380" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; timer.js Engine</text>
+<text x="1790" y="416" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; 8-Min Task Countdown Clocks</text>
+<text x="1790" y="452" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; 3-Min Comprehension Timer</text>
+<rect x="2530" y="290" width="730" height="230" fill="#FFFFFF" stroke="#000000" stroke-width="3" />
+<text x="2560" y="335" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000">Data Visualizations</text>
+<text x="2560" y="380" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Chart.js 4.4.4 Engine</text>
+<text x="2560" y="416" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Outcome Split Visualizations</text>
+<text x="2560" y="452" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Headline Performance Metrics</text>
+<line x1="1000" y1="550" x2="1000" y2="740" stroke="#000000" stroke-width="4" marker-end="url(#arrow-d)" />
+<rect x="420" y="625" width="550" height="38" fill="#FFFFFF" />
+<text x="695" y="652" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#000000" text-anchor="middle">HTTP Requests (form data, code, parameters)</text>
+<line x1="2500" y1="740" x2="2500" y2="550" stroke="#000000" stroke-width="4" marker-end="url(#arrow-u)" />
+<rect x="2530" y="625" width="540" height="38" fill="#FFFFFF" />
+<text x="2800" y="652" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#000000" text-anchor="middle">HTTP Responses (rendered HTML, JSON, CSV)</text>
+<rect x="180" y="740" width="3148" height="330" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
+<text x="220" y="788" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="bold" fill="#000000">Application Layer (Flask 3.1.1 Web Framework)</text>
+<rect x="220" y="810" width="730" height="230" fill="#FFFFFF" stroke="#000000" stroke-width="3" />
+<text x="250" y="855" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000">auth_bp</text>
+<text x="250" y="900" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Participant Registration (/register)</text>
+<text x="250" y="936" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Demographic Intake (Year 2-4)</text>
+<text x="250" y="972" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Researcher Login (/researcher/login)</text>
+<rect x="990" y="810" width="730" height="230" fill="#FFFFFF" stroke="#000000" stroke-width="3" />
+<text x="1020" y="855" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000">experiment_bp</text>
+<text x="1020" y="900" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Instructions & Practice Workspaces</text>
+<text x="1020" y="936" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Readiness Check & Comprehension</text>
+<text x="1020" y="972" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Post-Condition Survey & Inter-Condition Break</text>
+<rect x="1760" y="810" width="730" height="230" fill="#FFFFFF" stroke="#000000" stroke-width="3" />
+<text x="1790" y="855" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000">tasks_bp</text>
+<text x="1790" y="900" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; /api/run (Sandboxed Execution)</text>
+<text x="1790" y="936" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; /api/submit (Automated Grading)</text>
+<text x="1790" y="972" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; /api/skip & /api/start-timer</text>
+<rect x="2530" y="810" width="730" height="230" fill="#FFFFFF" stroke="#000000" stroke-width="3" />
+<text x="2560" y="855" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000">dashboard_bp</text>
+<text x="2560" y="900" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Overview (4 Headline Metrics)</text>
+<text x="2560" y="936" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Participant Registry & Task Results</text>
+<text x="2560" y="972" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Task Comparison & CSV Data Export</text>
+<line x1="1000" y1="1070" x2="1000" y2="1240" stroke="#000000" stroke-width="4" marker-end="url(#arrow-d)" />
+<rect x="420" y="1135" width="550" height="38" fill="#FFFFFF" />
+<text x="695" y="1162" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#000000" text-anchor="middle">Function Calls (code evaluation, sequencing)</text>
+<line x1="2500" y1="1240" x2="2500" y2="1070" stroke="#000000" stroke-width="4" marker-end="url(#arrow-u)" />
+<rect x="2530" y="1135" width="540" height="38" fill="#FFFFFF" />
+<text x="2800" y="1162" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#000000" text-anchor="middle">Execution Results (grading, metrics, CSV bytes)</text>
+<rect x="180" y="1240" width="3148" height="480" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
+<text x="220" y="1288" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="bold" fill="#000000">Services Layer (Domain Logic & Orchestration)</text>
+<rect x="220" y="1310" width="730" height="170" fill="#FFFFFF" stroke="#000000" stroke-width="3" />
+<text x="250" y="1355" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000">task_catalog</text>
+<text x="250" y="1405" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; T1-T6 Specifications & Reference Solutions</text>
+<rect x="990" y="1310" width="730" height="170" fill="#FFFFFF" stroke="#000000" stroke-width="3" />
+<text x="1020" y="1355" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000">sql_runner</text>
+<text x="1020" y="1405" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Read-Only SQLite Engine (mode=ro, 10s Timeout)</text>
+<rect x="1760" y="1310" width="730" height="170" fill="#FFFFFF" stroke="#000000" stroke-width="3" />
+<text x="1790" y="1355" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000">python_runner</text>
+<text x="1790" y="1405" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Subprocess Sandbox (Restricted Builtins, 10s)</text>
+<rect x="2530" y="1310" width="730" height="170" fill="#FFFFFF" stroke="#000000" stroke-width="3" />
+<text x="2560" y="1355" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000">answer_checker</text>
+<text x="2560" y="1405" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Oracle Grading & Hidden Test Evaluation</text>
+<rect x="220" y="1510" width="730" height="180" fill="#FFFFFF" stroke="#000000" stroke-width="3" />
+<text x="250" y="1555" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000">sequence_manager</text>
+<text x="250" y="1605" font-family="Arial, Helvetica, sans-serif" font-size="22" fill="#000000">&#8226; 2x2 counterbalanced crossover</text>
+<text x="250" y="1642" font-family="Arial, Helvetica, sans-serif" font-size="22" fill="#000000">   with four sequences</text>
+<rect x="990" y="1510" width="730" height="180" fill="#FFFFFF" stroke="#000000" stroke-width="3" />
+<text x="1020" y="1555" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000">comprehension_items</text>
+<text x="1020" y="1605" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; 6 Code Reading Comprehension Items & Keys</text>
+<rect x="1760" y="1510" width="730" height="180" fill="#FFFFFF" stroke="#000000" stroke-width="3" />
+<text x="1790" y="1555" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000">benchmark_runner</text>
+<text x="1790" y="1605" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Synthetic Scaling Benchmarks (1K, 10K, 100K Rows)</text>
+<rect x="2530" y="1510" width="730" height="180" fill="#FFFFFF" stroke="#000000" stroke-width="3" />
+<text x="2560" y="1555" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000">export_service</text>
+<text x="2560" y="1605" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Study Dataset Export (Participants, Results, Zip)</text>
+<line x1="1000" y1="1720" x2="1000" y2="1890" stroke="#000000" stroke-width="4" marker-end="url(#arrow-d)" />
+<rect x="420" y="1785" width="550" height="38" fill="#FFFFFF" />
+<text x="695" y="1812" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#000000" text-anchor="middle">SQL Queries (SELECT, INSERT) & JSON Reads</text>
+<line x1="2500" y1="1890" x2="2500" y2="1720" stroke="#000000" stroke-width="4" marker-end="url(#arrow-u)" />
+<rect x="2530" y="1785" width="540" height="38" fill="#FFFFFF" />
+<text x="2800" y="1812" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#000000" text-anchor="middle">Query Result Sets & Hidden Test Payloads</text>
+<rect x="180" y="1890" width="3148" height="340" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
+<text x="220" y="1938" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="bold" fill="#000000">Data Layer (Local & Ephemeral Serverless Storage)</text>
+<rect x="220" y="1960" width="730" height="240" fill="#FFFFFF" stroke="#000000" stroke-width="3" />
+<text x="250" y="2005" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000">research.db (SQLite)</text>
+<text x="250" y="2050" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Copied to /tmp on Vercel initialization</text>
+<text x="250" y="2086" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Tables: participants, sessions, task_attempts</text>
+<text x="250" y="2122" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; task_results, task_timers, comprehension, surveys</text>
+<rect x="990" y="1960" width="730" height="240" fill="#FFFFFF" stroke="#000000" stroke-width="3" />
+<text x="1020" y="2005" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000">experiment_a.db (SQLite)</text>
+<text x="1020" y="2050" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Copied to /tmp on Vercel initialization</text>
+<text x="1020" y="2086" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Form A Relational Database (mode=ro)</text>
+<text x="1020" y="2122" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Tables: Students, Courses, Enrollments</text>
+<rect x="1760" y="1960" width="730" height="240" fill="#FFFFFF" stroke="#000000" stroke-width="3" />
+<text x="1790" y="2005" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000">experiment_b.db (SQLite)</text>
+<text x="1790" y="2050" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Copied to /tmp on Vercel initialization</text>
+<text x="1790" y="2086" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Form B Relational Database (mode=ro)</text>
+<text x="1790" y="2122" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; Tables: Students, Courses, Enrollments</text>
+<rect x="2530" y="1960" width="730" height="240" fill="#FFFFFF" stroke="#000000" stroke-width="3" />
+<text x="2560" y="2005" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000">hidden_tests.json (JSON)</text>
+<text x="2560" y="2050" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; JSON Edge-Case Test Datasets</text>
+<text x="2560" y="2086" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; 36 Total Hidden Test Datasets</text>
+<text x="2560" y="2122" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000000">&#8226; 3 Edge-Case Datasets per Task (T1-T6, Forms A & B)</text>
+</svg>
