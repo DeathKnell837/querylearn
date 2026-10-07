@@ -113,38 +113,6 @@
             font-size: 0.75rem;
             color: #64748b;
         }
-        .section-tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            padding-bottom: 0.75rem;
-        }
-        .section-tab-btn {
-            background: transparent;
-            border: 1px solid transparent;
-            padding: 0.6rem 1.25rem;
-            border-radius: 8px;
-            color: #94a3b8;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .section-tab-btn.active {
-            background: rgba(59, 130, 246, 0.15);
-            border-color: rgba(59, 130, 246, 0.3);
-            color: #60a5fa;
-        }
-        .section-tab-btn:hover:not(.active) {
-            color: #f8fafc;
-            background: rgba(255, 255, 255, 0.04);
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .spin { animation: spin 1s linear infinite; }
     </style>
 </head>
 <body>
@@ -239,20 +207,7 @@
             </div>
         </div>
 
-        <!-- Section Switcher Tabs -->
-        <div class="section-tabs">
-            <button class="section-tab-btn active" id="tab-btn-comparison" onclick="switchSection('comparison')">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
-                Task Comparison
-            </button>
-            <button class="section-tab-btn" id="tab-btn-scaling" onclick="switchSection('scaling')">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                Execution Scaling (1K &ndash; 100K)
-            </button>
-        </div>
-
-        <!-- SECTION 1: TASK COMPARISON (4 Charts + Comparison Table) -->
-        <div id="section-comparison" style="display: block;">
+        <!-- TASK COMPARISON (4 Charts + Comparison Table) -->
             <div class="analytics-grid">
                 
                 <!-- Chart 1: Task Accuracy -->
@@ -428,140 +383,12 @@
                             {% endfor %}
                         </tbody>
                     </table>
-                </div>
             </div>
-        </div>
-
-        <!-- SECTION 2: EXECUTION SCALING -->
-        <div id="section-scaling" style="display: none;">
-            <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; background: #131929; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.25rem 1.5rem;">
-                <div>
-                    <h3 style="color: #f8fafc; font-size: 1.05rem; font-weight: 700; margin: 0 0 0.25rem 0;">Execution Scaling Engine</h3>
-                    <p style="color: #94a3b8; font-size: 0.82rem; margin: 0;">Measures runtime (ms) and peak memory (KB) across 1,000, 10,000, and 100,000 simulated rows.</p>
-                </div>
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <span id="benchmarkProgress" style="display: none; color: #94a3b8; font-size: 0.85rem;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5" class="spin" style="display:inline-block; vertical-align:middle; margin-right:0.4rem;"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
-                        Executing scaling tests...
-                    </span>
-                    <button id="runBenchmarksBtn" class="db-btn-run-gradient" onclick="runBenchmarks()">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                        Run Scaling Tests
-                    </button>
-                </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
-                <div class="db-results-card" style="width: 100%;">
-                    <div style="padding: 1rem 1.25rem 0.5rem 1.25rem; font-weight: 700; color: #f8fafc; font-size: 0.95rem;">
-                        Scaling Matrix
-                    </div>
-                    <table class="db-dark-table">
-                        <thead>
-                            <tr>
-                                <th>Task</th>
-                                <th>Language</th>
-                                <th>1K Rows (ms)</th>
-                                <th>10K Rows (ms)</th>
-                                <th>100K Rows (ms)</th>
-                                <th>Peak Memory</th>
-                                <th>Measured</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for b in benchmarks %}
-                            <tr>
-                                <td><strong>{{ b.task_id }}</strong></td>
-                                <td>
-                                    {% if b.language == 'sql' %}
-                                        <span style="color: #38bdf8; font-weight: 600;">SQL</span>
-                                    {% else %}
-                                        <span style="color: #c084fc; font-weight: 600;">Python</span>
-                                    {% endif %}
-                                </td>
-                                <td><span style="color: #e2e8f0; font-family: var(--font-mono);">{{ b.scale_1k_ms }} ms</span></td>
-                                <td><span style="color: #e2e8f0; font-family: var(--font-mono);">{{ b.scale_10k_ms }} ms</span></td>
-                                <td><span style="color: #e2e8f0; font-family: var(--font-mono); font-weight: 600;">{{ b.scale_100k_ms }} ms</span></td>
-                                <td><span style="color: #94a3b8; font-family: var(--font-mono);">{{ b.peak_memory_mb }} KB</span></td>
-                                <td style="font-size: 0.78rem; color: #64748b;">{{ b.measured_at }}</td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="7" style="text-align: center; color: #64748b; padding: 2rem;">
-                                    No scaling tests recorded yet. Click "Run Scaling Tests" above to execute.
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="analytics-card">
-                    <div class="analytics-card-header">
-                        <div>
-                            <h3 class="analytics-card-title">Scaling Runtime (ms)</h3>
-                            <p class="analytics-card-sub">Execution latency across dataset sizes</p>
-                        </div>
-                    </div>
-                    <div style="position: relative; height: 300px; width: 100%;">
-                        <canvas id="benchmarkChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
 
     </main>
 </div>
 
 <script>
-    // Tab switching between Comparison and Scaling
-    function switchSection(section) {
-        const secComp = document.getElementById('section-comparison');
-        const secScaling = document.getElementById('section-scaling');
-        const btnComp = document.getElementById('tab-btn-comparison');
-        const btnScaling = document.getElementById('tab-btn-scaling');
-
-        if (section === 'comparison') {
-            secComp.style.display = 'block';
-            secScaling.style.display = 'none';
-            btnComp.classList.add('active');
-            btnScaling.classList.remove('active');
-        } else {
-            secComp.style.display = 'none';
-            secScaling.style.display = 'block';
-            btnComp.classList.remove('active');
-            btnScaling.classList.add('active');
-            if (window.benchmarkChartInstance) {
-                window.benchmarkChartInstance.resize();
-            }
-        }
-    }
-
-    // Benchmark Run Trigger
-    async function runBenchmarks() {
-        const btn = document.getElementById('runBenchmarksBtn');
-        const progress = document.getElementById('benchmarkProgress');
-        btn.disabled = true;
-        btn.style.opacity = '0.6';
-        progress.style.display = 'inline-block';
-
-        try {
-            const resp = await fetch('/dashboard/benchmarks/run', { method: 'POST' });
-            const data = await resp.json();
-            if (data.success) {
-                window.location.reload();
-            } else {
-                alert('Execution failed: ' + (data.error || 'Unknown error'));
-            }
-        } catch (e) {
-            alert('Request failed: ' + e.message);
-        } finally {
-            btn.disabled = false;
-            btn.style.opacity = '1';
-            progress.style.display = 'none';
-        }
-    }
-
     // Chart.js defaults
     Chart.defaults.color = '#94a3b8';
     Chart.defaults.font.family = "'Inter', sans-serif";
@@ -762,50 +589,6 @@
                 y: { beginAtZero: true, grid: gridOptions, ticks: { stepSize: 1 } }
             }
         }
-    });
-
-    // 5. Scaling Chart (SQL Blue vs Python Purple)
-    const benchData = {{ benchmarks | tojson }};
-    const sqlBench = benchData.find(b => b.language === 'sql') || {};
-    const pyBench = benchData.find(b => b.language === 'python') || {};
-
-    window.benchmarkChartInstance = new Chart(document.getElementById('benchmarkChart'), {
-        type: 'bar',
-        data: {
-            labels: ['1,000 rows', '10,000 rows', '100,000 rows'],
-            datasets: [
-                {
-                    label: 'SQL Runtime (ms)',
-                    data: [sqlBench.scale_1k_ms || 1.2, sqlBench.scale_10k_ms || 8.4, sqlBench.scale_100k_ms || 45.2],
-                    backgroundColor: '#38bdf8',
-                    borderRadius: 6
-                },
-                {
-                    label: 'Python Runtime (ms)',
-                    data: [pyBench.scale_1k_ms || 3.1, pyBench.scale_10k_ms || 24.6, pyBench.scale_100k_ms || 180.5],
-                    backgroundColor: '#c084fc',
-                    borderRadius: 6
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'top', labels: { usePointStyle: true, pointStyle: 'circle' } },
-                tooltip: {
-                    backgroundColor: '#0b0f19',
-                    borderColor: 'rgba(255,255,255,0.1)',
-                    borderWidth: 1,
-                    callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw} ms` }
-                }
-            },
-            scales: {
-                x: { grid: { display: false } },
-                y: { beginAtZero: true, grid: gridOptions, ticks: { callback: v => v + ' ms' } }
-            }
-        }
-    });
 </script>
 
 </body>

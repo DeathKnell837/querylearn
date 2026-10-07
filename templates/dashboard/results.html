@@ -57,18 +57,6 @@
             <h1 class="db-title">Task Results</h1>
 
             <div class="db-topbar-tools" style="display: flex; gap: 0.75rem; align-items: center;">
-                <form method="GET" action="{{ url_for('dashboard.results') }}" style="display: flex; gap: 0.5rem; align-items: center;">
-                    <div style="position: relative;">
-                        <input type="text" name="search" id="results-search" class="db-search" 
-                               placeholder="Search by Study ID (e.g. P015)..." 
-                               value="{{ search_query or '' }}"
-                               style="width: 260px; padding-left: 2.2rem;">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); pointer-events: none;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    </div>
-                    {% if selected_lang %}<input type="hidden" name="language" value="{{ selected_lang }}">{% endif %}
-                    {% if selected_task %}<input type="hidden" name="task" value="{{ selected_task }}">{% endif %}
-                    <button type="submit" class="btn btn-outline btn-sm">Search</button>
-                </form>
                 <a href="{{ url_for('dashboard.export', type='results') }}" class="db-btn-run-gradient" style="padding: 0.5rem 1rem; font-size: 0.82rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                     Export CSV
@@ -99,8 +87,18 @@
             </div>
         </div>
 
-        <form method="GET" action="{{ url_for('dashboard.results') }}" id="filter-form" style="margin-bottom: 1.25rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; background: #131929; border: 1px solid rgba(255,255,255,0.06); padding: 0.75rem 1rem; border-radius: 10px;">
-            <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <!-- Filter & Search Bar Directly Above Columns -->
+        <form method="GET" action="{{ url_for('dashboard.results') }}" id="filter-form" style="margin-bottom: 1.25rem; display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; background: #131929; border: 1px solid rgba(255,255,255,0.06); padding: 0.75rem 1rem; border-radius: 10px;">
+            <div style="position: relative; flex: 1; min-width: 240px; max-width: 340px;">
+                <input type="text" name="search" id="results-search" class="db-search" 
+                       placeholder="Search by Study ID (e.g. P015)..." 
+                       value="{{ search_query or '' }}"
+                       style="width: 100%; padding-left: 2.2rem;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); pointer-events: none;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </div>
+            <button type="submit" class="btn btn-outline btn-sm">Search</button>
+
+            <div style="display: flex; gap: 0.5rem; align-items: center; margin-left: 0.5rem;">
                 <label for="filter-language" style="color: #94a3b8; font-size: 0.85rem; font-weight: 500;">Language:</label>
                 <select name="language" id="filter-language" onchange="document.getElementById('filter-form').submit()" style="background-color: #0c101d; border: 1px solid var(--border-subtle); color: #ffffff; padding: 0.4rem 0.75rem; border-radius: 6px; font-size: 0.85rem; outline: none; cursor: pointer;">
                     <option value="" {% if not selected_lang or selected_lang == 'all' %}selected{% endif %}>All Languages</option>
@@ -117,9 +115,6 @@
                     {% endfor %}
                 </select>
             </div>
-            {% if search_query %}
-            <input type="hidden" name="search" value="{{ search_query }}">
-            {% endif %}
             <a href="{{ url_for('dashboard.results') }}" class="btn btn-outline btn-sm" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; margin-left: auto; text-decoration: none;">
                 Reset Filters
             </a>

@@ -140,6 +140,32 @@ class AcademicRevisionsTestCase(unittest.TestCase):
         self.assertNotIn('Qualitative Synthesis', html)
         self.assertNotIn('Empirical Task Evaluation Matrix', html)
         self.assertNotIn('Sample data: these 16 participants are generated for testing and are not study results.', html)
+        self.assertNotIn('Execution Scaling', html)
+        self.assertNotIn('Scaling Matrix', html)
+
+    def test_search_bars_above_columns(self):
+        """Verify search bars are placed above table columns in both participants and results views."""
+        with self.client.session_transaction() as sess:
+            sess['is_researcher'] = True
+            sess['researcher_name'] = 'admin'
+
+        # Check participants
+        resp_p = self.client.get('/dashboard/participants')
+        self.assertEqual(resp_p.status_code, 200)
+        html_p = resp_p.get_data(as_text=True)
+        self.assertIn('id="participant-search"', html_p)
+        search_idx = html_p.index('id="participant-search"')
+        table_idx = html_p.index('class="db-results-card"')
+        self.assertLess(search_idx, table_idx)
+
+        # Check results
+        resp_r = self.client.get('/dashboard/results')
+        self.assertEqual(resp_r.status_code, 200)
+        html_r = resp_r.get_data(as_text=True)
+        self.assertIn('id="results-search"', html_r)
+        search_idx_r = html_r.index('id="results-search"')
+        table_idx_r = html_r.index('class="db-results-card"')
+        self.assertLess(search_idx_r, table_idx_r)
 
     def test_csv_export_explicit_outcome_column(self):
         """Verify that results.csv and attempts.csv contain the explicit outcome column with CORRECT/WRONG."""
