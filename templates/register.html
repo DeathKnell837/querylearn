@@ -59,7 +59,7 @@
 
                     <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
                         <button type="button" class="btn btn-primary" onclick="goToStep(2)">
-                            Next: Programming Experience &rarr;
+                            Next
                         </button>
                     </div>
                 </div>
@@ -100,8 +100,8 @@
                     </div>
 
                     <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
-                        <button type="button" class="btn btn-outline" onclick="goToStep(1)">&larr; Back</button>
-                        <button type="button" class="btn btn-primary" onclick="goToStep(3)">Next: Ethics &amp; Consent &rarr;</button>
+                        <button type="button" class="btn btn-outline" onclick="goToStep(1)">Back</button>
+                        <button type="button" class="btn btn-primary" onclick="goToStep(3)">Next</button>
                     </div>
                 </div>
             </div>
@@ -117,17 +117,17 @@
                         <p>• <strong>Voluntary:</strong> Your participation is completely voluntary and will not affect your academic grades. You may withdraw at any time without penalty.</p>
                     </div>
 
-                    <div style="display: flex; align-items: flex-start; gap: 0.65rem; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 8px; padding: 0.85rem 1rem;">
-                        <input type="checkbox" name="consent" id="consent-check" value="1" required style="margin-top: 0.25rem; cursor: pointer;">
-                        <label for="consent-check" style="font-size: 0.88rem; color: #93c5fd; cursor: pointer;">
-                            I have read the research protocol, I am 18 years or older, and I freely consent to participate in this evaluation.
+                    <div style="display: flex; align-items: center; gap: 0.75rem; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 8px; padding: 0.85rem 1rem;">
+                        <input type="checkbox" name="consent" id="consent-check" value="1" required style="cursor: pointer; flex-shrink: 0; width: 17px; height: 17px; accent-color: #3b82f6;">
+                        <label for="consent-check" style="font-size: 0.88rem; color: #93c5fd; cursor: pointer; white-space: nowrap; margin: 0;">
+                            I am 18 or older and freely consent to participate in this study.
                         </label>
                     </div>
 
                     <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
-                        <button type="button" class="btn btn-outline" onclick="goToStep(2)">&larr; Back</button>
+                        <button type="button" class="btn btn-outline" onclick="goToStep(2)">Back</button>
                         <button type="submit" class="btn btn-primary" id="btn-submit-reg">
-                            Register &amp; Begin Experiment &rarr;
+                            Register &amp; Begin Evaluation
                         </button>
                     </div>
                 </div>
