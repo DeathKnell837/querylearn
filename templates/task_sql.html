@@ -157,12 +157,9 @@
 
                     <div class="ws-editor-bottom">
                         <button class="ws-btn-skip" onclick="skipTask()">Skip Task</button>
-                        <button class="ws-btn-run" id="btn-run" onclick="runCode()">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                            <span>Run Query</span>
-                        </button>
                         <button class="ws-btn-submit" id="btn-submit" onclick="submitCode()">
-                            Submit Answer
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            <span>Run &amp; Submit</span>
                         </button>
                     </div>
                 </div>
@@ -184,7 +181,7 @@
                         <tbody id="table-body">
                             <tr>
                                 <td colspan="4" style="text-align: center; color: #94a3b8; padding: 1.5rem;">
-                                    Click "Run Query" or press Ctrl+Enter to preview output records.
+                                    Click "Run &amp; Submit" or press Ctrl+Enter to test and verify your query.
                                 </td>
                             </tr>
                         </tbody>
@@ -228,8 +225,8 @@
         matchBrackets: true,
         autoCloseBrackets: true,
         extraKeys: {
-            "Ctrl-Enter": () => runCode(),
-            "Cmd-Enter": () => runCode()
+            "Ctrl-Enter": () => submitCode(),
+            "Cmd-Enter": () => submitCode()
         }
     });
 
@@ -293,38 +290,15 @@
         }
     }, 1000);
 
-    // Run Code
-    async function runCode() {
-        const code = editor.getValue();
-        try {
-            const resp = await fetch('/api/run', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code: code, language: LANGUAGE, task_id: TASK_NUM, form: FORM })
-            });
-            const data = await resp.json();
-
-            if (data.error) {
-                renderError(data.error);
-                showToast(data.error, true);
-            } else {
-                renderTable(data.columns, data.rows);
-                showToast("Query executed successfully");
-            }
-        } catch (err) {
-            renderError(err.message);
-            showToast("Network error", true);
-        }
-    }
-
-    // Submit Answer with in-flight lock
+    // Run & Submit with in-flight lock and live table rendering
     async function submitCode(isTimeout = false) {
         if (isSubmitting) return;
         isSubmitting = true;
         const btnSubmit = document.getElementById('btn-submit');
         if (btnSubmit) {
             btnSubmit.disabled = true;
-            btnSubmit.style.opacity = '0.5';
+            btnSubmit.style.opacity = '0.6';
+            btnSubmit.innerHTML = '<span>Checking query...</span>';
         }
 
         const code = editor.getValue();
@@ -344,13 +318,20 @@
             });
             const data = await resp.json();
 
+            // Render live output table or error
+            if (data.error) {
+                renderError(data.error);
+            } else if (data.columns) {
+                renderTable(data.columns, data.rows || []);
+            }
+
             if (data.correct) {
-                showToast("Query passed all hidden test cases! Proceeding...");
+                showToast("✓ Correct! Passed all test cases. Moving to next task...");
                 setTimeout(() => {
                     window.location.href = data.next_task_url;
                 }, 1200);
             } else {
-                showToast(data.feedback || "Incorrect query result", true);
+                showToast("✗ " + (data.feedback || "Incorrect query result"), true);
                 if (data.task_complete) {
                     setTimeout(() => {
                         window.location.href = data.next_task_url;
@@ -366,17 +347,23 @@
                     if (btnSubmit) {
                         btnSubmit.disabled = false;
                         btnSubmit.style.opacity = '1';
+                        btnSubmit.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><span>Run &amp; Submit</span>';
                     }
                 }
             }
         } catch (err) {
-            showToast("Error submitting answer: " + err.message, true);
+            showToast("Error checking answer: " + err.message, true);
             isSubmitting = false;
             if (btnSubmit) {
                 btnSubmit.disabled = false;
                 btnSubmit.style.opacity = '1';
+                btnSubmit.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><span>Run &amp; Submit</span>';
             }
         }
+    }
+
+    function runCode() {
+        return submitCode();
     }
 
     // Skip Task
@@ -479,15 +466,15 @@
                 <div class="ws-guide-step-card">
                     <div class="ws-guide-step-num step-green">2</div>
                     <div class="ws-guide-step-content">
-                        <h4>Test with "Run Query"</h4>
-                        <p>Click <strong style="color: #34d399;">Run Query</strong> (or press <kbd>Ctrl</kbd>+<kbd>Enter</kbd>) to preview output rows in the table below before submitting.</p>
+                        <h4>Click "Run &amp; Submit"</h4>
+                        <p>Click <strong style="color: #3b82f6;">Run &amp; Submit</strong> (or press <kbd>Ctrl</kbd>+<kbd>Enter</kbd>) to preview output rows and verify your solution.</p>
                     </div>
                 </div>
                 <div class="ws-guide-step-card">
                     <div class="ws-guide-step-num step-blue">3</div>
                     <div class="ws-guide-step-content">
-                        <h4>Submit Your Answer</h4>
-                        <p>When your query produces the requested columns and records, click the blue <strong style="color: #60a5fa;">Submit Answer</strong> button to verify and proceed.</p>
+                        <h4>Instant Verification</h4>
+                        <p>If your query matches all test cases, it confirms with a checkmark and automatically moves you to the next task!</p>
                     </div>
                 </div>
             </div>

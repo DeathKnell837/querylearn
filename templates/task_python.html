@@ -160,12 +160,9 @@
 
                     <div class="ws-editor-bottom">
                         <button class="ws-btn-skip" onclick="skipTask()">Skip Task</button>
-                        <button class="ws-btn-run" id="btn-run" onclick="runCode()">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                            <span>Run Python</span>
-                        </button>
                         <button class="ws-btn-submit" id="btn-submit" onclick="submitCode()">
-                            Submit Answer
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            <span>Run &amp; Submit</span>
                         </button>
                     </div>
                 </div>
@@ -175,7 +172,7 @@
             <div class="ws-results-panel">
                 <div class="ws-results-title">Program Output (stdout)</div>
                 <div class="ws-results-table-wrap" style="padding: 1rem; background: #0c101a; color: #93c5fd; font-family: var(--font-mono); min-height: 100px;">
-                    <pre id="python-output" style="margin: 0; white-space: pre-wrap;">Click "Run Python" or press Ctrl+Enter to test your solution.</pre>
+                    <pre id="python-output" style="margin: 0; white-space: pre-wrap;">Click "Run &amp; Submit" or press Ctrl+Enter to test and verify your solution.</pre>
                 </div>
 
                 <!-- Floating Toast Pill -->
@@ -214,8 +211,8 @@
         matchBrackets: true,
         autoCloseBrackets: true,
         extraKeys: {
-            "Ctrl-Enter": () => runCode(),
-            "Cmd-Enter": () => runCode()
+            "Ctrl-Enter": () => submitCode(),
+            "Cmd-Enter": () => submitCode()
         }
     });
 
@@ -276,49 +273,20 @@
         }
     }, 1000);
 
-    async function runCode() {
-        const code = editor.getValue();
-        const out = document.getElementById('python-output');
-        out.textContent = "Executing Python in isolated environment...";
-
-        try {
-            const resp = await fetch('/api/run', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code: code, language: LANGUAGE, task_id: TASK_NUM, form: FORM })
-            });
-            const data = await resp.json();
-
-            if (data.error) {
-                out.textContent = "Traceback / Error:\n" + data.error;
-                out.style.color = "#ef4444";
-                showToast(data.error, true);
-            } else {
-                let outText = data.output || "(Process finished with no output)";
-                if (outText.trim() === '[]') {
-                    outText = "[]\n\n(Tip: The list is empty because no records matched your filter condition. Adjust your if-condition and run again.)";
-                }
-                out.textContent = outText;
-                out.style.color = "#93c5fd";
-                showToast("Python code executed successfully");
-            }
-        } catch (err) {
-            out.textContent = "Network error: " + err.message;
-            out.style.color = "#ef4444";
-            showToast("Execution failed", true);
-        }
-    }
-
+    // Run & Submit with in-flight lock and live stdout rendering
     async function submitCode(isTimeout = false) {
         if (isSubmitting) return;
         isSubmitting = true;
         const btnSubmit = document.getElementById('btn-submit');
         if (btnSubmit) {
             btnSubmit.disabled = true;
-            btnSubmit.style.opacity = '0.5';
+            btnSubmit.style.opacity = '0.6';
+            btnSubmit.innerHTML = '<span>Checking Python code...</span>';
         }
 
         const code = editor.getValue();
+        const out = document.getElementById('python-output');
+        out.textContent = "Executing Python in isolated environment...";
 
         try {
             const resp = await fetch('/api/submit', {
@@ -335,13 +303,26 @@
             });
             const data = await resp.json();
 
+            // Render live console output or error
+            if (data.error) {
+                out.textContent = "Traceback / Error:\n" + data.error;
+                out.style.color = "#ef4444";
+            } else if (data.output !== undefined) {
+                let outText = data.output || "(Process finished with no output)";
+                if (outText.trim() === '[]') {
+                    outText = "[]\n\n(Tip: The list is empty because no records matched your filter condition. Adjust your if-condition and run again.)";
+                }
+                out.textContent = outText;
+                out.style.color = "#93c5fd";
+            }
+
             if (data.correct) {
-                showToast("Python task verified against oracle test cases! Proceeding...");
+                showToast("✓ Correct! Passed all test cases. Moving to next task...");
                 setTimeout(() => {
                     window.location.href = data.next_task_url;
                 }, 1200);
             } else {
-                showToast(data.feedback || "Incorrect solution output", true);
+                showToast("✗ " + (data.feedback || "Incorrect solution output"), true);
                 if (data.task_complete) {
                     setTimeout(() => {
                         window.location.href = data.next_task_url;
@@ -357,17 +338,25 @@
                     if (btnSubmit) {
                         btnSubmit.disabled = false;
                         btnSubmit.style.opacity = '1';
+                        btnSubmit.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><span>Run &amp; Submit</span>';
                     }
                 }
             }
         } catch (err) {
-            showToast("Submission error: " + err.message, true);
+            out.textContent = "Network error: " + err.message;
+            out.style.color = "#ef4444";
+            showToast("Error checking answer: " + err.message, true);
             isSubmitting = false;
             if (btnSubmit) {
                 btnSubmit.disabled = false;
                 btnSubmit.style.opacity = '1';
+                btnSubmit.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><span>Run &amp; Submit</span>';
             }
         }
+    }
+
+    function runCode() {
+        return submitCode();
     }
 
     async function skipTask() {
@@ -441,15 +430,15 @@
                 <div class="ws-guide-step-card">
                     <div class="ws-guide-step-num step-green">2</div>
                     <div class="ws-guide-step-content">
-                        <h4>Test with "Run Python"</h4>
-                        <p>Click <strong style="color: #34d399;">Run Python</strong> (or press <kbd>Ctrl</kbd>+<kbd>Enter</kbd>) to preview your console output below before submitting.</p>
+                        <h4>Click "Run &amp; Submit"</h4>
+                        <p>Click <strong style="color: #a855f7;">Run &amp; Submit</strong> (or press <kbd>Ctrl</kbd>+<kbd>Enter</kbd>) to preview console output and verify your solution.</p>
                     </div>
                 </div>
                 <div class="ws-guide-step-card">
                     <div class="ws-guide-step-num step-purple">3</div>
                     <div class="ws-guide-step-content">
-                        <h4>Submit Your Answer</h4>
-                        <p>When your code prints the requested tuples or records, click the blue <strong style="color: #8b5cf6;">Submit Answer</strong> button to verify and proceed.</p>
+                        <h4>Instant Verification</h4>
+                        <p>If your code produces the expected records across all test cases, it confirms with a checkmark and automatically moves you to the next task!</p>
                     </div>
                 </div>
             </div>

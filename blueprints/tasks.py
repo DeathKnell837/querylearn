@@ -201,6 +201,9 @@ def submit():
             return jsonify({
                 "correct": False,
                 "feedback": f"SQL Error: {learner_res['error']}",
+                "error": learner_res['error'],
+                "columns": [],
+                "rows": [],
                 "task_complete": False
             })
 
@@ -237,6 +240,8 @@ def submit():
             return jsonify({
                 "correct": False,
                 "feedback": f"Python Error: {learner_res['error']}",
+                "error": learner_res['error'],
+                "output": "",
                 "task_complete": False
             })
 
@@ -287,6 +292,15 @@ def submit():
             feedback = "Output printed to stdout did not match expected structure. Print a list of records/tuples."
             log_attempt(session_id, language, form, formatted_task_id, code, "incorrect", feedback)
 
+    extra_payload = {}
+    if language == 'sql':
+        extra_payload["columns"] = learner_res.get('columns', [])
+        extra_payload["rows"] = learner_res.get('rows', [])
+        extra_payload["error"] = learner_res.get('error')
+    else:
+        extra_payload["output"] = learner_res.get('output', '')
+        extra_payload["error"] = learner_res.get('error')
+
     if is_correct:
         log_task_result(session_id, language, form, formatted_task_id, True, elapsed_seconds, code)
         session['highest_unlocked_task'] = max(session.get('highest_unlocked_task', 1), current_num + 1)
@@ -294,7 +308,8 @@ def submit():
             "correct": True,
             "feedback": "Correct! Task completed successfully.",
             "task_complete": True,
-            "next_task_url": next_url
+            "next_task_url": next_url,
+            **extra_payload
         })
     else:
         # Check if participant reached maximum attempt limit (5 attempts)
@@ -313,14 +328,16 @@ def submit():
                 "feedback": f"{feedback} Maximum attempts (5) reached. Proceeding to next task...",
                 "task_complete": True,
                 "next_task_url": next_url,
-                "attempt_count": attempts_so_far
+                "attempt_count": attempts_so_far,
+                **extra_payload
             })
 
         return jsonify({
             "correct": False,
             "feedback": feedback,
             "task_complete": False,
-            "attempt_count": attempts_so_far
+            "attempt_count": attempts_so_far,
+            **extra_payload
         })
 
 
