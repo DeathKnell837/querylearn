@@ -1,59 +1,73 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3508 2480" width="3508" height="2480">
 <defs>
   <marker id="arrow-r" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto">
-    <path d="M 0 1 L 16 8 L 0 15 Z" fill="#000000" />
+    <path d="M 1 2 L 14 8 L 1 14 Z" fill="#000000" />
   </marker>
   <marker id="arrow-l" markerWidth="16" markerHeight="16" refX="2" refY="8" orient="auto">
-    <path d="M 16 1 L 0 8 L 16 15 Z" fill="#000000" />
+    <path d="M 15 2 L 2 8 L 15 14 Z" fill="#000000" />
+  </marker>
+  <marker id="arrow-d" markerWidth="16" markerHeight="16" refX="8" refY="14" orient="auto">
+    <path d="M 2 1 L 8 14 L 14 1 Z" fill="#000000" />
+  </marker>
+  <marker id="arrow-u" markerWidth="16" markerHeight="16" refX="8" refY="2" orient="auto">
+    <path d="M 2 15 L 8 2 L 14 15 Z" fill="#000000" />
   </marker>
 </defs>
 <rect width="3508" height="2480" fill="#FFFFFF" />
-<text x="1754" y="190" font-family="Arial, Helvetica, sans-serif" font-size="64" font-weight="bold" fill="#000000" text-anchor="middle">QueryLearn System Context Diagram (DFD Level 0)</text>
-<text x="1754" y="2360" font-family="Arial, Helvetica, sans-serif" font-size="44" fill="#000000" text-anchor="middle">Figure 1. Context Diagram of QueryLearn</text>
-<rect x="150" y="700" width="400" height="1200" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
-<text x="350" y="1315" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="bold" fill="#000000" text-anchor="middle">Participant</text>
-<rect x="2958" y="700" width="400" height="1200" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
-<text x="3158" y="1315" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="bold" fill="#000000" text-anchor="middle">Researcher</text>
-<circle cx="1754" cy="1300" r="460" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
-<text x="1754" y="1275" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="bold" fill="#000000" text-anchor="middle">QueryLearn</text>
-<text x="1754" y="1345" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="bold" fill="#000000" text-anchor="middle">System</text>
-<line x1="550" y1="940" x2="1467.643578734473" y2="940" stroke="#000000" stroke-width="4" marker-end="url(#arrow-r)" />
-<rect x="664.8217893672365" y="870" width="688" height="54" fill="#FFFFFF" />
-<text x="1008.8217893672365" y="914" font-family="Arial, Helvetica, sans-serif" font-size="56" fill="#000000" text-anchor="middle">registration and consent</text>
-<line x1="550" y1="1060" x2="1361.5716625930283" y2="1060" stroke="#000000" stroke-width="4" marker-end="url(#arrow-r)" />
-<rect x="746.7858312965142" y="990" width="418" height="54" fill="#FFFFFF" />
-<text x="955.7858312965142" y="1034" font-family="Arial, Helvetica, sans-serif" font-size="56" fill="#000000" text-anchor="middle">task solutions</text>
-<line x1="550" y1="1180" x2="1309.9279337765097" y2="1180" stroke="#000000" stroke-width="4" marker-end="url(#arrow-r)" />
-<rect x="626.4639668882548" y="1110" width="607" height="54" fill="#FFFFFF" />
-<text x="929.9639668882548" y="1154" font-family="Arial, Helvetica, sans-serif" font-size="56" fill="#000000" text-anchor="middle">comprehension answers</text>
-<line x1="550" y1="1300" x2="1294.0" y2="1300" stroke="#000000" stroke-width="4" marker-end="url(#arrow-r)" />
-<rect x="686.0" y="1230" width="472" height="54" fill="#FFFFFF" />
-<text x="922.0" y="1274" font-family="Arial, Helvetica, sans-serif" font-size="56" fill="#000000" text-anchor="middle">survey responses</text>
-<line x1="1309.9279337765097" y1="1420" x2="550" y2="1420" stroke="#000000" stroke-width="4" marker-end="url(#arrow-l)" />
-<rect x="707.4639668882548" y="1350" width="445" height="54" fill="#FFFFFF" />
-<text x="929.9639668882548" y="1394" font-family="Arial, Helvetica, sans-serif" font-size="56" fill="#000000" text-anchor="middle">task statements</text>
-<line x1="1361.5716625930283" y1="1540" x2="550" y2="1540" stroke="#000000" stroke-width="4" marker-end="url(#arrow-l)" />
-<rect x="611.7858312965142" y="1470" width="688" height="54" fill="#FFFFFF" />
-<text x="955.7858312965142" y="1514" font-family="Arial, Helvetica, sans-serif" font-size="56" fill="#000000" text-anchor="middle">language reference guide</text>
-<line x1="1467.643578734473" y1="1660" x2="550" y2="1660" stroke="#000000" stroke-width="4" marker-end="url(#arrow-l)" />
-<rect x="772.8217893672365" y="1590" width="472" height="54" fill="#FFFFFF" />
-<text x="1008.8217893672365" y="1634" font-family="Arial, Helvetica, sans-serif" font-size="56" fill="#000000" text-anchor="middle">session progress</text>
-<line x1="2958" y1="975" x2="2079.5380162131605" y2="975" stroke="#000000" stroke-width="4" marker-end="url(#arrow-l)" />
-<rect x="2269.2690081065803" y="905" width="499" height="54" fill="#FFFFFF" />
-<text x="2518.7690081065803" y="949" font-family="Arial, Helvetica, sans-serif" font-size="56" fill="#000000" text-anchor="middle">login credentials</text>
-<line x1="2958" y1="1105" x2="2170.6233310797656" y2="1105" stroke="#000000" stroke-width="4" marker-end="url(#arrow-l)" />
-<rect x="2314.8116655398826" y="1035" width="499" height="54" fill="#FFFFFF" />
-<text x="2564.3116655398826" y="1079" font-family="Arial, Helvetica, sans-serif" font-size="56" fill="#000000" text-anchor="middle">filter selections</text>
-<line x1="2209.384452962549" y1="1235" x2="2958" y2="1235" stroke="#000000" stroke-width="4" marker-end="url(#arrow-r)" />
-<rect x="2293.6922264812747" y="1165" width="580" height="54" fill="#FFFFFF" />
-<text x="2583.6922264812747" y="1209" font-family="Arial, Helvetica, sans-serif" font-size="56" fill="#000000" text-anchor="middle">participant registry</text>
-<line x1="2209.384452962549" y1="1365" x2="2958" y2="1365" stroke="#000000" stroke-width="4" marker-end="url(#arrow-r)" />
-<rect x="2401.6922264812747" y="1295" width="364" height="54" fill="#FFFFFF" />
-<text x="2583.6922264812747" y="1339" font-family="Arial, Helvetica, sans-serif" font-size="56" fill="#000000" text-anchor="middle">task results</text>
-<line x1="2170.6233310797656" y1="1495" x2="2958" y2="1495" stroke="#000000" stroke-width="4" marker-end="url(#arrow-r)" />
-<rect x="2260.8116655398826" y="1425" width="607" height="54" fill="#FFFFFF" />
-<text x="2564.3116655398826" y="1469" font-family="Arial, Helvetica, sans-serif" font-size="56" fill="#000000" text-anchor="middle">comparative analytics</text>
-<line x1="2079.5380162131605" y1="1625" x2="2958" y2="1625" stroke="#000000" stroke-width="4" marker-end="url(#arrow-r)" />
-<rect x="2242.2690081065803" y="1555" width="553" height="54" fill="#FFFFFF" />
-<text x="2518.7690081065803" y="1599" font-family="Arial, Helvetica, sans-serif" font-size="56" fill="#000000" text-anchor="middle">exported data files</text>
+<text x="1754" y="150" font-family="Arial, Helvetica, sans-serif" font-size="64" font-weight="bold" fill="#000000" text-anchor="middle">QueryLearn System Context Diagram (DFD Level 0)</text>
+<text x="1754" y="2380" font-family="Arial, Helvetica, sans-serif" font-size="44" fill="#000000" text-anchor="middle">Figure 1. Context Diagram of QueryLearn</text>
+<rect x="200" y="440" width="440" height="1620" fill="#F4F6F8" stroke="#000000" stroke-width="4" rx="14" ry="14" />
+<rect x="200" y="440" width="440" height="90" fill="#E2E8F0" stroke="#000000" stroke-width="4" rx="14" ry="14" />
+<text x="420" y="495" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" letter-spacing="2" fill="#334155" text-anchor="middle">EXTERNAL ENTITY</text>
+<text x="420" y="1220" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="bold" fill="#000000" text-anchor="middle">Participant</text>
+<text x="420" y="1275" font-family="Arial, Helvetica, sans-serif" font-size="32" font-style="italic" fill="#475569" text-anchor="middle">(Novice Learner Cohort)</text>
+<rect x="2868" y="440" width="440" height="1620" fill="#F4F6F8" stroke="#000000" stroke-width="4" rx="14" ry="14" />
+<rect x="2868" y="440" width="440" height="90" fill="#E2E8F0" stroke="#000000" stroke-width="4" rx="14" ry="14" />
+<text x="3088" y="495" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" letter-spacing="2" fill="#334155" text-anchor="middle">EXTERNAL ENTITY</text>
+<text x="3088" y="1220" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="bold" fill="#000000" text-anchor="middle">Researcher</text>
+<text x="3088" y="1275" font-family="Arial, Helvetica, sans-serif" font-size="32" font-style="italic" fill="#475569" text-anchor="middle">(Evaluator / Admin)</text>
+<circle cx="1754" cy="1240" r="440" fill="#F4F6F8" stroke="#000000" stroke-width="4" />
+<line x1="1434" y1="1160" x2="2074" y2="1160" stroke="#000000" stroke-width="2" />
+<text x="1754" y="1130" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="bold" fill="#334155" text-anchor="middle">0.0</text>
+<text x="1754" y="1230" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="bold" fill="#000000" text-anchor="middle">QueryLearn System</text>
+<text x="1754" y="1295" font-family="Arial, Helvetica, sans-serif" font-size="32" font-style="italic" fill="#475569" text-anchor="middle">(Empirical Evaluation Platform)</text>
+<path d="M 640 520 L 1530 520 L 1530 851.286387886572" fill="none" stroke="#000000" stroke-width="3" marker-end="url(#arrow-d)" />
+<rect x="805.0" y="496.0" width="560" height="48" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" rx="8" ry="8" />
+<text x="1085.0" y="530" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000" text-anchor="middle">Registration & Demographic Intake</text>
+<path d="M 640 760 L 1410 760 L 1410 955.6571488082841" fill="none" stroke="#000000" stroke-width="3" marker-end="url(#arrow-d)" />
+<rect x="745.0" y="736.0" width="560" height="48" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" rx="8" ry="8" />
+<text x="1025.0" y="770" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000" text-anchor="middle">Task Code Solutions (SQL / Python)</text>
+<line x1="640" y1="1000" x2="1375.2182217082845" y2="1000" stroke="#000000" stroke-width="3" marker-end="url(#arrow-r)" />
+<rect x="747.6091108541423" y="976.0" width="530" height="48" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" rx="8" ry="8" />
+<text x="1012.6091108541423" y="1010" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000" text-anchor="middle">Code Comprehension Responses</text>
+<line x1="640" y1="1240" x2="1304" y2="1240" stroke="#000000" stroke-width="3" marker-end="url(#arrow-r)" />
+<rect x="707.0" y="1216.0" width="540" height="48" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" rx="8" ry="8" />
+<text x="977.0" y="1250" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000" text-anchor="middle">Post-Condition Survey Responses</text>
+<line x1="1385.2182217082845" y1="1480" x2="650" y2="1480" stroke="#000000" stroke-width="3" marker-end="url(#arrow-l)" />
+<rect x="747.6091108541423" y="1456.0" width="530" height="48" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" rx="8" ry="8" />
+<text x="1012.6091108541423" y="1490" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000" text-anchor="middle">Task Statements & DB Schema</text>
+<path d="M 1410 1514.342851191716 L 1410 1720 L 650 1720" fill="none" stroke="#000000" stroke-width="3" marker-end="url(#arrow-l)" />
+<rect x="765.0" y="1696.0" width="520" height="48" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" rx="8" ry="8" />
+<text x="1025.0" y="1730" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000" text-anchor="middle">Language Reference Guides</text>
+<path d="M 1530 1618.713612113428 L 1530 1960 L 650 1960" fill="none" stroke="#000000" stroke-width="3" marker-end="url(#arrow-l)" />
+<rect x="805.0" y="1936.0" width="560" height="48" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" rx="8" ry="8" />
+<text x="1085.0" y="1970" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000" text-anchor="middle">Execution Output & Test Feedback</text>
+<path d="M 2868 580 L 1978 580 L 1978 851.286387886572" fill="none" stroke="#000000" stroke-width="3" marker-end="url(#arrow-d)" />
+<rect x="2138.0" y="556.0" width="570" height="48" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" rx="8" ry="8" />
+<text x="2423.0" y="590" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000" text-anchor="middle">Researcher Authentication Credentials</text>
+<path d="M 2868 860 L 2098 860 L 2098 955.6571488082841" fill="none" stroke="#000000" stroke-width="3" marker-end="url(#arrow-d)" />
+<rect x="2213.0" y="836.0" width="540" height="48" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" rx="8" ry="8" />
+<text x="2483.0" y="870" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000" text-anchor="middle">Telemetry Query & Filter Criteria</text>
+<line x1="2868" y1="1140" x2="2192.485705712571" y2="1140" stroke="#000000" stroke-width="3" marker-end="url(#arrow-l)" />
+<rect x="2265.2428528562855" y="1116.0" width="520" height="48" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" rx="8" ry="8" />
+<text x="2525.2428528562855" y="1150" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000" text-anchor="middle">Benchmark Execution Triggers</text>
+<line x1="2155.4971979976945" y1="1420" x2="2858" y2="1420" stroke="#000000" stroke-width="3" marker-end="url(#arrow-r)" />
+<rect x="2251.7485989988472" y="1396.0" width="520" height="48" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" rx="8" ry="8" />
+<text x="2511.7485989988472" y="1430" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000" text-anchor="middle">Participant Registry & Progress</text>
+<path d="M 2098 1514.342851191716 L 2098 1700 L 2858 1700" fill="none" stroke="#000000" stroke-width="3" marker-end="url(#arrow-r)" />
+<rect x="2188.0" y="1676.0" width="590" height="48" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" rx="8" ry="8" />
+<text x="2483.0" y="1710" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000" text-anchor="middle">Task Telemetry & Outcomes (Right/Wrong)</text>
+<path d="M 1978 1618.713612113428 L 1978 1980 L 2858 1980" fill="none" stroke="#000000" stroke-width="3" marker-end="url(#arrow-r)" />
+<rect x="2118.0" y="1956.0" width="610" height="48" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" rx="8" ry="8" />
+<text x="2423.0" y="1990" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#000000" text-anchor="middle">Comparative Analytics & Exported Datasets</text>
 </svg>

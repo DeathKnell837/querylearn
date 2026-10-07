@@ -1,80 +1,78 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3508 2480" width="3508" height="2480">
 <defs>
   <marker id="arrow-inc" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto">
-    <path d="M 0 1 L 16 8 L 0 15 Z" fill="#000000" />
+    <path d="M 1 2 L 14 8 L 1 14 Z" fill="#000000" />
   </marker>
 </defs>
 <rect width="3508" height="2480" fill="#FFFFFF" />
-<text x="1754" y="160" font-family="Arial, Helvetica, sans-serif" font-size="64" font-weight="bold" fill="#000000" text-anchor="middle">QueryLearn Use Case Diagram</text>
+<text x="1754" y="150" font-family="Arial, Helvetica, sans-serif" font-size="64" font-weight="bold" fill="#000000" text-anchor="middle">QueryLearn Use Case Diagram (UML)</text>
 <text x="1754" y="2380" font-family="Arial, Helvetica, sans-serif" font-size="44" fill="#000000" text-anchor="middle">Figure 3. Use Case Diagram of QueryLearn</text>
-<rect x="460" y="220" width="2588" height="2070" fill="none" stroke="#000000" stroke-width="4" />
-<text x="500" y="275" font-family="Arial, Helvetica, sans-serif" font-size="46" font-weight="bold" fill="#000000">QueryLearn</text>
-<circle cx="200" cy="1165" r="35" fill="none" stroke="#000000" stroke-width="4" />
-<line x1="200" y1="1200" x2="200" y2="1305" stroke="#000000" stroke-width="4" />
-<line x1="200" y1="1240" x2="135" y2="1265" stroke="#000000" stroke-width="4" />
-<line x1="200" y1="1240" x2="275" y2="1240" stroke="#000000" stroke-width="4" />
-<line x1="200" y1="1305" x2="140" y2="1405" stroke="#000000" stroke-width="4" />
-<line x1="200" y1="1305" x2="260" y2="1405" stroke="#000000" stroke-width="4" />
-<text x="200" y="1460" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="bold" fill="#000000" text-anchor="middle">Participant</text>
-<circle cx="3308" cy="1100" r="35" fill="none" stroke="#000000" stroke-width="4" />
-<line x1="3308" y1="1135" x2="3308" y2="1240" stroke="#000000" stroke-width="4" />
-<line x1="3308" y1="1175" x2="3373" y2="1200" stroke="#000000" stroke-width="4" />
-<line x1="3308" y1="1175" x2="3233" y2="1175" stroke="#000000" stroke-width="4" />
-<line x1="3308" y1="1240" x2="3248" y2="1340" stroke="#000000" stroke-width="4" />
-<line x1="3308" y1="1240" x2="3368" y2="1340" stroke="#000000" stroke-width="4" />
-<text x="3308" y="1395" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="bold" fill="#000000" text-anchor="middle">Researcher</text>
-<ellipse cx="860" cy="390" rx="260" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
-<text x="860" y="400" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Register and give consent</text>
-<ellipse cx="860" cy="640" rx="260" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
-<text x="860" y="650" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Read language reference guide</text>
-<ellipse cx="860" cy="890" rx="260" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
-<text x="860" y="900" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Complete readiness check</text>
-<ellipse cx="860" cy="1140" rx="260" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
-<text x="860" y="1150" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Solve SQL tasks</text>
-<ellipse cx="860" cy="1390" rx="260" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
-<text x="860" y="1400" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Solve Python tasks</text>
-<ellipse cx="860" cy="1640" rx="260" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
-<text x="860" y="1650" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Answer comprehension items</text>
-<ellipse cx="860" cy="1890" rx="260" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
-<text x="860" y="1900" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Answer post-condition survey</text>
-<ellipse cx="860" cy="2140" rx="260" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
-<text x="860" y="2150" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Complete counterbalanced sequence</text>
-<line x1="275" y1="1240" x2="380" y2="1240" stroke="#000000" stroke-width="3" />
-<line x1="380" y1="390" x2="380" y2="2140" stroke="#000000" stroke-width="3" />
-<line x1="380" y1="390" x2="600" y2="390" stroke="#000000" stroke-width="3" />
-<line x1="380" y1="640" x2="600" y2="640" stroke="#000000" stroke-width="3" />
-<line x1="380" y1="890" x2="600" y2="890" stroke="#000000" stroke-width="3" />
-<line x1="380" y1="1140" x2="600" y2="1140" stroke="#000000" stroke-width="3" />
-<line x1="380" y1="1390" x2="600" y2="1390" stroke="#000000" stroke-width="3" />
-<line x1="380" y1="1640" x2="600" y2="1640" stroke="#000000" stroke-width="3" />
-<line x1="380" y1="1890" x2="600" y2="1890" stroke="#000000" stroke-width="3" />
-<line x1="380" y1="2140" x2="600" y2="2140" stroke="#000000" stroke-width="3" />
-<ellipse cx="1720" cy="1265" rx="210" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
-<text x="1720" y="1275" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Submit solution</text>
-<path d="M 1120 1140 L 1420 1140 L 1420 1235 L 1510 1235" fill="none" stroke="#000000" stroke-width="3" stroke-dasharray="10,8" marker-end="url(#arrow-inc)" />
-<rect x="1165" y="1080" width="210" height="46" fill="#FFFFFF" />
-<text x="1270" y="1116" font-family="Arial, Helvetica, sans-serif" font-size="42" font-style="italic" fill="#000000" text-anchor="middle">&lt;&lt;include&gt;&gt;</text>
-<path d="M 1120 1390 L 1420 1390 L 1420 1295 L 1510 1295" fill="none" stroke="#000000" stroke-width="3" stroke-dasharray="10,8" marker-end="url(#arrow-inc)" />
-<rect x="1165" y="1330" width="210" height="46" fill="#FFFFFF" />
-<text x="1270" y="1366" font-family="Arial, Helvetica, sans-serif" font-size="42" font-style="italic" fill="#000000" text-anchor="middle">&lt;&lt;include&gt;&gt;</text>
-<ellipse cx="2420" cy="500" rx="270" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
-<text x="2420" y="510" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Log in</text>
-<ellipse cx="2420" cy="780" rx="270" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
-<text x="2420" y="790" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">View participant registry</text>
-<ellipse cx="2420" cy="1060" rx="270" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
-<text x="2420" y="1070" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">View task results</text>
-<ellipse cx="2420" cy="1340" rx="270" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
-<text x="2420" y="1350" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">View comparative analytics</text>
-<ellipse cx="2420" cy="1620" rx="270" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
-<text x="2420" y="1630" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Run technical benchmarks</text>
-<ellipse cx="2420" cy="1900" rx="270" ry="62" fill="#F2F2F2" stroke="#000000" stroke-width="4" />
-<text x="2420" y="1910" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#000000" text-anchor="middle">Export study data</text>
-<line x1="3233" y1="1175" x2="3120" y2="1175" stroke="#000000" stroke-width="3" />
-<line x1="3120" y1="500" x2="3120" y2="1900" stroke="#000000" stroke-width="3" />
-<line x1="3120" y1="500" x2="2690" y2="500" stroke="#000000" stroke-width="3" />
-<line x1="3120" y1="780" x2="2690" y2="780" stroke="#000000" stroke-width="3" />
-<line x1="3120" y1="1060" x2="2690" y2="1060" stroke="#000000" stroke-width="3" />
-<line x1="3120" y1="1340" x2="2690" y2="1340" stroke="#000000" stroke-width="3" />
-<line x1="3120" y1="1620" x2="2690" y2="1620" stroke="#000000" stroke-width="3" />
-<line x1="3120" y1="1900" x2="2690" y2="1900" stroke="#000000" stroke-width="3" />
+<rect x="520" y="220" width="2468" height="2080" fill="none" stroke="#000000" stroke-width="4" rx="16" ry="16" />
+<text x="560" y="280" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="bold" fill="#000000">QueryLearn System</text>
+<circle cx="250" cy="1130" r="42" fill="#FFFFFF" stroke="#000000" stroke-width="4" />
+<line x1="250" y1="1172" x2="250" y2="1310" stroke="#000000" stroke-width="4" />
+<line x1="250" y1="1210" x2="160" y2="1230" stroke="#000000" stroke-width="4" />
+<line x1="250" y1="1210" x2="340" y2="1230" stroke="#000000" stroke-width="4" />
+<line x1="250" y1="1310" x2="175" y2="1440" stroke="#000000" stroke-width="4" />
+<line x1="250" y1="1310" x2="325" y2="1440" stroke="#000000" stroke-width="4" />
+<text x="250" y="1505" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="bold" fill="#000000" text-anchor="middle">Participant</text>
+<text x="250" y="1545" font-family="Arial, Helvetica, sans-serif" font-size="28" font-style="italic" fill="#475569" text-anchor="middle">(Novice Learner Cohort)</text>
+<circle cx="3258" cy="1130" r="42" fill="#FFFFFF" stroke="#000000" stroke-width="4" />
+<line x1="3258" y1="1172" x2="3258" y2="1310" stroke="#000000" stroke-width="4" />
+<line x1="3258" y1="1210" x2="3348" y2="1230" stroke="#000000" stroke-width="4" />
+<line x1="3258" y1="1210" x2="3168" y2="1230" stroke="#000000" stroke-width="4" />
+<line x1="3258" y1="1310" x2="3183" y2="1440" stroke="#000000" stroke-width="4" />
+<line x1="3258" y1="1310" x2="3333" y2="1440" stroke="#000000" stroke-width="4" />
+<text x="3258" y="1505" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="bold" fill="#000000" text-anchor="middle">Researcher</text>
+<text x="3258" y="1545" font-family="Arial, Helvetica, sans-serif" font-size="28" font-style="italic" fill="#475569" text-anchor="middle">(Evaluator / Admin)</text>
+<ellipse cx="1000" cy="380" rx="260" ry="60" fill="#F4F6F8" stroke="#000000" stroke-width="3" />
+<text x="1000" y="390" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="bold" fill="#000000" text-anchor="middle">Register & Provide Consent</text>
+<line x1="340" y1="1230" x2="840.5427563418737" y2="427.3911388494431" stroke="#000000" stroke-width="2.5" />
+<ellipse cx="1000" cy="630" rx="260" ry="60" fill="#F4F6F8" stroke="#000000" stroke-width="3" />
+<text x="1000" y="640" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="bold" fill="#000000" text-anchor="middle">View Language Reference</text>
+<line x1="340" y1="1230" x2="807.6155809170547" y2="670.3603676397787" stroke="#000000" stroke-width="2.5" />
+<ellipse cx="1000" cy="880" rx="260" ry="60" fill="#F4F6F8" stroke="#000000" stroke-width="3" />
+<text x="1000" y="890" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="bold" fill="#000000" text-anchor="middle">Complete Readiness Check</text>
+<line x1="340" y1="1230" x2="770.2998534622218" y2="908.1101577930848" stroke="#000000" stroke-width="2.5" />
+<ellipse cx="1000" cy="1130" rx="260" ry="60" fill="#F4F6F8" stroke="#000000" stroke-width="3" />
+<text x="1000" y="1140" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="bold" fill="#000000" text-anchor="middle">Solve SQL Query Tasks</text>
+<line x1="340" y1="1230" x2="742.9339689015607" y2="1138.9883227656796" stroke="#000000" stroke-width="2.5" />
+<ellipse cx="1000" cy="1380" rx="260" ry="60" fill="#F4F6F8" stroke="#000000" stroke-width="3" />
+<text x="1000" y="1390" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="bold" fill="#000000" text-anchor="middle">Solve Python Tasks</text>
+<line x1="340" y1="1230" x2="746.4654574942205" y2="1366.7027337846619" stroke="#000000" stroke-width="2.5" />
+<ellipse cx="1000" cy="1630" rx="260" ry="60" fill="#F4F6F8" stroke="#000000" stroke-width="3" />
+<text x="1000" y="1640" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="bold" fill="#000000" text-anchor="middle">Answer Comprehension Items</text>
+<line x1="340" y1="1230" x2="777.6485637959554" y2="1598.9018970343993" stroke="#000000" stroke-width="2.5" />
+<ellipse cx="1000" cy="1880" rx="260" ry="60" fill="#F4F6F8" stroke="#000000" stroke-width="3" />
+<text x="1000" y="1890" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="bold" fill="#000000" text-anchor="middle">Complete Post-Task Survey</text>
+<line x1="340" y1="1230" x2="814.7542160637761" y2="1837.89868546904" stroke="#000000" stroke-width="2.5" />
+<ellipse cx="1000" cy="2130" rx="260" ry="60" fill="#F4F6F8" stroke="#000000" stroke-width="3" />
+<text x="1000" y="2140" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="bold" fill="#000000" text-anchor="middle">Conclude Sequence Flow</text>
+<line x1="340" y1="1230" x2="846.2454474568455" y2="2081.6157002486575" stroke="#000000" stroke-width="2.5" />
+<ellipse cx="1754" cy="1255" rx="230" ry="60" fill="#F4F6F8" stroke="#000000" stroke-width="3" />
+<text x="1754" y="1265" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="bold" fill="#000000" text-anchor="middle">Submit Task Solution</text>
+<line x1="1257.276544517892" y1="1138.6616261672011" x2="1521.4092106187877" y2="1231.3383738327989" stroke="#000000" stroke-width="2.5" stroke-dasharray="10,8" marker-end="url(#arrow-inc)" />
+<rect x="1281.8428775683399" y="1163.0" width="220" height="44" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" rx="6" ry="6" />
+<text x="1391.8428775683399" y="1193.0" font-family="Arial, Helvetica, sans-serif" font-size="26" font-style="italic" fill="#000000" text-anchor="middle">&lt;&lt;include&gt;&gt;</text>
+<line x1="1257.276544517892" y1="1371.3383738327989" x2="1521.4092106187877" y2="1278.6616261672011" stroke="#000000" stroke-width="2.5" stroke-dasharray="10,8" marker-end="url(#arrow-inc)" />
+<rect x="1281.8428775683399" y="1303.0" width="220" height="44" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" rx="6" ry="6" />
+<text x="1391.8428775683399" y="1333.0" font-family="Arial, Helvetica, sans-serif" font-size="26" font-style="italic" fill="#000000" text-anchor="middle">&lt;&lt;include&gt;&gt;</text>
+<ellipse cx="2508" cy="505" rx="260" ry="60" fill="#F4F6F8" stroke="#000000" stroke-width="3" />
+<text x="2508" y="515" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="bold" fill="#000000" text-anchor="middle">Authenticate & Log In</text>
+<line x1="3168" y1="1230" x2="2683.0268814136984" y2="549.3687024562697" stroke="#000000" stroke-width="2.5" />
+<ellipse cx="2508" cy="805" rx="260" ry="60" fill="#F4F6F8" stroke="#000000" stroke-width="3" />
+<text x="2508" y="815" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="bold" fill="#000000" text-anchor="middle">Inspect Participant Registry</text>
+<line x1="3168" y1="1230" x2="2726.5987261146497" y2="837.484076433121" stroke="#000000" stroke-width="2.5" />
+<ellipse cx="2508" cy="1105" rx="260" ry="60" fill="#F4F6F8" stroke="#000000" stroke-width="3" />
+<text x="2508" y="1115" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="bold" fill="#000000" text-anchor="middle">Review Task Telemetry</text>
+<line x1="3168" y1="1230" x2="2763.458705256677" y2="1116.165153201778" stroke="#000000" stroke-width="2.5" />
+<ellipse cx="2508" cy="1405" rx="260" ry="60" fill="#F4F6F8" stroke="#000000" stroke-width="3" />
+<text x="2508" y="1415" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="bold" fill="#000000" text-anchor="middle">Analyze Comparative Metrics</text>
+<line x1="3168" y1="1230" x2="2759.3156330768475" y2="1389.6222951788643" stroke="#000000" stroke-width="2.5" />
+<ellipse cx="2508" cy="1705" rx="260" ry="60" fill="#F4F6F8" stroke="#000000" stroke-width="3" />
+<text x="2508" y="1715" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="bold" fill="#000000" text-anchor="middle">Trigger Engine Benchmarks</text>
+<line x1="3168" y1="1230" x2="2719.029247772981" y2="1669.9514361216204" stroke="#000000" stroke-width="2.5" />
+<ellipse cx="2508" cy="2005" rx="260" ry="60" fill="#F4F6F8" stroke="#000000" stroke-width="3" />
+<text x="2508" y="2015" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="bold" fill="#000000" text-anchor="middle">Export Research Datasets</text>
+<line x1="3168" y1="1230" x2="2676.573867444673" y2="1959.3200184371954" stroke="#000000" stroke-width="2.5" />
 </svg>
