@@ -93,6 +93,8 @@ def register():
         session['current_language'] = seq_info['first_language'].lower()
         session['current_form'] = seq_info['first_form']
         session['current_condition_step'] = 1
+        session['sql_exp'] = sql_exp
+        session['python_exp'] = python_exp
 
         return redirect(url_for('experiment.instructions'))
 
