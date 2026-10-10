@@ -172,11 +172,21 @@ def overview():
         'T6': 'Set Difference / Anti-Join (LEFT JOIN ... NULL)'
     }
 
+    task_what_it_tests = {
+        'T1': 'Filtering and sorting rows',
+        'T2': 'Top N with a tie-break',
+        'T3': 'Counting per group',
+        'T4': 'Joining three tables',
+        'T5': 'Group filter with a threshold',
+        'T6': 'Rows with no match'
+    }
+
     task_breakdown = {}
     for tid in sorted(list(all_tasks)):
         task_breakdown[tid] = {
             'task_id': tid,
-            'construct': task_constructs.get(tid, 'Relational Operation')
+            'construct': task_constructs.get(tid, 'Relational Operation'),
+            'what_it_tests': task_what_it_tests.get(tid, 'Relational Operation')
         }
         for lang in ['sql', 'python']:
             group = task_groups.get((tid, lang), {'success': [], 'times': [], 'attempts': []})
@@ -229,6 +239,33 @@ def overview():
     python_median_comp = round(statistics.median(py_comp_scores), 1) if py_comp_scores else None
     comp_session_count = len(comp_rows)
 
+    # 7. Participant Enrollment & Progress Statistics
+    cursor.execute("""
+        SELECT 
+            COUNT(*) as total,
+            SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
+            SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) as in_progress,
+            SUM(CASE WHEN status = 'registered' THEN 1 ELSE 0 END) as registered
+        FROM participants
+    """)
+    p_counts = cursor.fetchone()
+    total_participants = p_counts['total'] or 0
+    completed_participants = p_counts['completed'] or 0
+    in_progress_participants = p_counts['in_progress'] or 0
+    registered_participants = p_counts['registered'] or 0
+    completion_rate = round((completed_participants / total_participants * 100), 1) if total_participants > 0 else 0.0
+
+    # Recent enrolled participants (preview)
+    cursor.execute("SELECT * FROM participants ORDER BY id DESC LIMIT 6")
+    recent_participants = [dict(r) for r in cursor.fetchall()]
+
+    # Cohort breakdown
+    cursor.execute("SELECT program, COUNT(*) as cnt FROM participants GROUP BY program ORDER BY cnt DESC")
+    cohort_programs = [dict(r) for r in cursor.fetchall()]
+
+    cursor.execute("SELECT year_level, COUNT(*) as cnt FROM participants GROUP BY year_level ORDER BY year_level ASC")
+    cohort_years = [dict(r) for r in cursor.fetchall()]
+
     conn.close()
 
     metrics = {
@@ -251,6 +288,14 @@ def overview():
         "sql_median_comp": sql_median_comp,
         "python_median_comp": python_median_comp,
         "comp_session_count": comp_session_count,
+        "total_participants": total_participants,
+        "completed": completed_participants,
+        "in_progress": in_progress_participants,
+        "registered": registered_participants,
+        "completion_rate": completion_rate,
+        "recent_participants": recent_participants,
+        "cohort_programs": cohort_programs,
+        "cohort_years": cohort_years,
         "has_seeded": has_seeded,
         "tasks": list(task_breakdown.values())
     }
