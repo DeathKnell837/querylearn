@@ -3,468 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Researcher Overview — QueryLearn Empirical Study</title>
-    <!-- Google Fonts -->
+    <title>Researcher Overview — QueryLearn</title>
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <!-- Chart.js 4.4.4 -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
-        .overview-container {
+        .db-overview-stack {
             display: flex;
             flex-direction: column;
-            gap: 1.75rem;
+            gap: 1.5rem;
+            max-width: 1240px;
             width: 100%;
         }
-        .overview-header {
+        .db-header-row {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
             flex-wrap: wrap;
             gap: 1rem;
-            padding-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
         }
-        .overview-title-block h1 {
-            font-size: 1.75rem;
+        .db-header-title {
+            font-size: 1.65rem;
             font-weight: 800;
             color: #ffffff;
             letter-spacing: -0.02em;
-            margin: 0 0 0.35rem 0;
-            display: flex;
-            align-items: center;
-            gap: 0.65rem;
+            margin: 0 0 0.25rem 0;
         }
-        .overview-title-block p {
-            margin: 0;
+        .db-header-sub {
             font-size: 0.88rem;
             color: #94a3b8;
-            max-width: 680px;
-            line-height: 1.5;
+            margin: 0;
         }
-        .header-actions {
+        .db-header-tools {
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            flex-wrap: wrap;
         }
-        .sync-badge {
+        .sync-pill {
             display: inline-flex;
             align-items: center;
-            gap: 0.45rem;
-            padding: 0.45rem 0.85rem;
+            gap: 0.4rem;
+            padding: 0.35rem 0.75rem;
             border-radius: 9999px;
             background: rgba(16, 185, 129, 0.1);
             border: 1px solid rgba(16, 185, 129, 0.25);
             color: #34d399;
-            font-size: 0.78rem;
+            font-size: 0.76rem;
             font-weight: 600;
         }
         .sync-dot {
-            width: 7px;
-            height: 7px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             background-color: #10b981;
-            box-shadow: 0 0 8px #10b981;
+            box-shadow: 0 0 6px #10b981;
         }
-        /* Top High-Level Counter Strip */
-        .stat-strip {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1.15rem;
-        }
-        @media (max-width: 1100px) {
-            .stat-strip {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        @media (max-width: 640px) {
-            .stat-strip {
-                grid-template-columns: 1fr;
-            }
-        }
-        .stat-card-clean {
+        /* Card Panel */
+        .db-panel {
             background: #131929;
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 14px;
-            padding: 1.25rem 1.4rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            padding: 1.4rem 1.6rem;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
         }
-        .stat-card-clean::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: rgba(255, 255, 255, 0.08);
-        }
-        .stat-card-clean.accent-blue::before {
-            background: linear-gradient(90deg, #38bdf8, #0284c7);
-        }
-        .stat-card-clean.accent-purple::before {
-            background: linear-gradient(90deg, #c084fc, #9333ea);
-        }
-        .stat-card-clean.accent-green::before {
-            background: linear-gradient(90deg, #34d399, #059669);
-        }
-        .stat-card-clean.accent-amber::before {
-            background: linear-gradient(90deg, #fbbf24, #d97706);
-        }
-        .stat-label-row {
+        .db-panel-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.65rem;
-        }
-        .stat-label {
-            font-size: 0.78rem;
-            font-weight: 600;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
-        .stat-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255, 255, 255, 0.05);
-            color: #cbd5e1;
-        }
-        .stat-val {
-            font-size: 1.85rem;
-            font-weight: 800;
-            color: #ffffff;
-            line-height: 1.1;
-            margin-bottom: 0.4rem;
-        }
-        .stat-meta {
-            font-size: 0.78rem;
-            color: #64748b;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-        /* Core Research Hypotheses KPI Card Grid */
-        .section-card {
-            background: #131929;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 14px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
-        }
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+            margin-bottom: 1.25rem;
             flex-wrap: wrap;
             gap: 0.75rem;
-            margin-bottom: 1.25rem;
-            padding-bottom: 0.85rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
-        .section-title {
-            font-size: 1.12rem;
+        .db-panel-title {
+            font-size: 1.1rem;
             font-weight: 700;
             color: #f8fafc;
-            margin: 0 0 0.25rem 0;
+            margin: 0 0 0.2rem 0;
             display: flex;
             align-items: center;
-            gap: 0.55rem;
+            gap: 0.5rem;
         }
-        .section-subtitle {
-            margin: 0;
+        .db-panel-sub {
             font-size: 0.82rem;
             color: #94a3b8;
+            margin: 0;
         }
-        .badge-lang-sql {
-            font-size: 0.76rem;
-            font-weight: 600;
-            color: #38bdf8;
-            background: rgba(56, 189, 248, 0.12);
-            border: 1px solid rgba(56, 189, 248, 0.25);
-            padding: 0.25rem 0.65rem;
-            border-radius: 9999px;
-        }
-        .badge-lang-py {
-            font-size: 0.76rem;
-            font-weight: 600;
-            color: #c084fc;
-            background: rgba(192, 132, 252, 0.12);
-            border: 1px solid rgba(192, 132, 252, 0.25);
-            padding: 0.25rem 0.65rem;
-            border-radius: 9999px;
-        }
-        .kpi-tiles-grid {
+        /* 4 KPI Tiles Grid */
+        .kpi-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 1.15rem;
         }
-        @media (max-width: 1100px) {
-            .kpi-tiles-grid {
+        @media (max-width: 1024px) {
+            .kpi-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
-        @media (max-width: 640px) {
-            .kpi-tiles-grid {
+        @media (max-width: 600px) {
+            .kpi-grid {
                 grid-template-columns: 1fr;
             }
         }
-        .kpi-tile {
+        .kpi-card {
             background: #0d1220;
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 12px;
-            padding: 1.25rem;
+            padding: 1.15rem 1.25rem;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             transition: transform 0.2s ease, border-color 0.2s ease;
         }
-        .kpi-tile:hover {
+        .kpi-card:hover {
             border-color: rgba(255, 255, 255, 0.12);
             transform: translateY(-2px);
         }
-        .kpi-tile-header {
+        .kpi-header {
             font-size: 0.76rem;
             font-weight: 600;
             color: #94a3b8;
             text-transform: uppercase;
-            letter-spacing: 0.03em;
-            margin-bottom: 0.75rem;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.65rem;
         }
-        .kpi-tile-content {
+        .kpi-dual-values {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.35rem;
         }
-        .kpi-dual-row {
+        .kpi-value-row {
             display: flex;
             justify-content: space-between;
             align-items: baseline;
         }
-        .kpi-tile-footer {
+        .kpi-val-sql {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #38bdf8;
+            line-height: 1.2;
+        }
+        .kpi-val-py {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #c084fc;
+            line-height: 1.2;
+        }
+        .kpi-tag-sql {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.12);
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+        }
+        .kpi-tag-py {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #c084fc;
+            background: rgba(192, 132, 252, 0.12);
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+        }
+        .kpi-footer {
             font-size: 0.74rem;
             color: #64748b;
-            margin-top: 0.85rem;
-            padding-top: 0.65rem;
+            margin-top: 0.75rem;
+            padding-top: 0.55rem;
             border-top: 1px solid rgba(255, 255, 255, 0.04);
             line-height: 1.4;
         }
-        /* Chart 2x2 Grid */
-        .charts-grid {
+        /* Charts Grid (2 columns) */
+        .overview-charts-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 1.25rem;
         }
-        @media (max-width: 1024px) {
-            .charts-grid {
+        @media (max-width: 900px) {
+            .overview-charts-grid {
                 grid-template-columns: 1fr;
             }
         }
-        .chart-card {
-            background: #111726;
-            border: 1px solid rgba(255, 255, 255, 0.07);
+        .chart-box {
+            background: #0d1220;
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 12px;
-            padding: 1.25rem;
+            padding: 1.15rem;
             display: flex;
             flex-direction: column;
         }
-        .chart-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        .chart-card-title {
-            font-size: 0.95rem;
+        .chart-box-title {
+            font-size: 0.92rem;
             font-weight: 700;
             color: #f1f5f9;
-            margin: 0;
+            margin-bottom: 0.85rem;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 0.5rem;
         }
-        .chart-card-badge {
-            font-size: 0.72rem;
-            font-weight: 600;
-            padding: 0.2rem 0.55rem;
-            border-radius: 9999px;
-            background: rgba(255, 255, 255, 0.06);
-            color: #cbd5e1;
-        }
-        .chart-canvas-wrapper {
+        .chart-box-wrapper {
             position: relative;
-            height: 250px;
+            height: 240px;
             width: 100%;
         }
-        /* Telemetry Table Styles */
-        .table-responsive {
-            overflow-x: auto;
-            width: 100%;
-        }
-        .mini-progress-track {
-            width: 100%;
-            height: 5px;
-            background: rgba(255, 255, 255, 0.07);
-            border-radius: 9999px;
-            overflow: hidden;
-            margin-top: 0.35rem;
-        }
-        .mini-progress-fill-sql {
-            height: 100%;
-            background: #38bdf8;
-            border-radius: 9999px;
-        }
-        .mini-progress-fill-py {
-            height: 100%;
-            background: #c084fc;
-            border-radius: 9999px;
-        }
-        .task-id-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 34px;
-            height: 28px;
-            border-radius: 6px;
-            background: rgba(56, 189, 248, 0.12);
-            color: #38bdf8;
-            border: 1px solid rgba(56, 189, 248, 0.25);
-            font-weight: 700;
-            font-size: 0.88rem;
-            font-family: var(--font-mono);
-        }
-        .diff-pill-plus {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.2rem 0.55rem;
-            border-radius: 9999px;
-            background: rgba(56, 189, 248, 0.12);
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            color: #38bdf8;
-            font-weight: 600;
-            font-size: 0.76rem;
-            white-space: nowrap;
-        }
-        .diff-pill-py {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.2rem 0.55rem;
-            border-radius: 9999px;
-            background: rgba(192, 132, 252, 0.12);
-            border: 1px solid rgba(192, 132, 252, 0.3);
-            color: #c084fc;
-            font-weight: 600;
-            font-size: 0.76rem;
-            white-space: nowrap;
-        }
-        .diff-pill-neutral {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.2rem 0.55rem;
-            border-radius: 9999px;
-            background: rgba(148, 163, 184, 0.12);
-            border: 1px solid rgba(148, 163, 184, 0.25);
-            color: #94a3b8;
-            font-weight: 600;
-            font-size: 0.76rem;
-            white-space: nowrap;
-        }
-        /* Cohort & Registry Split Grid */
-        .bottom-split-grid {
+        /* Bottom Activity Row */
+        .bottom-status-row {
             display: grid;
-            grid-template-columns: 1fr 1.6fr;
+            grid-template-columns: 320px 1fr;
             gap: 1.25rem;
         }
-        @media (max-width: 1024px) {
-            .bottom-split-grid {
+        @media (max-width: 960px) {
+            .bottom-status-row {
                 grid-template-columns: 1fr;
             }
         }
-        .cohort-card {
-            background: #111726;
-            border: 1px solid rgba(255, 255, 255, 0.07);
+        .study-health-box {
+            background: #0d1220;
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 12px;
-            padding: 1.25rem;
+            padding: 1.15rem;
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
             gap: 1rem;
         }
-        .cohort-group-title {
-            font-size: 0.78rem;
-            font-weight: 700;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            margin-bottom: 0.5rem;
+        .progress-track {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 9999px;
+            overflow: hidden;
+            margin: 0.5rem 0;
         }
-        .cohort-pill-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #38bdf8, #10b981);
+            border-radius: 9999px;
         }
-        .cohort-pill-item {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            padding: 0.45rem 0.75rem;
-            display: flex;
+        .action-link {
+            display: inline-flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 0.75rem;
+            gap: 0.35rem;
+            color: #38bdf8;
             font-size: 0.82rem;
-            color: #cbd5e1;
-            flex: 1 1 120px;
-        }
-        .cohort-pill-item strong {
-            color: #ffffff;
-            font-weight: 700;
-        }
-        .status-pill-completed {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            padding: 0.2rem 0.6rem;
-            border-radius: 9999px;
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: #34d399;
-            font-size: 0.74rem;
             font-weight: 600;
+            text-decoration: none;
+            transition: color 0.15s ease;
         }
-        .status-pill-progress {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            padding: 0.2rem 0.6rem;
-            border-radius: 9999px;
-            background: rgba(59, 130, 246, 0.15);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            color: #60a5fa;
-            font-size: 0.74rem;
-            font-weight: 600;
-        }
-        .status-pill-registered {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            padding: 0.2rem 0.6rem;
-            border-radius: 9999px;
-            background: rgba(148, 163, 184, 0.15);
-            border: 1px solid rgba(148, 163, 184, 0.25);
-            color: #94a3b8;
-            font-size: 0.74rem;
-            font-weight: 600;
+        .action-link:hover {
+            color: #7dd3fc;
         }
     </style>
 </head>
@@ -511,456 +301,208 @@
 
     <!-- Main Viewport -->
     <main class="db-main" style="padding: 1.75rem 2.25rem;">
-        <div class="overview-container">
+        <div class="db-overview-stack">
 
-            <!-- Executive Header & Action Bar -->
-            <div class="overview-header">
-                <div class="overview-title-block">
-                    <h1>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-                        Researcher Command Center
-                    </h1>
-                    <p>
-                        Empirical within-subjects evaluation comparing declarative SQL versus procedural Python across 6 core relational constructs with novice and undergraduate computing students.
+            <!-- 1. Executive Topbar -->
+            <div class="db-header-row">
+                <div>
+                    <h1 class="db-header-title">Researcher Overview</h1>
+                    <p class="db-header-sub">
+                        High-level executive summary of empirical results: Declarative SQL vs. Procedural Python.
                     </p>
                 </div>
-
-                <div class="header-actions">
-                    <span class="sync-badge" title="Telemetry automatically persists and synchronizes across evaluators">
+                <div class="db-header-tools">
+                    <span class="sync-pill" title="Telemetry automatically syncs across all evaluation stations">
                         <span class="sync-dot"></span>
-                        Live Cloud Sync Active
+                        Cloud Sync Active
                     </span>
-
-                    <a href="{{ url_for('dashboard.export', type='all') }}" class="db-btn-run-gradient" style="padding: 0.55rem 1.25rem; font-size: 0.84rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.45rem;">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    <a href="{{ url_for('dashboard.export', type='all') }}" class="db-btn-run-gradient" style="padding: 0.5rem 1.15rem; font-size: 0.82rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                         Export Dataset (ZIP)
                     </a>
                 </div>
             </div>
 
-            <!-- Top Executive Stat Strip (Enrolled, Completed, SQL Accuracy, Python Accuracy) -->
-            <div class="stat-strip">
-                <!-- Stat 1: Total Enrolled -->
-                <div class="stat-card-clean accent-blue">
+            <!-- 2. Section 1: The 4 Headline Outcome KPIs (5-Second Rule) -->
+            <div class="db-panel">
+                <div class="db-panel-header">
                     <div>
-                        <div class="stat-label-row">
-                            <span class="stat-label">Total Cohort</span>
-                            <div class="stat-icon">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                            </div>
-                        </div>
-                        <div class="stat-val">{{ m.total_participants }}</div>
-                    </div>
-                    <div>
-                        <div class="stat-meta">
-                            <span>{{ m.completion_rate }}% completed ({{ m.completed }} finished)</span>
-                        </div>
-                        <div class="mini-progress-track">
-                            <div class="mini-progress-fill-sql" style="width: {{ m.completion_rate }}%;"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Stat 2: Active Evaluations -->
-                <div class="stat-card-clean accent-green">
-                    <div>
-                        <div class="stat-label-row">
-                            <span class="stat-label">Evaluations Completed</span>
-                            <div class="stat-icon">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                            </div>
-                        </div>
-                        <div class="stat-val" style="color: #34d399;">{{ m.completed }}</div>
-                    </div>
-                    <div class="stat-meta">
-                        <span>{{ m.in_progress }} in progress · {{ m.registered }} registered</span>
-                    </div>
-                </div>
-
-                <!-- Stat 3: SQL Overall Accuracy -->
-                <div class="stat-card-clean accent-blue">
-                    <div>
-                        <div class="stat-label-row">
-                            <span class="stat-label">SQL Overall Accuracy</span>
-                            <div class="stat-icon">
-                                <span style="font-size: 0.7rem; font-weight: 800; color: #38bdf8;">SQL</span>
-                            </div>
-                        </div>
-                        <div class="stat-val" style="color: #38bdf8;">{{ m.sql_success_rate }}%</div>
-                    </div>
-                    <div class="stat-meta">
-                        <span>{{ m.sql_correct_count }} Correct · {{ m.sql_wrong_count }} Incorrect ({{ m.sql_total_count }} attempts)</span>
-                    </div>
-                </div>
-
-                <!-- Stat 4: Python Overall Accuracy -->
-                <div class="stat-card-clean accent-purple">
-                    <div>
-                        <div class="stat-label-row">
-                            <span class="stat-label">Python Overall Accuracy</span>
-                            <div class="stat-icon">
-                                <span style="font-size: 0.7rem; font-weight: 800; color: #c084fc;">PY</span>
-                            </div>
-                        </div>
-                        <div class="stat-val" style="color: #c084fc;">{{ m.python_success_rate }}%</div>
-                    </div>
-                    <div class="stat-meta">
-                        <span>{{ m.python_correct_count }} Correct · {{ m.python_wrong_count }} Incorrect ({{ m.python_total_count }} attempts)</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Core Research Outcome KPIs Grid -->
-            <div class="section-card">
-                <div class="section-header">
-                    <div>
-                        <h2 class="section-title">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <h2 class="db-panel-title">
                             Comparative Productivity Summary
                         </h2>
-                        <p class="section-subtitle">
-                            Empirical benchmark metrics evaluating write-speed, throughput productivity, paired speed ratio, and program comprehension.
+                        <p class="db-panel-sub">
+                            Primary comparative outcome metrics across SQL and Python conditions.
                         </p>
                     </div>
-                    <div style="display: flex; gap: 0.65rem;">
-                        <span class="badge-lang-sql">SQL Condition</span>
-                        <span class="badge-lang-py">Python Condition</span>
+                    <div style="display: flex; gap: 0.6rem;">
+                        <span class="kpi-tag-sql">SQL</span>
+                        <span class="kpi-tag-py">Python</span>
                     </div>
                 </div>
 
-                <div class="kpi-tiles-grid">
-                    <!-- KPI Tile 1: Median Duration -->
-                    <div class="kpi-tile">
-                        <div class="kpi-tile-header">Median Duration</div>
-                        <div class="kpi-tile-content">
-                            <div class="kpi-dual-row">
-                                <span style="font-size: 1.4rem; font-weight: 800; color: #38bdf8;">{{ m.sql_median_time }}s</span>
-                                <span class="badge-lang-sql">SQL</span>
+                <div class="kpi-grid">
+                    <!-- KPI 1: Median Duration -->
+                    <div class="kpi-card">
+                        <div class="kpi-header">Median Duration</div>
+                        <div class="kpi-dual-values">
+                            <div class="kpi-value-row">
+                                <span class="kpi-val-sql">{{ m.sql_median_time }}s</span>
+                                <span class="kpi-tag-sql">SQL</span>
                             </div>
-                            <div class="kpi-dual-row">
-                                <span style="font-size: 1.4rem; font-weight: 800; color: #c084fc;">{{ m.python_median_time }}s</span>
-                                <span class="badge-lang-py">Python</span>
+                            <div class="kpi-value-row">
+                                <span class="kpi-val-py">{{ m.python_median_time }}s</span>
+                                <span class="kpi-tag-py">Python</span>
                             </div>
                         </div>
-                        <div class="kpi-tile-footer">
+                        <div class="kpi-footer">
                             {% if m.sql_median_time and m.sql_median_time > 0 %}
                                 SQL is <strong>{{ (m.python_median_time / m.sql_median_time)|round(2) }}x</strong> faster overall.
                             {% else %}
-                                Median elapsed time per completed task.
+                                Median elapsed time per task.
                             {% endif %}
                         </div>
                     </div>
 
-                    <!-- KPI Tile 2: Correct Tasks per Hour -->
-                    <div class="kpi-tile">
-                        <div class="kpi-tile-header">Correct Tasks / Hour</div>
-                        <div class="kpi-tile-content">
-                            <div class="kpi-dual-row">
-                                <span style="font-size: 1.4rem; font-weight: 800; color: #38bdf8;">{{ m.sql_ct_per_hour or '--' }}{% if m.sql_ct_per_hour %}/hr{% endif %}</span>
-                                <span class="badge-lang-sql">SQL</span>
+                    <!-- KPI 2: Correct Tasks per Hour -->
+                    <div class="kpi-card">
+                        <div class="kpi-header">Correct Tasks / Hour</div>
+                        <div class="kpi-dual-values">
+                            <div class="kpi-value-row">
+                                <span class="kpi-val-sql">{{ m.sql_ct_per_hour or '--' }}{% if m.sql_ct_per_hour %}/hr{% endif %}</span>
+                                <span class="kpi-tag-sql">SQL</span>
                             </div>
-                            <div class="kpi-dual-row">
-                                <span style="font-size: 1.4rem; font-weight: 800; color: #c084fc;">{{ m.python_ct_per_hour or '--' }}{% if m.python_ct_per_hour %}/hr{% endif %}</span>
-                                <span class="badge-lang-py">Python</span>
+                            <div class="kpi-value-row">
+                                <span class="kpi-val-py">{{ m.python_ct_per_hour or '--' }}{% if m.python_ct_per_hour %}/hr{% endif %}</span>
+                                <span class="kpi-tag-py">Python</span>
                             </div>
                         </div>
-                        <div class="kpi-tile-footer">
-                            Throughput metric incorporating 8-minute penalty on incorrect/abandoned tasks.
+                        <div class="kpi-footer">
+                            Throughput metric with 8-min penalty on errors.
                         </div>
                     </div>
 
-                    <!-- KPI Tile 3: Paired Successful Time Ratio -->
-                    <div class="kpi-tile">
-                        <div class="kpi-tile-header">Paired Successful Time Ratio</div>
-                        <div class="kpi-tile-content">
+                    <!-- KPI 3: Paired Successful Time Ratio -->
+                    <div class="kpi-card">
+                        <div class="kpi-header">Paired Successful Time Ratio</div>
+                        <div class="kpi-dual-values">
                             <div style="font-size: 1.85rem; font-weight: 800; color: #38bdf8; line-height: 1.1;">
                                 {% if m.paired_time_ratio %}{{ m.paired_time_ratio }}x{% else %}--{% endif %}
                             </div>
-                            <div style="font-size: 0.8rem; color: #94a3b8; font-weight: 500;">
-                                Speed advantage on paired tasks
+                            <div style="font-size: 0.78rem; color: #94a3b8;">
+                                Within-subject speed ratio
                             </div>
                         </div>
-                        <div class="kpi-tile-footer">
-                            Median Python / Median SQL strictly for paired identical tasks solved correctly in both conditions (n={{ m.paired_task_count }}).
+                        <div class="kpi-footer">
+                            On paired tasks solved correctly in both conditions (n={{ m.paired_task_count }}).
                         </div>
                     </div>
 
-                    <!-- KPI Tile 4: Median Comprehension Score -->
-                    <div class="kpi-tile">
-                        <div class="kpi-tile-header">Median Comprehension Score</div>
-                        <div class="kpi-tile-content">
-                            <div class="kpi-dual-row">
-                                <span style="font-size: 1.4rem; font-weight: 800; color: #38bdf8;">
+                    <!-- KPI 4: Median Comprehension Score -->
+                    <div class="kpi-card">
+                        <div class="kpi-header">Median Comprehension Score</div>
+                        <div class="kpi-dual-values">
+                            <div class="kpi-value-row">
+                                <span class="kpi-val-sql">
                                     {% if m.sql_median_comp is not none %}{{ m.sql_median_comp }} / 18{% else %}-- / 18{% endif %}
                                 </span>
-                                <span class="badge-lang-sql">SQL</span>
+                                <span class="kpi-tag-sql">SQL</span>
                             </div>
-                            <div class="kpi-dual-row">
-                                <span style="font-size: 1.4rem; font-weight: 800; color: #c084fc;">
+                            <div class="kpi-value-row">
+                                <span class="kpi-val-py">
                                     {% if m.python_median_comp is not none %}{{ m.python_median_comp }} / 18{% else %}-- / 18{% endif %}
                                 </span>
-                                <span class="badge-lang-py">Python</span>
+                                <span class="kpi-tag-py">Python</span>
                             </div>
                         </div>
-                        <div class="kpi-tile-footer">
+                        <div class="kpi-footer">
                             Out of 18 pts (excludes legacy 3-item pilot data)
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Interactive Visual Analytics (2x2 Chart Grid) -->
-            <div class="section-card">
-                <div class="section-header">
+            <!-- 3. Section 2: Core Visual Insights (2 Key Charts Side-by-Side + Progressive Disclosure Link) -->
+            <div class="db-panel">
+                <div class="db-panel-header">
                     <div>
-                        <h2 class="section-title">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-                            Visual Comparative Telemetry
+                        <h2 class="db-panel-title">
+                            Key Visual Insights
                         </h2>
-                        <p class="section-subtitle">
-                            Direct visual inspection of accuracy rates, elapsed durations, solution distribution, and learner attempt cycles.
+                        <p class="db-panel-sub">
+                            Accuracy and duration comparison across the 6 relational constructs (T1–T6).
                         </p>
                     </div>
-                    <a href="{{ url_for('dashboard.charts') }}" class="diff-pill-plus" style="text-decoration: none; padding: 0.35rem 0.85rem; font-size: 0.8rem;">
-                        View Comparison &rarr;
+                    <!-- Progressive Disclosure Link to Deep Comparison Page -->
+                    <a href="{{ url_for('dashboard.charts') }}" class="action-link">
+                        <span>View Comparison</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                     </a>
                 </div>
 
-                <div class="charts-grid">
-                    <!-- Chart 1: Task Accuracy per Construct -->
-                    <div class="chart-card">
-                        <div class="chart-card-header">
-                            <h3 class="chart-card-title">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                Task Accuracy Rate (%)
-                            </h3>
-                            <span class="chart-card-badge">T1 &ndash; T6 Relational Constructs</span>
+                <div class="overview-charts-grid">
+                    <!-- Chart 1: Task Accuracy -->
+                    <div class="chart-box">
+                        <div class="chart-box-title">
+                            <span>Task Accuracy (%)</span>
+                            <span style="font-size: 0.74rem; font-weight: 500; color: #94a3b8;">SQL vs. Python</span>
                         </div>
-                        <div class="chart-canvas-wrapper">
-                            <canvas id="overviewAccuracyChart"></canvas>
+                        <div class="chart-box-wrapper">
+                            <canvas id="chartAccuracy"></canvas>
                         </div>
                     </div>
 
                     <!-- Chart 2: Median Duration -->
-                    <div class="chart-card">
-                        <div class="chart-card-header">
-                            <h3 class="chart-card-title">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                                Median Completion Duration (s)
-                            </h3>
-                            <span class="chart-card-badge">Elapsed Seconds</span>
+                    <div class="chart-box">
+                        <div class="chart-box-title">
+                            <span>Median Duration (s)</span>
+                            <span style="font-size: 0.74rem; font-weight: 500; color: #94a3b8;">Elapsed Seconds</span>
                         </div>
-                        <div class="chart-canvas-wrapper">
-                            <canvas id="overviewDurationChart"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Chart 3: Solution Share Donut -->
-                    <div class="chart-card">
-                        <div class="chart-card-header">
-                            <h3 class="chart-card-title">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 10 10"></path></svg>
-                                Correct Tasks Distribution
-                            </h3>
-                            <span class="chart-card-badge">Total: {{ m.sql_correct_count + m.python_correct_count }} Solved</span>
-                        </div>
-                        <div class="chart-canvas-wrapper">
-                            <canvas id="overviewDonutChart"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Chart 4: Attempt Distribution -->
-                    <div class="chart-card">
-                        <div class="chart-card-header">
-                            <h3 class="chart-card-title">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
-                                Average Attempts per Task
-                            </h3>
-                            <span class="chart-card-badge">Trial & Error Iterations</span>
-                        </div>
-                        <div class="chart-canvas-wrapper">
-                            <canvas id="overviewAttemptChart"></canvas>
+                        <div class="chart-box-wrapper">
+                            <canvas id="chartDuration"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Relational Construct Telemetry Matrix (T1–T6 Table) -->
-            <div class="section-card">
-                <div class="section-header">
+            <!-- 4. Section 3: Study Status & Recent Sessions (Glanceable Health) -->
+            <div class="bottom-status-row">
+                <!-- Left: Cohort Progress Card -->
+                <div class="study-health-box">
                     <div>
-                        <h2 class="section-title">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-                            Relational Construct Performance Matrix (T1 &ndash; T6)
-                        </h2>
-                        <p class="section-subtitle">
-                            Construct-by-construct evaluation comparing exact correct/wrong counts, accuracy delta, median times, and empirical speed ratio.
-                        </p>
-                    </div>
-                    <span class="chart-card-badge" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;">
-                        {{ m.sql_total_count + m.python_total_count }} Total Evaluated Attempts
-                    </span>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="db-dark-table">
-                        <thead>
-                            <tr>
-                                <th style="min-width: 80px;">Task</th>
-                                <th style="min-width: 240px;">Construct & Operation</th>
-                                <th style="min-width: 180px;">SQL Performance</th>
-                                <th style="min-width: 180px;">Python Performance</th>
-                                <th style="min-width: 140px;">Accuracy Delta</th>
-                                <th style="min-width: 200px;">Duration & Speedup</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for t in m.tasks %}
-                            <tr>
-                                <td>
-                                    <div class="task-id-badge">{{ t.task_id }}</div>
-                                </td>
-                                <td>
-                                    <div style="font-size: 0.88rem; color: #f1f5f9; font-weight: 600; margin-bottom: 0.2rem;">
-                                        {{ t.construct }}
-                                    </div>
-                                    <div style="font-size: 0.76rem; color: #94a3b8;">
-                                        {{ t.what_it_tests or 'Relational Operation' }}
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="display: flex; justify-content: space-between; font-size: 0.84rem; font-weight: 600; color: #38bdf8;">
-                                        <span>{{ t.sql_right }}/{{ t.sql_total }} Correct</span>
-                                        <span>{{ t.sql_success }}%</span>
-                                    </div>
-                                    <div class="mini-progress-track" title="SQL: {{ t.sql_success }}% Success">
-                                        <div class="mini-progress-fill-sql" style="width: {{ t.sql_success or 0 }}%;"></div>
-                                    </div>
-                                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 0.25rem;">
-                                        {{ t.sql_wrong }} Incorrect attempts
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="display: flex; justify-content: space-between; font-size: 0.84rem; font-weight: 600; color: #c084fc;">
-                                        <span>{{ t.python_right }}/{{ t.python_total }} Correct</span>
-                                        <span>{{ t.python_success }}%</span>
-                                    </div>
-                                    <div class="mini-progress-track" title="Python: {{ t.python_success }}% Success">
-                                        <div class="mini-progress-fill-py" style="width: {{ t.python_success or 0 }}%;"></div>
-                                    </div>
-                                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 0.25rem;">
-                                        {{ t.python_wrong }} Incorrect attempts
-                                    </div>
-                                </td>
-                                <td>
-                                    {% if t.accuracy_delta is defined and t.accuracy_delta > 0 %}
-                                        <span class="diff-pill-plus">
-                                            +{{ t.accuracy_delta }}% SQL
-                                        </span>
-                                    {% elif t.accuracy_delta is defined and t.accuracy_delta < 0 %}
-                                        <span class="diff-pill-py">
-                                            +{{ (t.accuracy_delta * -1)|round(1) }}% Python
-                                        </span>
-                                    {% else %}
-                                        <span class="diff-pill-neutral">Parity (0 pts)</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div style="font-size: 0.84rem; font-family: var(--font-mono); margin-bottom: 0.25rem;">
-                                        <span style="color: #38bdf8; font-weight: 600;">SQL: {{ t.sql_median_time or t.sql_time }}s</span>
-                                        <span style="color: #64748b; margin: 0 0.25rem;">·</span>
-                                        <span style="color: #c084fc; font-weight: 600;">Py: {{ t.python_median_time or t.python_time }}s</span>
-                                    </div>
-                                    <div style="font-size: 0.76rem; color: #34d399; font-weight: 600;">
-                                        {% if t.speed_ratio and t.speed_ratio > 1 %}
-                                            {{ t.speed_ratio }}x faster with SQL
-                                        {% elif t.speed_ratio and t.speed_ratio < 1 %}
-                                            {{ ((1 / t.speed_ratio)|round(2)) }}x faster with Python
-                                        {% else %}
-                                            1.0x (equal time)
-                                        {% endif %}
-                                    </div>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="6" style="text-align: center; color: #64748b; padding: 2rem;">No relational task results recorded yet.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Cohort Demographics & Recent Participant Activity Preview -->
-            <div class="bottom-split-grid">
-                <!-- Left: Cohort Breakdown -->
-                <div class="cohort-card">
-                    <div>
-                        <h3 style="font-size: 1.05rem; font-weight: 700; color: #f1f5f9; margin: 0 0 0.25rem 0; display: flex; align-items: center; gap: 0.5rem;">
-                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
-                            Cohort & Sample Profile
-                        </h3>
-                        <p style="margin: 0; font-size: 0.8rem; color: #94a3b8;">
-                            Demographic distributions across enrolled study participants.
-                        </p>
-                    </div>
-
-                    <!-- Academic Programs -->
-                    <div>
-                        <div class="cohort-group-title">Degree Programs</div>
-                        <div class="cohort-pill-list">
-                            {% for prog in m.cohort_programs %}
-                            <div class="cohort-pill-item">
-                                <span>{{ prog.program }}</span>
-                                <strong>{{ prog.cnt }}</strong>
-                            </div>
-                            {% else %}
-                            <div class="cohort-pill-item" style="color: #64748b;">No cohorts enrolled</div>
-                            {% endfor %}
+                        <div style="font-size: 0.76rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.4rem;">
+                            Study Progress
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                            <span style="font-size: 1.6rem; font-weight: 800; color: #ffffff;">{{ m.total_participants }} Enrolled</span>
+                            <span style="font-size: 0.85rem; font-weight: 600; color: #34d399;">{{ m.completion_rate }}%</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: {{ m.completion_rate }}%;"></div>
+                        </div>
+                        <div style="font-size: 0.78rem; color: #64748b; margin-top: 0.25rem;">
+                            {{ m.completed }} completed · {{ m.in_progress }} active in progress
                         </div>
                     </div>
 
-                    <!-- Year Levels -->
-                    <div>
-                        <div class="cohort-group-title">Year Level Distribution</div>
-                        <div class="cohort-pill-list">
-                            {% for yr in m.cohort_years %}
-                            <div class="cohort-pill-item">
-                                <span>Year {{ yr.year_level }}</span>
-                                <strong>{{ yr.cnt }}</strong>
-                            </div>
-                            {% else %}
-                            <div class="cohort-pill-item" style="color: #64748b;">No year data</div>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <!-- Study Balancing Details -->
-                    <div style="background: rgba(255, 255, 255, 0.02); border-radius: 8px; padding: 0.85rem; font-size: 0.78rem; color: #94a3b8; line-height: 1.45; border: 1px solid rgba(255, 255, 255, 0.05);">
-                        <strong style="color: #cbd5e1; display: block; margin-bottom: 0.25rem;">Latin-Square Balancing Protocol:</strong>
-                        Participants are distributed across 4 balanced sequences (SQL-A &rarr; Py-B, Py-B &rarr; SQL-A, SQL-B &rarr; Py-A, Py-A &rarr; SQL-B) to cancel carryover and learning effects.
+                    <div style="padding-top: 0.75rem; border-top: 1px solid rgba(255, 255, 255, 0.05);">
+                        <a href="{{ url_for('dashboard.participants') }}" class="action-link">
+                            Open Participant Registry &rarr;
+                        </a>
                     </div>
                 </div>
 
                 <!-- Right: Recent Enrolled Participants Table -->
-                <div class="cohort-card">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                        <div>
-                            <h3 style="font-size: 1.05rem; font-weight: 700; color: #f1f5f9; margin: 0 0 0.25rem 0; display: flex; align-items: center; gap: 0.5rem;">
-                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                                Recent Enrolled Participants
-                            </h3>
-                            <p style="margin: 0; font-size: 0.8rem; color: #94a3b8;">
-                                Live telemetry stream from participant sessions.
-                            </p>
-                        </div>
-                        <a href="{{ url_for('dashboard.participants') }}" class="diff-pill-plus" style="text-decoration: none; font-size: 0.76rem;">
-                            View Registry &rarr;
+                <div class="study-health-box">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-size: 0.76rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.04em;">
+                            Recent Participant Sessions
+                        </span>
+                        <a href="{{ url_for('dashboard.results') }}" class="action-link" style="font-size: 0.76rem;">
+                            View All Results &rarr;
                         </a>
                     </div>
 
-                    <div class="table-responsive">
+                    <div style="overflow-x: auto; width: 100%;">
                         <table class="db-dark-table">
                             <thead>
                                 <tr>
@@ -969,42 +511,34 @@
                                     <th>Year</th>
                                     <th>Sequence</th>
                                     <th>Status</th>
-                                    <th style="text-align: right;">Action</th>
+                                    <th style="text-align: right;">Inspect</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for p in m.recent_participants %}
                                 <tr>
-                                    <td>
-                                        <strong style="color: #60a5fa; font-family: var(--font-mono); font-size: 0.88rem;">
-                                            {{ p.study_id }}
-                                        </strong>
-                                    </td>
+                                    <td><strong style="color: #60a5fa; font-family: var(--font-mono); font-size: 0.85rem;">{{ p.study_id }}</strong></td>
                                     <td>{{ p.program }}</td>
                                     <td>Year {{ p.year_level }}</td>
-                                    <td>
-                                        <span style="font-size: 0.74rem; font-family: var(--font-mono); color: #94a3b8;">
-                                            Seq {{ p.sequence_id }}
-                                        </span>
-                                    </td>
+                                    <td><span style="font-family: var(--font-mono); font-size: 0.75rem; color: #94a3b8;">Seq {{ p.sequence_id }}</span></td>
                                     <td>
                                         {% if p.status == 'completed' %}
-                                            <span class="status-pill-completed">Completed</span>
+                                            <span style="font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 9999px; background: rgba(16, 185, 129, 0.15); color: #34d399; font-weight: 600;">Completed</span>
                                         {% elif p.status == 'in_progress' %}
-                                            <span class="status-pill-progress">In Progress</span>
+                                            <span style="font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 9999px; background: rgba(59, 130, 246, 0.15); color: #60a5fa; font-weight: 600;">In Progress</span>
                                         {% else %}
-                                            <span class="status-pill-registered">Registered</span>
+                                            <span style="font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 9999px; background: rgba(148, 163, 184, 0.15); color: #94a3b8; font-weight: 600;">Registered</span>
                                         {% endif %}
                                     </td>
                                     <td style="text-align: right;">
                                         <a href="{{ url_for('dashboard.results', search=p.study_id) }}" style="color: #38bdf8; text-decoration: none; font-size: 0.78rem; font-weight: 600;">
-                                            Inspect &rarr;
+                                            &rarr;
                                         </a>
                                     </td>
                                 </tr>
                                 {% else %}
                                 <tr>
-                                    <td colspan="6" style="text-align: center; color: #64748b; padding: 1.5rem;">No participant sessions recorded yet.</td>
+                                    <td colspan="6" style="text-align: center; color: #64748b; padding: 1rem;">No participant sessions recorded yet.</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -1018,10 +552,9 @@
 </div>
 
 <script>
-    // Global Chart.js dark-theme configuration
     Chart.defaults.color = '#94a3b8';
     Chart.defaults.font.family = "'Inter', sans-serif";
-    Chart.defaults.font.size = 12;
+    Chart.defaults.font.size = 11;
 
     const tasksData = {{ m.tasks | tojson }};
     const taskLabels = tasksData.map(t => t.task_id);
@@ -1032,8 +565,8 @@
         drawBorder: false
     };
 
-    // 1. Task Accuracy Chart (SQL Blue vs Python Purple)
-    new Chart(document.getElementById('overviewAccuracyChart'), {
+    // 1. Task Accuracy Chart
+    new Chart(document.getElementById('chartAccuracy'), {
         type: 'bar',
         data: {
             labels: taskLabels,
@@ -1043,7 +576,7 @@
                     data: tasksData.map(t => t.sql_success || 0),
                     backgroundColor: '#38bdf8',
                     hoverBackgroundColor: '#0284c7',
-                    borderRadius: 5,
+                    borderRadius: 4,
                     borderSkipped: false
                 },
                 {
@@ -1051,7 +584,7 @@
                     data: tasksData.map(t => t.python_success || 0),
                     backgroundColor: '#c084fc',
                     hoverBackgroundColor: '#a855f7',
-                    borderRadius: 5,
+                    borderRadius: 4,
                     borderSkipped: false
                 }
             ]
@@ -1062,16 +595,14 @@
             plugins: {
                 legend: {
                     position: 'top',
-                    labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 7, padding: 12 }
+                    labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 6, padding: 10 }
                 },
                 tooltip: {
                     backgroundColor: '#0b0f19',
                     borderColor: 'rgba(255,255,255,0.1)',
                     borderWidth: 1,
                     padding: 8,
-                    callbacks: {
-                        label: ctx => ` ${ctx.dataset.label}: ${ctx.raw}%`
-                    }
+                    callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw}%` }
                 }
             },
             scales: {
@@ -1087,7 +618,7 @@
     });
 
     // 2. Median Duration Chart
-    new Chart(document.getElementById('overviewDurationChart'), {
+    new Chart(document.getElementById('chartDuration'), {
         type: 'bar',
         data: {
             labels: taskLabels,
@@ -1097,7 +628,7 @@
                     data: tasksData.map(t => t.sql_median_time || t.sql_time || 0),
                     backgroundColor: '#38bdf8',
                     hoverBackgroundColor: '#0284c7',
-                    borderRadius: 5,
+                    borderRadius: 4,
                     borderSkipped: false
                 },
                 {
@@ -1105,7 +636,7 @@
                     data: tasksData.map(t => t.python_median_time || t.python_time || 0),
                     backgroundColor: '#c084fc',
                     hoverBackgroundColor: '#a855f7',
-                    borderRadius: 5,
+                    borderRadius: 4,
                     borderSkipped: false
                 }
             ]
@@ -1116,16 +647,14 @@
             plugins: {
                 legend: {
                     position: 'top',
-                    labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 7, padding: 12 }
+                    labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 6, padding: 10 }
                 },
                 tooltip: {
                     backgroundColor: '#0b0f19',
                     borderColor: 'rgba(255,255,255,0.1)',
                     borderWidth: 1,
                     padding: 8,
-                    callbacks: {
-                        label: ctx => ` ${ctx.dataset.label}: ${ctx.raw}s`
-                    }
+                    callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw}s` }
                 }
             },
             scales: {
@@ -1134,99 +663,6 @@
                     beginAtZero: true,
                     grid: gridLines,
                     ticks: { callback: v => v + 's' }
-                }
-            }
-        }
-    });
-
-    // 3. Overall Correct Tasks Donut Chart
-    new Chart(document.getElementById('overviewDonutChart'), {
-        type: 'doughnut',
-        data: {
-            labels: ['SQL Solutions', 'Python Solutions'],
-            datasets: [{
-                data: [{{ m.sql_correct_count }}, {{ m.python_correct_count }}],
-                backgroundColor: ['#38bdf8', '#c084fc'],
-                hoverBackgroundColor: ['#0284c7', '#a855f7'],
-                borderWidth: 0,
-                borderRadius: 4,
-                spacing: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '72%',
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 7, padding: 10 }
-                },
-                tooltip: {
-                    backgroundColor: '#0b0f19',
-                    borderColor: 'rgba(255,255,255,0.1)',
-                    borderWidth: 1,
-                    padding: 8,
-                    callbacks: {
-                        label: ctx => {
-                            const total = {{ m.sql_correct_count + m.python_correct_count }};
-                            const pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
-                            return ` ${ctx.label}: ${ctx.raw} (${pct}%)`;
-                        }
-                    }
-                }
-            }
-        }
-    });
-
-    // 4. Attempts Distribution Chart
-    new Chart(document.getElementById('overviewAttemptChart'), {
-        type: 'bar',
-        data: {
-            labels: taskLabels,
-            datasets: [
-                {
-                    label: 'SQL Attempts',
-                    data: tasksData.map(t => t.sql_attempts || 0),
-                    backgroundColor: '#38bdf8',
-                    hoverBackgroundColor: '#0284c7',
-                    borderRadius: 5,
-                    borderSkipped: false
-                },
-                {
-                    label: 'Python Attempts',
-                    data: tasksData.map(t => t.python_attempts || 0),
-                    backgroundColor: '#c084fc',
-                    hoverBackgroundColor: '#a855f7',
-                    borderRadius: 5,
-                    borderSkipped: false
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
-                    labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 7, padding: 12 }
-                },
-                tooltip: {
-                    backgroundColor: '#0b0f19',
-                    borderColor: 'rgba(255,255,255,0.1)',
-                    borderWidth: 1,
-                    padding: 8,
-                    callbacks: {
-                        label: ctx => ` ${ctx.dataset.label}: ${ctx.raw} attempts`
-                    }
-                }
-            },
-            scales: {
-                x: { grid: { display: false } },
-                y: {
-                    beginAtZero: true,
-                    grid: gridLines,
-                    ticks: { stepSize: 1 }
                 }
             }
         }
