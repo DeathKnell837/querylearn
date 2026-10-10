@@ -113,6 +113,181 @@
             font-size: 0.75rem;
             color: #64748b;
         }
+        .pill-neutral {
+            background: rgba(148, 163, 184, 0.12);
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            color: #94a3b8;
+        }
+        .pill-speedup {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+        }
+        .view-toggle-group {
+            display: inline-flex;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 2px;
+            gap: 2px;
+        }
+        .view-toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .view-toggle-btn:hover {
+            color: #f8fafc;
+        }
+        .view-toggle-btn.active {
+            background: #2563eb;
+            color: #ffffff;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+        }
+        .construct-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+        }
+        @media (max-width: 900px) {
+            .construct-cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .construct-card {
+            background: #111726;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            transition: border-color 0.2s ease, transform 0.2s ease;
+        }
+        .construct-card:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-2px);
+        }
+        .construct-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .construct-card-title-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .construct-task-badge {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(192, 132, 252, 0.2));
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #60a5fa;
+            flex-shrink: 0;
+        }
+        .construct-card-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #f8fafc;
+            margin: 0 0 0.2rem 0;
+        }
+        .construct-what-tests {
+            font-size: 0.78rem;
+            color: #94a3b8;
+        }
+        .construct-card-badges {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .construct-perf-body {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .construct-lang-meter {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        .construct-meter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.78rem;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+        .construct-lang-label {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: #cbd5e1;
+            font-size: 0.82rem;
+        }
+        .lang-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .dot-sql { background: #38bdf8; box-shadow: 0 0 8px rgba(56, 189, 248, 0.6); }
+        .dot-python { background: #c084fc; box-shadow: 0 0 8px rgba(192, 132, 252, 0.6); }
+        .construct-metrics-summary {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.78rem;
+        }
+        .metric-highlight {
+            font-weight: 700;
+            font-size: 0.82rem;
+        }
+        .text-sql { color: #38bdf8; }
+        .text-python { color: #c084fc; }
+        .metric-sub { color: #94a3b8; }
+        .metric-divider { color: #475569; }
+        .construct-progress-track {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 9999px;
+            overflow: hidden;
+            position: relative;
+        }
+        .construct-progress-bar {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.6s ease;
+        }
+        .bar-sql {
+            background: linear-gradient(90deg, #0284c7, #38bdf8);
+        }
+        .bar-python {
+            background: linear-gradient(90deg, #9333ea, #c084fc);
+        }
     </style>
 </head>
 <body>
@@ -250,20 +425,20 @@
                     </div>
                 </div>
                 
-                <!-- Chart 3: Overall Task Outcomes (Donut) -->
+                <!-- Chart 3: Speedup Advantage Ratio (SQL vs. Python Multiplier) -->
                 <div class="analytics-card">
                     <div class="analytics-card-header">
                         <div>
                             <h3 class="analytics-card-title">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 10 10"></path></svg>
-                                Correct Tasks by Language
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                                Speedup Advantage Ratio
                             </h3>
-                            <p class="analytics-card-sub">Distribution of correct tasks between SQL and Python</p>
+                            <p class="analytics-card-sub">Productivity multiplier (Python duration ÷ SQL duration per task)</p>
                         </div>
-                        <span class="analytics-pill pill-purple">Total: {{ m.sql_correct_count + m.python_correct_count }}</span>
+                        <span class="analytics-pill pill-blue">SQL Advantage (x)</span>
                     </div>
                     <div style="position: relative; height: 260px; width: 100%;">
-                        <canvas id="overallSuccessChart"></canvas>
+                        <canvas id="speedupChart"></canvas>
                     </div>
                 </div>
                 
@@ -285,7 +460,7 @@
                 </div>
             </div>
 
-            <!-- Task Comparison Table -->
+            <!-- Task Comparison (Visual Cards & Compact Table) -->
             <div class="db-results-card" style="width: 100%; margin-top: 1.5rem; margin-bottom: 2rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
                     <div>
@@ -296,12 +471,109 @@
                             Comparison of accuracy and execution duration across relational constructs.
                         </p>
                     </div>
-                    <span class="analytics-pill pill-blue">
-                        {{ m.sql_total_count + m.python_total_count }} task attempts
-                    </span>
+                    <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                        <div class="view-toggle-group">
+                            <button type="button" class="view-toggle-btn active" id="btnViewCards" onclick="setTaskView('cards')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                                Visual Cards
+                            </button>
+                            <button type="button" class="view-toggle-btn" id="btnViewTable" onclick="setTaskView('table')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                                Compact Table
+                            </button>
+                        </div>
+                        <span class="analytics-pill pill-blue">
+                            {{ m.sql_total_count + m.python_total_count }} task attempts
+                        </span>
+                    </div>
                 </div>
-                
-                <div style="overflow-x: auto; width: 100%;">
+
+                <!-- 1. Visual Construct Cards Grid (Active View) -->
+                <div id="constructCardsView" class="construct-cards-grid">
+                    {% for t in m.tasks %}
+                    <div class="construct-card">
+                        <div class="construct-card-header">
+                            <div class="construct-card-title-group">
+                                <div class="construct-task-badge">{{ t.task_id }}</div>
+                                <div>
+                                    <h4 class="construct-card-title">{{ t.construct }}</h4>
+                                    <span class="construct-what-tests"><strong style="color: #cbd5e1;">What it tests:</strong> {{ t.what_it_tests or 'Relational Operation' }}</span>
+                                </div>
+                            </div>
+                            <div class="construct-card-badges">
+                                {% if t.accuracy_delta is defined and t.accuracy_delta > 0 %}
+                                    <span class="analytics-pill pill-blue">
+                                        Accuracy difference: +{{ t.accuracy_delta }}% SQL
+                                    </span>
+                                {% elif t.accuracy_delta is defined and t.accuracy_delta < 0 %}
+                                    <span class="analytics-pill pill-purple">
+                                        Accuracy difference: +{{ (t.accuracy_delta * -1)|round(1) }}% Python
+                                    </span>
+                                {% else %}
+                                    <span class="analytics-pill pill-neutral">
+                                        Accuracy difference: 0 pts
+                                    </span>
+                                {% endif %}
+                                <span class="analytics-pill pill-speedup">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                                    {{ t.speed_ratio }}x Speedup
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="construct-perf-body">
+                            <!-- SQL Gauge -->
+                            <div class="construct-lang-meter">
+                                <div class="construct-meter-header">
+                                    <div class="construct-lang-label">
+                                        <span class="lang-dot dot-sql"></span>
+                                        <strong style="color: #38bdf8;">SQL (Declarative)</strong>
+                                    </div>
+                                    <div class="construct-metrics-summary">
+                                        <span class="metric-highlight text-sql">{{ t.sql_success }}% Correct</span>
+                                        <span class="metric-sub">({{ t.sql_right }}/{{ t.sql_total }})</span>
+                                        <span class="metric-divider">·</span>
+                                        <span class="metric-sub">{{ t.sql_median_time or t.sql_time }}s duration</span>
+                                        <span class="metric-divider">·</span>
+                                        <span class="metric-sub">{{ t.sql_attempts }} att</span>
+                                    </div>
+                                </div>
+                                <div class="construct-progress-track">
+                                    <div class="construct-progress-bar bar-sql" style="width: {{ t.sql_success or 0 }}%;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Python Gauge -->
+                            <div class="construct-lang-meter">
+                                <div class="construct-meter-header">
+                                    <div class="construct-lang-label">
+                                        <span class="lang-dot dot-python"></span>
+                                        <strong style="color: #c084fc;">Python (Procedural)</strong>
+                                    </div>
+                                    <div class="construct-metrics-summary">
+                                        <span class="metric-highlight text-python">{{ t.python_success }}% Correct</span>
+                                        <span class="metric-sub">({{ t.python_right }}/{{ t.python_total }})</span>
+                                        <span class="metric-divider">·</span>
+                                        <span class="metric-sub">{{ t.python_median_time or t.python_time }}s duration</span>
+                                        <span class="metric-divider">·</span>
+                                        <span class="metric-sub">{{ t.python_attempts }} att</span>
+                                    </div>
+                                </div>
+                                <div class="construct-progress-track">
+                                    <div class="construct-progress-bar bar-python" style="width: {{ t.python_success or 0 }}%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div style="grid-column: 1 / -1; text-align: center; color: #64748b; padding: 2rem;">
+                        No task results recorded yet.
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- 2. Compact Table View (Toggleable) -->
+                <div id="constructTableView" style="overflow-x: auto; width: 100%; display: none; margin-top: 0.5rem;">
                     <table class="db-dark-table">
                         <thead>
                             <tr>
@@ -383,6 +655,7 @@
                             {% endfor %}
                         </tbody>
                     </table>
+                </div>
             </div>
 
     </main>
@@ -504,41 +777,41 @@
         }
     });
     
-    // 3. Correct Tasks by Language (Donut: SQL Blue vs Python Purple)
-    new Chart(document.getElementById('overallSuccessChart'), {
-        type: 'doughnut',
+    // 3. Speedup Advantage Ratio (SQL vs. Python Multiplier across T1-T6)
+    new Chart(document.getElementById('speedupChart'), {
+        type: 'bar',
         data: {
-            labels: ['SQL', 'Python'],
+            labels: labels,
             datasets: [{
-                data: [{{ m.sql_correct_count }}, {{ m.python_correct_count }}],
-                backgroundColor: ['#38bdf8', '#c084fc'],
-                hoverBackgroundColor: ['#0284c7', '#a855f7'],
-                borderWidth: 0,
-                borderRadius: 4,
-                spacing: 4
+                label: 'SQL Speedup Multiplier',
+                data: tasks.map(t => t.speed_ratio || 1.0),
+                backgroundColor: tasks.map(t => (t.speed_ratio >= 1.5 ? '#38bdf8' : 'rgba(56, 189, 248, 0.65)')),
+                hoverBackgroundColor: '#0284c7',
+                borderRadius: 6,
+                borderSkipped: false
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            cutout: '70%',
             plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 12 }
-                },
+                legend: { display: false },
                 tooltip: {
                     backgroundColor: '#0b0f19',
                     borderColor: 'rgba(255,255,255,0.1)',
                     borderWidth: 1,
                     padding: 10,
                     callbacks: {
-                        label: ctx => {
-                            const total = {{ m.sql_correct_count + m.python_correct_count }};
-                            const pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
-                            return ` ${ctx.label}: ${ctx.raw} (${pct}%)`;
-                        }
+                        label: ctx => ` SQL is ${ctx.raw}x faster than Python`
                     }
+                }
+            },
+            scales: {
+                x: { grid: { display: false } },
+                y: {
+                    beginAtZero: true,
+                    grid: gridOptions,
+                    ticks: { callback: v => v + 'x' }
                 }
             }
         }
@@ -590,6 +863,26 @@
             }
         }
     });
+
+    // View switcher between Visual Cards Grid and Compact Table
+    function setTaskView(view) {
+        const cardsEl = document.getElementById('constructCardsView');
+        const tableEl = document.getElementById('constructTableView');
+        const btnCards = document.getElementById('btnViewCards');
+        const btnTable = document.getElementById('btnViewTable');
+
+        if (view === 'cards') {
+            cardsEl.style.display = 'grid';
+            tableEl.style.display = 'none';
+            btnCards.classList.add('active');
+            btnTable.classList.remove('active');
+        } else {
+            cardsEl.style.display = 'none';
+            tableEl.style.display = 'block';
+            btnCards.classList.remove('active');
+            btnTable.classList.add('active');
+        }
+    }
 </script>
 
 </body>
