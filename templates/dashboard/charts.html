@@ -17,10 +17,36 @@
             gap: 1.5rem;
             margin-bottom: 2rem;
             width: 100%;
+            align-items: start;
         }
         @media (max-width: 1024px) {
             .analytics-grid {
                 grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 768px) {
+            .db-page {
+                flex-direction: column !important;
+            }
+            .db-sidebar {
+                width: 100% !important;
+                border-right: none !important;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+            }
+            .db-main {
+                padding: 1.25rem 0.85rem !important;
+                max-width: 100vw !important;
+                box-sizing: border-box !important;
+            }
+            .analytics-card {
+                padding: 1.15rem 1rem !important;
+                box-sizing: border-box !important;
+            }
+            .analytics-grid {
+                gap: 1rem !important;
+            }
+            .kpi-row {
+                grid-template-columns: 1fr !important;
             }
         }
         .analytics-card {
@@ -343,7 +369,7 @@
                     <div class="legend-item"><span class="legend-swatch sql"></span> SQL (n=15)</div>
                     <div class="legend-item"><span class="legend-swatch python"></span> Python (n=15)</div>
                 </div>
-                <div style="position: relative; height: 300px; width: 100%;">
+                <div style="position: relative; height: 420px; width: 100%;">
                     <canvas id="correctTasksChart"></canvas>
                 </div>
                 <p class="chart-caption">Number of learners solving each task correctly out of the full cohort (N=15). SQL reached 86/90 (95.6%) overall vs. Python 82/90 (91.1%).</p>
@@ -747,11 +773,11 @@
             ctx.stroke();
             ctx.setLineDash([]);
 
-            // Label for reference line placed in free space above top row with generous padding
+            // Label for reference line placed fully inside card with ample headroom
             ctx.fillStyle = isExport ? '#000000' : '#f59e0b';
             ctx.font = '700 11px Inter, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('Median: 6.0', xMed, chartArea.top - 10);
+            ctx.textAlign = 'right';
+            ctx.fillText('Median: 6.0', xMed - 4, chartArea.top - 10);
 
             // Draw horizontal dumbbell rows
             learnerScores.forEach((l, idx) => {
@@ -819,7 +845,7 @@
             indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
-            layout: { padding: { top: 32, right: 28, left: 10, bottom: 6 } },
+            layout: { padding: { top: 32, right: 35, left: 10, bottom: 6 } },
             plugins: {
                 legend: { display: false },
                 tooltip: {
@@ -1146,20 +1172,38 @@
             // Label for 1.0x line placed at the LEFT edge outside bars
             ctx.setLineDash([]);
             ctx.fillStyle = isExport ? '#000000' : '#f59e0b';
-            ctx.font = '700 11px Inter, sans-serif';
-            ctx.textAlign = 'left';
-            ctx.fillText('Parity 1.0x', x.left + 8, y1 - 6);
+            ctx.font = '700 9.5px Inter, sans-serif';
+
+            const meta = chart.getDatasetMeta(0);
+            const firstBar = meta.data[0];
+            const firstBarLeft = firstBar ? (firstBar.x - firstBar.width / 2) : 0;
+            const spaceAvailable = firstBarLeft - x.left;
+
+            if (spaceAvailable >= 52) {
+                ctx.textAlign = 'left';
+                ctx.fillText('Parity 1.0x', x.left + 5, y1 - 6);
+            } else {
+                ctx.textAlign = 'left';
+                ctx.fillText('Parity 1.0x', x.left + 4, chart.chartArea.top + 14);
+            }
 
             // Bar value text labels: "1.49x (n=15)"
-            const meta = chart.getDatasetMeta(0);
             meta.data.forEach((bar, index) => {
                 const t = tasks[index];
                 const ratioNum = parseFloat(t.speed_ratio) || 1.0;
-                const text = `${ratioNum.toFixed(2)}x (n=${t.speed_ratio_n || 15})`;
                 ctx.fillStyle = isExport ? '#000000' : '#ffffff';
-                ctx.font = '700 11px Inter, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText(text, bar.x, bar.y - 8);
+                if (chart.width < 520) {
+                    ctx.font = '700 9px Inter, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`${ratioNum.toFixed(2)}x`, bar.x, bar.y - 13);
+                    ctx.font = '600 8px Inter, sans-serif';
+                    ctx.fillText(`(n=${t.speed_ratio_n || 15})`, bar.x, bar.y - 4);
+                } else {
+                    ctx.font = '700 11px Inter, sans-serif';
+                    ctx.textAlign = 'center';
+                    const text = `${ratioNum.toFixed(2)}x (n=${t.speed_ratio_n || 15})`;
+                    ctx.fillText(text, bar.x, bar.y - 8);
+                }
             });
             ctx.restore();
         }
@@ -1176,8 +1220,8 @@
                 hoverBackgroundColor: '#0284c7',
                 borderRadius: 5,
                 borderSkipped: false,
-                barPercentage: 0.55,
-                categoryPercentage: 0.75
+                barPercentage: 0.38,
+                categoryPercentage: 0.52
             }]
         },
         options: {
