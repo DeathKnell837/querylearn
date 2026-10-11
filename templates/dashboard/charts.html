@@ -675,18 +675,37 @@
             const { ctx } = chart;
             const isExport = chart.options.plugins?.paperExportMode;
             ctx.save();
-            ctx.font = '600 9.5px Inter, sans-serif';
             ctx.textAlign = 'center';
-            chart.data.datasets.forEach((dataset, datasetIndex) => {
-                const meta = chart.getDatasetMeta(datasetIndex);
-                meta.data.forEach((bar, index) => {
-                    const val = dataset.data[index];
-                    const text = `${val}/15`;
-                    ctx.fillStyle = isExport ? '#000000' : '#ffffff';
-                    ctx.font = '700 11px Inter, sans-serif';
-                    const xOffset = datasetIndex === 0 ? -1.5 : 1.5;
-                    ctx.fillText(text, bar.x + xOffset, bar.y - 7);
-                });
+
+            const meta0 = chart.getDatasetMeta(0);
+            const meta1 = chart.getDatasetMeta(1);
+            if (!meta0 || !meta1 || !meta0.data || !meta1.data) {
+                ctx.restore();
+                return;
+            }
+
+            const isNarrow = chart.width < 640;
+
+            tasks.forEach((t, index) => {
+                const barSql = meta0.data[index];
+                const barPy = meta1.data[index];
+                if (!barSql || !barPy) return;
+
+                const sqlVal = t.sql_right || 0;
+                const pyVal = t.python_right || 0;
+                const isTied = Math.abs(sqlVal - pyVal) <= 1;
+
+                ctx.fillStyle = isExport ? '#000000' : '#ffffff';
+                ctx.font = isExport ? '700 11px Inter, sans-serif' : '700 10px Inter, sans-serif';
+
+                if (isNarrow && isTied) {
+                    // Stagger vertically on narrow/mobile viewports so adjacent labels never touch
+                    ctx.fillText(`${sqlVal}/15`, barSql.x, barSql.y - 6);
+                    ctx.fillText(`${pyVal}/15`, barPy.x, barPy.y - 18);
+                } else {
+                    ctx.fillText(`${sqlVal}/15`, barSql.x, barSql.y - 7);
+                    ctx.fillText(`${pyVal}/15`, barPy.x, barPy.y - 7);
+                }
             });
             ctx.restore();
         }
@@ -718,7 +737,7 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            layout: { padding: { top: 24, bottom: 4 } },
+            layout: { padding: { top: 28, bottom: 4 } },
             plugins: {
                 legend: { display: false },
                 tooltip: {
