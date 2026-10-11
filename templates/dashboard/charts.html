@@ -345,10 +345,10 @@
             <span><strong>Sample Cohort:</strong> 15 novice learners (P001 &ndash; P015) &times; 6 tasks = 90 tasks per condition. Each task bar denominator is exactly 15 learners. Paired speedup evaluated across n=80 task pairs where the learner solved the task in both conditions.</span>
         </div>
 
-        <!-- PRIMARY PAPER CHARTS GRID -->
+        <!-- PRIMARY PAPER CHARTS GRID (2x2 Balanced Layout) -->
         <div class="analytics-grid">
             
-            <!-- Chart 1: Correct Tasks per Task (Grouped Bar: SQL blue vs Python purple, Y: 0 to 15, labels like x/15) -->
+            <!-- Figure 1: Correct Tasks per Task (Grouped Bar: SQL blue vs Python purple, Y: 0 to 15, labels like x/15) -->
             <div class="analytics-card">
                 <div class="analytics-card-header">
                     <div>
@@ -369,41 +369,13 @@
                     <div class="legend-item"><span class="legend-swatch sql"></span> SQL (n=15)</div>
                     <div class="legend-item"><span class="legend-swatch python"></span> Python (n=15)</div>
                 </div>
-                <div style="position: relative; height: 420px; width: 100%;">
+                <div style="position: relative; height: 330px; width: 100%;">
                     <canvas id="correctTasksChart"></canvas>
                 </div>
                 <p class="chart-caption">Number of learners solving each task correctly out of the full cohort (N=15). SQL reached 86/90 (95.6%) overall vs. Python 82/90 (91.1%).</p>
             </div>
 
-            <!-- Chart 2: Correct Tasks per Learner (out of 6) (Horizontal Paired Dot Plot sorted by diff) -->
-            <div class="analytics-card">
-                <div class="analytics-card-header">
-                    <div>
-                        <h3 class="analytics-card-title">
-                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
-                            Correct Tasks per Learner (out of 6)
-                        </h3>
-                        <p class="analytics-card-sub">Within-subject score comparison per learner (sorted by Python minus SQL difference).</p>
-                    </div>
-                    <div class="header-actions">
-                        <button class="btn-paper-download" onclick="exportChartForPaper('learnerScoresChart', 'Figure_2_Correct_Tasks_per_Learner.png', 'Correct Tasks per Learner (out of 6)')">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                            Download for paper
-                        </button>
-                    </div>
-                </div>
-                <div class="chart-legend-row">
-                    <div class="legend-item"><span class="legend-swatch circle-sql"></span> SQL Score</div>
-                    <div class="legend-item"><span class="legend-swatch circle-py"></span> Python Score</div>
-                    <div class="legend-item"><span class="legend-line med"></span> Condition Median (6.0)</div>
-                </div>
-                <div style="position: relative; height: 420px; width: 100%;">
-                    <canvas id="learnerScoresChart"></canvas>
-                </div>
-                <p class="chart-caption">Paired score comparison per learner. 10 of 15 learners achieved perfect 6/6 scores in both conditions; 4 favoured SQL, 1 favoured Python.</p>
-            </div>
-
-            <!-- Chart 3: Correct Tasks per Hour (Strip Plot + Jitter + Median placed in free space) -->
+            <!-- Figure 2: Correct Tasks per Hour (Strip Plot + Jitter + Median placed in free space) -->
             <div class="analytics-card">
                 <div class="analytics-card-header">
                     <div>
@@ -414,7 +386,7 @@
                         <p class="analytics-card-sub">Learner throughput (60 &times; correct tasks / total minutes; failed tasks counted as 480 s).</p>
                     </div>
                     <div class="header-actions">
-                        <button class="btn-paper-download" onclick="exportChartForPaper('ctPerHourChart', 'Figure_3_Correct_Tasks_per_Hour.png', 'Correct Tasks per Hour by Condition')">
+                        <button class="btn-paper-download" onclick="exportChartForPaper('ctPerHourChart', 'Figure_2_Correct_Tasks_per_Hour.png', 'Correct Tasks per Hour by Condition')">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                             Download for paper
                         </button>
@@ -427,13 +399,13 @@
                     <div class="legend-item"><span class="legend-swatch circle-sql"></span> SQL Learner</div>
                     <div class="legend-item"><span class="legend-swatch circle-py"></span> Python Learner</div>
                 </div>
-                <div style="position: relative; height: 300px; width: 100%;">
+                <div style="position: relative; height: 330px; width: 100%;">
                     <canvas id="ctPerHourChart"></canvas>
                 </div>
                 <p class="chart-caption">Learner throughput in correct tasks per hour. SQL median is 27.7 CT/h vs. Python 14.9 CT/h (1.86&times; productivity advantage).</p>
             </div>
 
-            <!-- Chart 4: Median Completion Duration (Grouped Bars + IQR Whiskers + 480s cap dashed line) -->
+            <!-- Figure 3: Median Completion Duration (Grouped Bars + IQR Whiskers + 480s cap dashed line) -->
             <div class="analytics-card">
                 <div class="analytics-card-header">
                     <div>
@@ -444,7 +416,7 @@
                         <p class="analytics-card-sub">Median completion time per task in seconds with 25th&ndash;75th percentile interquartile whiskers.</p>
                     </div>
                     <div class="header-actions">
-                        <button class="btn-paper-download" onclick="exportChartForPaper('durationChart', 'Figure_4_Median_Completion_Duration.png', 'Median Completion Duration with IQR Whiskers')">
+                        <button class="btn-paper-download" onclick="exportChartForPaper('durationChart', 'Figure_3_Median_Completion_Duration.png', 'Median Completion Duration with IQR Whiskers')">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                             Download for paper
                         </button>
@@ -456,14 +428,14 @@
                     <div class="legend-item"><span class="legend-line whisker"></span> IQR Whiskers (25th&ndash;75th)</div>
                     <div class="legend-item"><span class="legend-line cap"></span> 480s Timeout Cap</div>
                 </div>
-                <div style="position: relative; height: 300px; width: 100%;">
+                <div style="position: relative; height: 330px; width: 100%;">
                     <canvas id="durationChart"></canvas>
                 </div>
                 <p class="chart-caption">Median completion time per task in seconds with 25th&ndash;75th percentile interquartile whiskers. Red dashed line indicates the 480 s timeout ceiling.</p>
             </div>
 
-            <!-- Chart 5: Speedup Advantage Ratio (Single ratio bar per task, Parity line at left edge, clean 0.5 ticks) -->
-            <div class="analytics-card" style="grid-column: 1 / -1;">
+            <!-- Figure 4: Speedup Advantage Ratio (Single ratio bar per task, Parity line at left edge, clean 0.5 ticks) -->
+            <div class="analytics-card">
                 <div class="analytics-card-header">
                     <div>
                         <h3 class="analytics-card-title">
@@ -476,7 +448,7 @@
                         <span style="font-size: 0.78rem; font-weight: 700; color: #34d399; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 9999px; padding: 0.25rem 0.65rem;">
                             Overall: {{ m.paired_time_ratio }}x [95% CI: {{ m.paired_ratio_ci_low }}x, {{ m.paired_ratio_ci_high }}x]
                         </span>
-                        <button class="btn-paper-download" onclick="exportChartForPaper('speedupChart', 'Figure_5_Speedup_Advantage_Ratio.png', 'Speedup Advantage Ratio (Paired Correct Tasks)')">
+                        <button class="btn-paper-download" onclick="exportChartForPaper('speedupChart', 'Figure_4_Speedup_Advantage_Ratio.png', 'Speedup Advantage Ratio (Paired Correct Tasks)')">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                             Download for paper
                         </button>
@@ -486,7 +458,7 @@
                     <div class="legend-item"><span class="legend-swatch speedup"></span> Speedup Ratio (Python &divide; SQL)</div>
                     <div class="legend-item"><span class="legend-line parity"></span> Parity (1.0x)</div>
                 </div>
-                <div style="position: relative; height: 280px; width: 100%;">
+                <div style="position: relative; height: 330px; width: 100%;">
                     <canvas id="speedupChart"></canvas>
                 </div>
                 <p class="chart-caption">Speedup advantage ratio (Python median &divide; SQL median) for tasks solved correctly in both conditions. Yellow dashed line marks parity (1.0&times;); values &gt; 1.0&times; denote faster SQL completion.</p>
@@ -544,12 +516,40 @@
         <!-- COLLAPSIBLE SUPPLEMENTARY SECTION -->
         <details class="supplementary-details">
             <summary class="supplementary-summary">
-                <span>Supplementary Analysis &amp; Diagnostic Distributions</span>
+                <span>Supplementary Analysis &amp; Diagnostic Distributions (Figures S1 &ndash; S4)</span>
             </summary>
             <div class="supplementary-content">
                 <div class="analytics-grid" style="margin-bottom: 0;">
                     
-                    <!-- Chart 6: Attempt Distribution -->
+                    <!-- Figure S1: Correct Tasks per Learner (out of 6) (Horizontal Paired Dumbbell Plot) -->
+                    <div class="analytics-card">
+                        <div class="analytics-card-header">
+                            <div>
+                                <h3 class="analytics-card-title">
+                                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                                    Correct Tasks per Learner (out of 6)
+                                </h3>
+                                <p class="analytics-card-sub">Within-subject score comparison per learner (sorted by Python minus SQL difference).</p>
+                            </div>
+                            <div class="header-actions">
+                                <button class="btn-paper-download" onclick="exportChartForPaper('learnerScoresChart', 'Figure_S1_Correct_Tasks_per_Learner.png', 'Correct Tasks per Learner (out of 6)')">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                    Download for paper
+                                </button>
+                            </div>
+                        </div>
+                        <div class="chart-legend-row">
+                            <div class="legend-item"><span class="legend-swatch circle-sql"></span> SQL Score</div>
+                            <div class="legend-item"><span class="legend-swatch circle-py"></span> Python Score</div>
+                            <div class="legend-item"><span class="legend-line med"></span> Condition Median (6.0)</div>
+                        </div>
+                        <div style="position: relative; height: 380px; width: 100%;">
+                            <canvas id="learnerScoresChart"></canvas>
+                        </div>
+                        <p class="chart-caption">Paired score comparison per learner. 10 of 15 learners achieved perfect 6/6 scores in both conditions; 4 favoured SQL, 1 favoured Python.</p>
+                    </div>
+
+                    <!-- Figure S2: Attempt Distribution -->
                     <div class="analytics-card">
                         <div class="analytics-card-header">
                             <div>
@@ -560,7 +560,7 @@
                                 <p class="analytics-card-sub">Average attempts required before reaching solution per task (T1 &ndash; T6).</p>
                             </div>
                             <div class="header-actions">
-                                <button class="btn-paper-download" onclick="exportChartForPaper('attemptChart', 'Figure_S1_Attempt_Distribution.png', 'Average Attempts per Task')">
+                                <button class="btn-paper-download" onclick="exportChartForPaper('attemptChart', 'Figure_S2_Attempt_Distribution.png', 'Average Attempts per Task')">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                                     Download for paper
                                 </button>
@@ -570,13 +570,13 @@
                             <div class="legend-item"><span class="legend-swatch sql"></span> SQL Attempts</div>
                             <div class="legend-item"><span class="legend-swatch python"></span> Python Attempts</div>
                         </div>
-                        <div style="position: relative; height: 260px; width: 100%;">
+                        <div style="position: relative; height: 380px; width: 100%;">
                             <canvas id="attemptChart"></canvas>
                         </div>
                         <p class="chart-caption">Average attempts required before reaching solution per task (T1 &ndash; T6).</p>
                     </div>
 
-                    <!-- Chart 7: Code Comprehension Score -->
+                    <!-- Figure S3: Code Comprehension Score -->
                     <div class="analytics-card">
                         <div class="analytics-card-header">
                             <div>
@@ -587,7 +587,7 @@
                                 <p class="analytics-card-sub">Comprehension score (0 to 18) by condition with median, IQR, and learner dots.</p>
                             </div>
                             <div class="header-actions">
-                                <button class="btn-paper-download" onclick="exportChartForPaper('comprehensionChart', 'Figure_S2_Code_Comprehension_Score.png', 'Code Comprehension Score Distribution (0-18)')">
+                                <button class="btn-paper-download" onclick="exportChartForPaper('comprehensionChart', 'Figure_S3_Code_Comprehension_Score.png', 'Code Comprehension Score Distribution (0-18)')">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                                     Download for paper
                                 </button>
@@ -600,14 +600,14 @@
                             <div class="legend-item"><span class="legend-swatch circle-sql"></span> SQL Learner</div>
                             <div class="legend-item"><span class="legend-swatch circle-py"></span> Python Learner</div>
                         </div>
-                        <div style="position: relative; height: 260px; width: 100%;">
+                        <div style="position: relative; height: 320px; width: 100%;">
                             <canvas id="comprehensionChart"></canvas>
                         </div>
                         <p class="chart-caption">Reading comprehension score (0 to 18) by condition with median crossbar, IQR range, and individual learner dots.</p>
                     </div>
 
-                    <!-- Chart 8: Survey Likert Responses by Condition -->
-                    <div class="analytics-card" style="grid-column: 1 / -1;">
+                    <!-- Figure S4: Survey Likert Responses by Condition -->
+                    <div class="analytics-card">
                         <div class="analytics-card-header">
                             <div>
                                 <h3 class="analytics-card-title">
@@ -617,7 +617,7 @@
                                 <p class="analytics-card-sub">Subjective evaluation items (Q1 &ndash; Q5) across SQL and Python conditions (100% stacked).</p>
                             </div>
                             <div class="header-actions">
-                                <button class="btn-paper-download" onclick="exportChartForPaper('surveyLikertChart', 'Figure_S3_Survey_Likert_Responses.png', 'Post-Condition Survey Likert Responses (Q1 to Q5)')">
+                                <button class="btn-paper-download" onclick="exportChartForPaper('surveyLikertChart', 'Figure_S4_Survey_Likert_Responses.png', 'Post-Condition Survey Likert Responses (Q1 to Q5)')">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                                     Download for paper
                                 </button>
@@ -1220,8 +1220,8 @@
                 hoverBackgroundColor: '#0284c7',
                 borderRadius: 5,
                 borderSkipped: false,
-                barPercentage: 0.38,
-                categoryPercentage: 0.52
+                barPercentage: 0.55,
+                categoryPercentage: 0.72
             }]
         },
         options: {
@@ -1684,7 +1684,7 @@
 
     document.querySelector('.supplementary-details')?.addEventListener('toggle', function() {
         if (this.open) {
-            ['attemptChart', 'comprehensionChart', 'surveyLikertChart'].forEach(id => {
+            ['learnerScoresChart', 'attemptChart', 'comprehensionChart', 'surveyLikertChart'].forEach(id => {
                 Chart.getChart(id)?.resize();
             });
         }
