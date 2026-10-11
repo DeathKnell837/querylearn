@@ -799,6 +799,7 @@ def charts():
         "sql_total_count": sql_total,
         "sql_success_rate": sql_succ_rate,
         "sql_fail_rate": sql_fail_rate,
+        "accuracy_delta": round(((sql_correct - py_correct) / sql_total) * 100, 1) if sql_total else 0.0,
         "python_correct_count": py_correct,
         "python_wrong_count": py_wrong,
         "python_total_count": py_total,
@@ -903,10 +904,10 @@ def export(type):
     _safe_sync_cloud()
     if type == 'participants':
         csv_data = export_participants_csv(get_research_db_path())
-        return Response(csv_data, mimetype="text/csv", headers={"Content-Disposition": "attachment;filename=participants_telemetry.csv"})
+        return Response(csv_data, mimetype="text/csv", headers={"Content-Disposition": "attachment;filename=participants_data.csv"})
     elif type == 'results':
         csv_data = export_results_csv(get_research_db_path())
-        return Response(csv_data, mimetype="text/csv", headers={"Content-Disposition": "attachment;filename=task_results_telemetry.csv"})
+        return Response(csv_data, mimetype="text/csv", headers={"Content-Disposition": "attachment;filename=task_results_data.csv"})
     elif type == 'survey':
         csv_data = export_survey_csv(get_research_db_path())
         return Response(csv_data, mimetype="text/csv", headers={"Content-Disposition": "attachment;filename=survey_responses.csv"})
@@ -915,7 +916,7 @@ def export(type):
         return Response(csv_data, mimetype="text/csv", headers={"Content-Disposition": "attachment;filename=comprehension_responses.csv"})
     elif type == 'attempts':
         csv_data = export_attempts_csv(get_research_db_path())
-        return Response(csv_data, mimetype="text/csv", headers={"Content-Disposition": "attachment;filename=task_attempts_telemetry.csv"})
+        return Response(csv_data, mimetype="text/csv", headers={"Content-Disposition": "attachment;filename=task_attempts_data.csv"})
     elif type == 'all':
         zip_bytes = export_all_csv(get_research_db_path())
         return Response(zip_bytes, mimetype="application/zip", headers={"Content-Disposition": "attachment;filename=querylearn_case_study_dataset.zip"})

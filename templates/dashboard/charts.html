@@ -267,13 +267,7 @@
             </div>
             <div class="kpi-box">
                 <span class="kpi-label">Accuracy Difference</span>
-                <span class="kpi-val" style="color: #f8fafc;">
-                    {% if m.sql_success_rate >= m.python_success_rate %}
-                        +{{ (m.sql_success_rate - m.python_success_rate)|round(1) }} pts
-                    {% else %}
-                        -{{ (m.python_success_rate - m.sql_success_rate)|round(1) }} pts
-                    {% endif %}
-                </span>
+                <span class="kpi-val" style="color: #f8fafc;">+{{ m.accuracy_delta }} pts</span>
                 <span class="kpi-desc">SQL vs Python overall accuracy delta</span>
             </div>
         </div>
@@ -326,7 +320,7 @@
                         </button>
                     </div>
                 </div>
-                <div style="position: relative; height: 340px; width: 100%;">
+                <div style="position: relative; height: 420px; width: 100%;">
                     <canvas id="learnerScoresChart"></canvas>
                 </div>
             </div>
@@ -535,6 +529,7 @@
     Chart.defaults.color = '#94a3b8';
     Chart.defaults.font.family = "'Inter', sans-serif";
     Chart.defaults.font.size = 11;
+    Chart.defaults.animation = false; // Synchronous rendering ensures zero-lag, instant settled charts
 
     const tasks = {{ m.tasks | tojson }};
     const taskLabels = tasks.map(t => t.task_id);
@@ -553,7 +548,7 @@
     };
 
     // ==========================================
-    // CHART 1: Correct Tasks per Task (Grouped Bar)
+    // CHART 1: Correct Tasks per Task (Grouped Bar: SQL vs Python)
     // ==========================================
     const barLabelPlugin = {
         id: 'barLabelPlugin',
@@ -561,7 +556,7 @@
             const { ctx } = chart;
             const isExport = chart.options.plugins?.paperExportMode;
             ctx.save();
-            ctx.font = '600 11px Inter, sans-serif';
+            ctx.font = '600 9.5px Inter, sans-serif';
             ctx.textAlign = 'center';
             chart.data.datasets.forEach((dataset, datasetIndex) => {
                 const meta = chart.getDatasetMeta(datasetIndex);
@@ -569,7 +564,8 @@
                     const val = dataset.data[index];
                     const text = `${val}/15`;
                     ctx.fillStyle = isExport ? '#000000' : '#f8fafc';
-                    ctx.fillText(text, bar.x, bar.y - 7);
+                    const xOffset = datasetIndex === 0 ? -1.5 : 1.5;
+                    ctx.fillText(text, bar.x + xOffset, bar.y - 7);
                 });
             });
             ctx.restore();
@@ -586,7 +582,7 @@
                     data: tasks.map(t => t.sql_right || 0),
                     backgroundColor: '#38bdf8',
                     hoverBackgroundColor: '#0284c7',
-                    borderRadius: 5,
+                    borderRadius: 4,
                     borderSkipped: false
                 },
                 {
@@ -594,7 +590,7 @@
                     data: tasks.map(t => t.python_right || 0),
                     backgroundColor: '#c084fc',
                     hoverBackgroundColor: '#a855f7',
-                    borderRadius: 5,
+                    borderRadius: 4,
                     borderSkipped: false
                 }
             ]
@@ -602,7 +598,7 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            layout: { padding: { top: 32 } },
+            layout: { padding: { top: 36 } },
             plugins: {
                 legend: {
                     position: 'top',
@@ -637,22 +633,20 @@
     });
 
     // ==========================================
-    // CHART 2: Correct Tasks per Learner (out of 6) - Horizontal Paired Dot Plot
+    // CHART 2: Correct Tasks per Learner (out of 6) - Horizontal Paired Dumbbell Plot
     // ==========================================
-    // learnerScores is already sorted by (python - sql) difference ascending
     const learnerLabels = learnerScores.map(l => l.study_id);
 
-    // Connecting line plugin between SQL dot and Python dot
     const dumbbellPlugin = {
         id: 'dumbbellPlugin',
-        beforeDatasetsDraw(chart) {
+        afterDatasetsDraw(chart) {
             const { ctx, scales: { x, y } } = chart;
             const isExport = chart.options.plugins?.paperExportMode;
 
             ctx.save();
-            // Draw condition median vertical reference line at x = 6.0
+            // Vertical condition median reference line at x = 6.0
             const xMed = x.getPixelForValue(6.0);
-            ctx.strokeStyle = isExport ? 'rgba(0, 0, 0, 0.4)' : 'rgba(245, 158, 11, 0.5)';
+            ctx.strokeStyle = isExport ? '#4b5563' : 'rgba(245, 158, 11, 0.6)';
             ctx.lineWidth = 1.5;
             ctx.setLineDash([4, 4]);
             ctx.beginPath();
@@ -661,68 +655,71 @@
             ctx.stroke();
             ctx.setLineDash([]);
 
-            // Draw horizontal dumbbell connector line for each learner row
+            // Label for reference line
+            ctx.fillStyle = isExport ? '#000000' : '#f59e0b';
+            ctx.font = '600 9.5px Inter, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText('Median: 6.0', xMed - 6, y.top + 14);
+
+            // Draw horizontal dumbbell rows
             learnerScores.forEach((l, idx) => {
                 const yPos = y.getPixelForValue(idx);
-                // When scores match, offset slightly so both dots and link are visible
-                let xSqlVal = l.sql;
-                let xPyVal = l.python;
-                if (xSqlVal === xPyVal) {
-                    xSqlVal = l.sql - 0.08;
-                    xPyVal = l.python + 0.08;
-                }
-                const xSqlPos = x.getPixelForValue(xSqlVal);
-                const xPyPos = x.getPixelForValue(xPyVal);
+                const isMatch = l.sql === l.python;
+                
+                // When scores match, offset dots by ±6px so both dots and the connecting line are distinctly visible
+                const xSqlPx = x.getPixelForValue(l.sql) - (isMatch ? 6 : 0);
+                const xPyPx = x.getPixelForValue(l.python) + (isMatch ? 6 : 0);
 
-                ctx.strokeStyle = isExport ? '#4b5563' : 'rgba(148, 163, 184, 0.4)';
-                ctx.lineWidth = 2;
+                // Connecting line
+                ctx.strokeStyle = isExport ? '#374151' : 'rgba(148, 163, 184, 0.45)';
+                ctx.lineWidth = 2.5;
                 ctx.beginPath();
-                ctx.moveTo(xSqlPos, yPos);
-                ctx.lineTo(xPyPos, yPos);
+                ctx.moveTo(xSqlPx, yPos);
+                ctx.lineTo(xPyPx, yPos);
+                ctx.stroke();
+
+                // SQL dot (Blue circle)
+                ctx.fillStyle = isExport ? '#1e3a8a' : '#38bdf8';
+                ctx.strokeStyle = isExport ? '#000000' : '#ffffff';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.arc(xSqlPx, yPos, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // Python dot (Purple circle on screen, square in B/W paper export)
+                ctx.fillStyle = isExport ? '#374151' : '#c084fc';
+                ctx.strokeStyle = isExport ? '#000000' : '#ffffff';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                if (isExport) {
+                    ctx.rect(xPyPx - 4.5, yPos - 4.5, 9, 9);
+                } else {
+                    ctx.arc(xPyPx, yPos, 5, 0, Math.PI * 2);
+                }
+                ctx.fill();
                 ctx.stroke();
             });
             ctx.restore();
         }
     };
 
-    // Point coordinates with subtle offset when scores are equal so both dots render
-    const sqlDotData = learnerScores.map((l, idx) => ({
-        x: l.sql === l.python ? l.sql - 0.08 : l.sql,
-        y: idx,
-        trueScore: l.sql,
-        study_id: l.study_id,
-        diff: l.diff
-    }));
-
-    const pyDotData = learnerScores.map((l, idx) => ({
-        x: l.sql === l.python ? l.python + 0.08 : l.python,
-        y: idx,
-        trueScore: l.python,
-        study_id: l.study_id,
-        diff: l.diff
-    }));
-
     new Chart(document.getElementById('learnerScoresChart'), {
-        type: 'scatter',
+        type: 'bar',
         data: {
+            labels: learnerLabels,
             datasets: [
                 {
                     label: 'SQL Score',
-                    data: sqlDotData,
-                    backgroundColor: '#38bdf8',
-                    borderColor: '#ffffff',
-                    borderWidth: 1.5,
-                    pointRadius: 5.5,
-                    pointHoverRadius: 7.5
+                    data: learnerScores.map(l => l.sql),
+                    backgroundColor: 'transparent',
+                    borderColor: 'transparent'
                 },
                 {
                     label: 'Python Score',
-                    data: pyDotData,
-                    backgroundColor: '#c084fc',
-                    borderColor: '#ffffff',
-                    borderWidth: 1.5,
-                    pointRadius: 5.5,
-                    pointHoverRadius: 7.5
+                    data: learnerScores.map(l => l.python),
+                    backgroundColor: 'transparent',
+                    borderColor: 'transparent'
                 }
             ]
         },
@@ -736,7 +733,10 @@
                     position: 'top',
                     labels: {
                         usePointStyle: true,
-                        pointStyle: 'circle',
+                        generateLabels: () => [
+                            { text: 'SQL Score', fillStyle: '#38bdf8', strokeStyle: '#ffffff', pointStyle: 'circle' },
+                            { text: 'Python Score', fillStyle: '#c084fc', strokeStyle: '#ffffff', pointStyle: 'circle' }
+                        ],
                         boxWidth: 8,
                         padding: 14
                     }
@@ -747,13 +747,15 @@
                     borderWidth: 1,
                     padding: 10,
                     callbacks: {
+                        title: ctx => {
+                            const l = learnerScores[ctx[0].dataIndex];
+                            return `${l.study_id} (Diff: ${l.diff > 0 ? '+' : ''}${l.diff})`;
+                        },
                         label: ctx => {
-                            const pt = ctx.raw;
-                            const learner = learnerScores.find(l => l.study_id === pt.study_id);
-                            const sign = learner.diff > 0 ? '+' : '';
+                            const l = learnerScores[ctx.dataIndex];
                             return [
-                                ` ${pt.study_id}: SQL = ${learner.sql}/6, Python = ${learner.python}/6`,
-                                ` Difference (Python - SQL): ${sign}${learner.diff}`
+                                ` SQL Score: ${l.sql} / 6`,
+                                ` Python Score: ${l.python} / 6`
                             ];
                         }
                     }
@@ -765,20 +767,12 @@
                     max: 6,
                     grid: darkGrid,
                     title: { display: true, text: 'Correct Tasks (0 to 6)', color: '#94a3b8', font: { weight: '600', size: 11 } },
-                    ticks: {
-                        stepSize: 1,
-                        callback: v => v + ' / 6'
-                    }
+                    ticks: { stepSize: 1, callback: v => v + ' / 6' }
                 },
                 y: {
-                    min: -0.5,
-                    max: learnerScores.length - 0.5,
                     grid: { display: false },
                     title: { display: true, text: 'Learner ID (sorted by Py - SQL Δ)', color: '#94a3b8', font: { weight: '600', size: 11 } },
-                    ticks: {
-                        stepSize: 1,
-                        callback: v => learnerLabels[v] || ''
-                    }
+                    ticks: { color: '#cbd5e1', font: { weight: '600', size: 10 } }
                 }
             }
         },
@@ -788,78 +782,75 @@
     // ==========================================
     // CHART 3: Correct Tasks per Hour (Strip Plot + Jitter + Median outside dots)
     // ==========================================
-    const ctIqrPlugin = {
-        id: 'ctIqrPlugin',
+    const sqlStats = ctData.sql || { median: 27.7, q1: 21.4, q3: 31.8 };
+    const pyStats = ctData.python || { median: 14.9, q1: 12.0, q3: 17.8 };
+
+    const ctStripPlugin = {
+        id: 'ctStripPlugin',
         afterDatasetsDraw(chart) {
             const { ctx, scales: { x, y } } = chart;
             const isExport = chart.options.plugins?.paperExportMode;
-            const sqlStats = ctData.sql || { median: 27.7, q1: 21.4, q3: 31.8 };
-            const pyStats = ctData.python || { median: 14.9, q1: 12.0, q3: 17.8 };
+
             const conditions = [
-                { idx: 0, stats: sqlStats, color: isExport ? '#1e3a8a' : '#38bdf8' },
-                { idx: 1, stats: pyStats, color: isExport ? '#374151' : '#c084fc' }
+                { idx: 0, stats: sqlStats, learners: ctData.sql?.learners || [], color: '#38bdf8', exportColor: '#1e3a8a' },
+                { idx: 1, stats: pyStats, learners: ctData.python?.learners || [], color: '#c084fc', exportColor: '#374151' }
             ];
 
+            ctx.save();
             conditions.forEach(cond => {
                 const xCenter = x.getPixelForValue(cond.idx);
                 const yQ1 = y.getPixelForValue(cond.stats.q1);
                 const yQ3 = y.getPixelForValue(cond.stats.q3);
                 const yMed = y.getPixelForValue(cond.stats.median);
 
-                ctx.save();
-                // Whisker vertical stem
+                // 1. Whisker vertical stem & caps
                 ctx.strokeStyle = isExport ? '#000000' : '#ffffff';
                 ctx.lineWidth = 1.8;
                 ctx.beginPath();
                 ctx.moveTo(xCenter, yQ1);
                 ctx.lineTo(xCenter, yQ3);
+                ctx.moveTo(xCenter - 14, yQ1);
+                ctx.lineTo(xCenter + 14, yQ1);
+                ctx.moveTo(xCenter - 14, yQ3);
+                ctx.lineTo(xCenter + 14, yQ3);
                 ctx.stroke();
 
-                // Q1 & Q3 horizontal caps
-                const capWidth = 24;
-                ctx.beginPath();
-                ctx.moveTo(xCenter - capWidth / 2, yQ1);
-                ctx.lineTo(xCenter + capWidth / 2, yQ1);
-                ctx.moveTo(xCenter - capWidth / 2, yQ3);
-                ctx.lineTo(xCenter + capWidth / 2, yQ3);
-                ctx.stroke();
-
-                // Median thick crossbar
+                // 2. Thick median crossbar
                 ctx.strokeStyle = isExport ? '#000000' : '#f59e0b';
                 ctx.lineWidth = 3.5;
                 ctx.beginPath();
-                ctx.moveTo(xCenter - 22, yMed);
-                ctx.lineTo(xCenter + 22, yMed);
+                ctx.moveTo(xCenter - 26, yMed);
+                ctx.lineTo(xCenter + 26, yMed);
                 ctx.stroke();
 
-                // Median value label placed cleanly to the right in free whitespace
+                // 3. Median value label placed cleanly to the right in free whitespace
                 ctx.fillStyle = isExport ? '#000000' : '#f8fafc';
-                ctx.font = '600 11px Inter, sans-serif';
+                ctx.font = '700 11px Inter, sans-serif';
                 ctx.textAlign = 'left';
-                ctx.fillText(`Med: ${cond.stats.median}`, xCenter + 32, yMed + 4);
-                ctx.restore();
+                ctx.fillText(`Med: ${cond.stats.median}`, xCenter + 38, yMed + 4);
+
+                // 4. Jittered learner dots across 5 columns (-22px, -11px, 0px, +11px, +22px)
+                cond.learners.forEach((l, i) => {
+                    const colOffset = ((i % 5) - 2) * 11;
+                    const xDot = xCenter + colOffset;
+                    const yDot = y.getPixelForValue(l.rate);
+
+                    ctx.fillStyle = isExport ? cond.exportColor : cond.color;
+                    ctx.strokeStyle = isExport ? '#000000' : '#ffffff';
+                    ctx.lineWidth = 1.2;
+                    ctx.beginPath();
+                    if (isExport && cond.idx === 1) {
+                        ctx.rect(xDot - 3.5, yDot - 3.5, 7, 7);
+                    } else {
+                        ctx.arc(xDot, yDot, 4.5, 0, Math.PI * 2);
+                    }
+                    ctx.fill();
+                    ctx.stroke();
+                });
             });
+            ctx.restore();
         }
     };
-
-    // Jittered learner dots across X center (-0.14 to +0.14) so they don't stack in a single column
-    const sqlCtLearners = (ctData.sql?.learners || []).map((l, i) => {
-        const jitter = (((i * 7) % 11) - 5) * 0.024;
-        return {
-            x: 0 + jitter,
-            y: l.rate,
-            study_id: l.study_id
-        };
-    });
-
-    const pyCtLearners = (ctData.python?.learners || []).map((l, i) => {
-        const jitter = (((i * 5) % 11) - 5) * 0.024;
-        return {
-            x: 1 + jitter,
-            y: l.rate,
-            study_id: l.study_id
-        };
-    });
 
     new Chart(document.getElementById('ctPerHourChart'), {
         type: 'bar',
@@ -867,46 +858,48 @@
             labels: ['SQL', 'Python'],
             datasets: [
                 {
-                    type: 'bar',
                     label: 'IQR Range [25th - 75th %ile]',
                     data: [
-                        [ctData.sql?.q1 || 21.4, ctData.sql?.q3 || 31.8],
-                        [ctData.python?.q1 || 12.0, ctData.python?.q3 || 17.8]
+                        [sqlStats.q1, sqlStats.q3],
+                        [pyStats.q1, pyStats.q3]
                     ],
-                    backgroundColor: ['rgba(56, 189, 248, 0.22)', 'rgba(192, 132, 252, 0.22)'],
+                    backgroundColor: ['rgba(56, 189, 248, 0.16)', 'rgba(192, 132, 252, 0.16)'],
                     borderColor: ['#38bdf8', '#c084fc'],
                     borderWidth: 1.5,
                     borderRadius: 6,
-                    barPercentage: 0.38
+                    barPercentage: 0.42
                 },
                 {
-                    type: 'scatter',
                     label: 'Learner (SQL)',
-                    data: sqlCtLearners,
+                    data: [],
                     backgroundColor: '#38bdf8',
-                    borderColor: '#ffffff',
-                    borderWidth: 1,
-                    pointRadius: 4.5
+                    borderColor: '#ffffff'
                 },
                 {
-                    type: 'scatter',
                     label: 'Learner (Python)',
-                    data: pyCtLearners,
+                    data: [],
                     backgroundColor: '#c084fc',
-                    borderColor: '#ffffff',
-                    borderWidth: 1,
-                    pointRadius: 4.5
+                    borderColor: '#ffffff'
                 }
             ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            layout: { padding: { top: 16, right: 36 } },
+            layout: { padding: { top: 16, right: 40 } },
             plugins: {
                 legend: {
                     position: 'top',
-                    labels: { usePointStyle: true, boxWidth: 8, padding: 14 }
+                    labels: {
+                        usePointStyle: true,
+                        generateLabels: () => [
+                            { text: 'IQR Range [25th - 75th %ile]', fillStyle: 'rgba(56, 189, 248, 0.3)', strokeStyle: '#38bdf8', pointStyle: 'rectRounded' },
+                            { text: 'Learner (SQL)', fillStyle: '#38bdf8', strokeStyle: '#ffffff', pointStyle: 'circle' },
+                            { text: 'Learner (Python)', fillStyle: '#c084fc', strokeStyle: '#ffffff', pointStyle: 'circle' }
+                        ],
+                        boxWidth: 8,
+                        padding: 14
+                    }
                 },
                 tooltip: {
                     backgroundColor: '#0b0f19',
@@ -915,10 +908,9 @@
                     padding: 10,
                     callbacks: {
                         label: ctx => {
-                            if (ctx.raw?.study_id) {
-                                return ` ${ctx.raw.study_id}: ${ctx.raw.y} CT/h`;
-                            }
-                            return ` IQR: ${ctx.raw[0]} - ${ctx.raw[1]} CT/h`;
+                            const isSQL = ctx.dataIndex === 0;
+                            const s = isSQL ? sqlStats : pyStats;
+                            return ` IQR: ${s.q1} – ${s.q3} CT/h (Median: ${s.median} CT/h)`;
                         }
                     }
                 }
@@ -926,12 +918,7 @@
             scales: {
                 x: {
                     grid: { display: false },
-                    title: { display: true, text: 'Evaluation Condition', color: '#94a3b8', font: { weight: '600', size: 11 } },
-                    ticks: {
-                        callback: function(val, index) {
-                            return ['SQL', 'Python'][index] || '';
-                        }
-                    }
+                    title: { display: true, text: 'Evaluation Condition', color: '#94a3b8', font: { weight: '600', size: 11 } }
                 },
                 y: {
                     beginAtZero: true,
@@ -946,7 +933,7 @@
                 }
             }
         },
-        plugins: [ctIqrPlugin]
+        plugins: [ctStripPlugin]
     });
 
     // ==========================================
@@ -983,7 +970,7 @@
                 const barSql = metaSql.data[index];
                 const barPy = metaPy.data[index];
 
-                ctx.strokeStyle = isExport ? '#000000' : '#e2e8f0';
+                ctx.strokeStyle = isExport ? '#000000' : '#f1f5f9';
                 ctx.lineWidth = 1.8;
 
                 // SQL Whisker
@@ -1018,7 +1005,6 @@
         }
     };
 
-    // Label on x-axis with n=15 under each task
     const taskLabelsWithN = tasks.map(t => `${t.task_id} (n=15)`);
 
     new Chart(document.getElementById('durationChart'), {
@@ -1065,7 +1051,7 @@
                             const med = ctx.raw;
                             const q1 = isSQL ? t.sql_q1_time : t.python_q1_time;
                             const q3 = isSQL ? t.sql_q3_time : t.python_q3_time;
-                            return ` ${ctx.dataset.label}: ${med}s [IQR: ${q1}s &ndash; ${q3}s]`;
+                            return ` ${ctx.dataset.label}: ${med}s [IQR: ${q1}s – ${q3}s]`;
                         }
                     }
                 }
@@ -1078,7 +1064,7 @@
                 y: {
                     beginAtZero: true,
                     min: 0,
-                    max: 540,
+                    max: 600,
                     grid: darkGrid,
                     title: { display: true, text: 'Duration (seconds)', color: '#94a3b8', font: { weight: '600', size: 11 } },
                     ticks: {
@@ -1124,7 +1110,7 @@
                 const t = tasks[index];
                 const text = `${t.speed_ratio}x (n=${t.speed_ratio_n || 15})`;
                 ctx.fillStyle = isExport ? '#000000' : '#f8fafc';
-                ctx.font = '700 11.5px Inter, sans-serif';
+                ctx.font = '700 11px Inter, sans-serif';
                 ctx.textAlign = 'center';
                 ctx.fillText(text, bar.x, bar.y - 8);
             });
@@ -1139,16 +1125,18 @@
             datasets: [{
                 label: 'Speedup Ratio (Python / SQL)',
                 data: tasks.map(t => t.speed_ratio || 1.0),
-                backgroundColor: tasks.map(t => (t.speed_ratio >= 1.5 ? '#38bdf8' : 'rgba(56, 189, 248, 0.75)')),
+                backgroundColor: '#38bdf8',
                 hoverBackgroundColor: '#0284c7',
-                borderRadius: 6,
-                borderSkipped: false
+                borderRadius: 5,
+                borderSkipped: false,
+                barPercentage: 0.55,
+                categoryPercentage: 0.75
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            layout: { padding: { top: 26 } },
+            layout: { padding: { top: 28, left: 30, right: 20 } },
             plugins: {
                 legend: { display: false },
                 tooltip: {
@@ -1172,7 +1160,7 @@
                 y: {
                     beginAtZero: true,
                     min: 0,
-                    max: 3.0,
+                    max: 3.5,
                     grid: darkGrid,
                     title: { display: true, text: 'Speedup Ratio (Python / SQL)', color: '#94a3b8', font: { weight: '600', size: 11 } },
                     ticks: {
@@ -1272,39 +1260,52 @@
                 ctx.beginPath();
                 ctx.moveTo(xCenter, yQ1);
                 ctx.lineTo(xCenter, yQ3);
-                ctx.moveTo(xCenter - 10, yQ1);
-                ctx.lineTo(xCenter + 10, yQ1);
-                ctx.moveTo(xCenter - 10, yQ3);
-                ctx.lineTo(xCenter + 10, yQ3);
+                ctx.moveTo(xCenter - 14, yQ1);
+                ctx.lineTo(xCenter + 14, yQ1);
+                ctx.moveTo(xCenter - 14, yQ3);
+                ctx.lineTo(xCenter + 14, yQ3);
                 ctx.stroke();
 
                 // Median line
                 ctx.strokeStyle = isExport ? '#000000' : '#f59e0b';
                 ctx.lineWidth = 3.5;
                 ctx.beginPath();
-                ctx.moveTo(xCenter - 18, yMed);
-                ctx.lineTo(xCenter + 18, yMed);
+                ctx.moveTo(xCenter - 22, yMed);
+                ctx.lineTo(xCenter + 22, yMed);
                 ctx.stroke();
 
                 ctx.fillStyle = isExport ? '#000000' : '#f8fafc';
-                ctx.font = '600 11px Inter, sans-serif';
+                ctx.font = '700 11px Inter, sans-serif';
                 ctx.textAlign = 'left';
-                ctx.fillText(`Med: ${cond.stats.median}`, xCenter + 26, yMed + 4);
+                ctx.fillText(`Med: ${cond.stats.median}`, xCenter + 34, yMed + 4);
+
+                // Jittered learner dots
+                const learners = cond.idx === 0 ? (compData.sql?.learners || []) : (compData.python?.learners || []);
+                const color = cond.idx === 0 ? '#38bdf8' : '#c084fc';
+                const exportColor = cond.idx === 0 ? '#1e3a8a' : '#374151';
+
+                learners.forEach((l, i) => {
+                    const colOffset = ((i % 5) - 2) * 11;
+                    const xDot = xCenter + colOffset;
+                    const yDot = y.getPixelForValue(l.score);
+
+                    ctx.fillStyle = isExport ? exportColor : color;
+                    ctx.strokeStyle = isExport ? '#000000' : '#ffffff';
+                    ctx.lineWidth = 1.2;
+                    ctx.beginPath();
+                    if (isExport && cond.idx === 1) {
+                        ctx.rect(xDot - 3.5, yDot - 3.5, 7, 7);
+                    } else {
+                        ctx.arc(xDot, yDot, 4.5, 0, Math.PI * 2);
+                    }
+                    ctx.fill();
+                    ctx.stroke();
+                });
+
                 ctx.restore();
             });
         }
     };
-
-    const sqlCompLearners = (compData.sql?.learners || []).map((l, i) => ({
-        x: 0 + (((i * 7) % 11) - 5) * 0.024,
-        y: l.score,
-        study_id: l.study_id
-    }));
-    const pyCompLearners = (compData.python?.learners || []).map((l, i) => ({
-        x: 1 + (((i * 5) % 11) - 5) * 0.024,
-        y: l.score,
-        study_id: l.study_id
-    }));
 
     new Chart(document.getElementById('comprehensionChart'), {
         type: 'bar',
@@ -1318,40 +1319,43 @@
                         [compData.sql?.q1 || 15.0, compData.sql?.q3 || 16.0],
                         [compData.python?.q1 || 11.0, compData.python?.q3 || 14.0]
                     ],
-                    backgroundColor: ['rgba(56, 189, 248, 0.22)', 'rgba(192, 132, 252, 0.22)'],
+                    backgroundColor: ['rgba(56, 189, 248, 0.16)', 'rgba(192, 132, 252, 0.16)'],
                     borderColor: ['#38bdf8', '#c084fc'],
                     borderWidth: 1.5,
                     borderRadius: 6,
-                    barPercentage: 0.38
+                    barPercentage: 0.42
                 },
                 {
-                    type: 'scatter',
                     label: 'Learner (SQL)',
-                    data: sqlCompLearners,
+                    data: [],
                     backgroundColor: '#38bdf8',
-                    borderColor: '#ffffff',
-                    borderWidth: 1,
-                    pointRadius: 4.5
+                    borderColor: '#ffffff'
                 },
                 {
-                    type: 'scatter',
                     label: 'Learner (Python)',
-                    data: pyCompLearners,
+                    data: [],
                     backgroundColor: '#c084fc',
-                    borderColor: '#ffffff',
-                    borderWidth: 1,
-                    pointRadius: 4.5
+                    borderColor: '#ffffff'
                 }
             ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            layout: { padding: { top: 16, right: 30 } },
+            layout: { padding: { top: 16, right: 38 } },
             plugins: {
                 legend: {
                     position: 'top',
-                    labels: { usePointStyle: true, boxWidth: 8, padding: 14 }
+                    labels: {
+                        usePointStyle: true,
+                        generateLabels: () => [
+                            { text: 'IQR Range [25th - 75th %ile]', fillStyle: 'rgba(56, 189, 248, 0.3)', strokeStyle: '#38bdf8', pointStyle: 'rectRounded' },
+                            { text: 'Learner (SQL)', fillStyle: '#38bdf8', strokeStyle: '#ffffff', pointStyle: 'circle' },
+                            { text: 'Learner (Python)', fillStyle: '#c084fc', strokeStyle: '#ffffff', pointStyle: 'circle' }
+                        ],
+                        boxWidth: 8,
+                        padding: 14
+                    }
                 },
                 tooltip: {
                     backgroundColor: '#0b0f19',
@@ -1360,10 +1364,9 @@
                     padding: 10,
                     callbacks: {
                         label: ctx => {
-                            if (ctx.raw?.study_id) {
-                                return ` ${ctx.raw.study_id}: ${ctx.raw.y} / 18 pts`;
-                            }
-                            return ` IQR: ${ctx.raw[0]} - ${ctx.raw[1]} pts`;
+                            const isSQL = ctx.dataIndex === 0;
+                            const s = isSQL ? (compData.sql || {}) : (compData.python || {});
+                            return ` IQR: ${s.q1} – ${s.q3} pts (Median: ${s.median} pts)`;
                         }
                     }
                 }
@@ -1601,6 +1604,14 @@
             exportChartInstance.destroy();
         }, 'image/png');
     }
+
+    document.querySelector('.supplementary-details')?.addEventListener('toggle', function() {
+        if (this.open) {
+            ['attemptChart', 'comprehensionChart', 'surveyLikertChart'].forEach(id => {
+                Chart.getChart(id)?.resize();
+            });
+        }
+    });
 </script>
 
 </body>
