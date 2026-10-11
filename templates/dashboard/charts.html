@@ -1540,12 +1540,22 @@
             }
         };
 
-        if (canvasId === 'ctPerHourChart') {
+        if (canvasId === 'correctTasksChart') {
+            if (paperConfig.options.scales && paperConfig.options.scales.y) {
+                paperConfig.options.scales.y.max = 18;
+            }
+        } else if (canvasId === 'ctPerHourChart') {
+            if (paperConfig.options.scales && paperConfig.options.scales.y) {
+                paperConfig.options.scales.y.max = 50;
+            }
             paperConfig.data.datasets = [
                 { label: 'SQL Condition', backgroundColor: '#1e3a8a', borderColor: '#000000', pointStyle: 'circle' },
                 { label: 'Python Condition', backgroundColor: '#374151', borderColor: '#000000', pointStyle: 'rect' }
             ];
         } else if (canvasId === 'comprehensionChart') {
+            if (paperConfig.options.scales && paperConfig.options.scales.y) {
+                paperConfig.options.scales.y.max = 21;
+            }
             paperConfig.data.datasets = [
                 { label: 'SQL Comprehension', backgroundColor: '#1e3a8a', borderColor: '#000000', pointStyle: 'circle' },
                 { label: 'Python Comprehension', backgroundColor: '#374151', borderColor: '#000000', pointStyle: 'rect' }
@@ -1553,6 +1563,8 @@
         } else if (canvasId === 'speedupChart') {
             paperConfig.options.plugins.legend.display = false;
         }
+
+        paperConfig.options.layout = { padding: { top: 20, bottom: 20, left: 30, right: 40 } };
 
         // Color mapping & B/W marker shapes
         // SQL -> Dark Blue (#1e3a8a) with circle marker
