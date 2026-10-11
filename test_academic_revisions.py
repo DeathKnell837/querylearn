@@ -270,6 +270,52 @@ class AcademicRevisionsTestCase(unittest.TestCase):
 
         conn.close()
 
+    def test_paper_comparison_charts(self):
+        """Verify restructured comparison page charts, paper download buttons, and unified paired speedup ratio."""
+        with self.client.session_transaction() as sess:
+            sess['is_researcher'] = True
+            sess['researcher_name'] = 'admin'
+
+        resp = self.client.get('/dashboard/charts')
+        self.assertEqual(resp.status_code, 200)
+        html = resp.get_data(as_text=True)
+
+        # 1. Verification of 5 Core Paper Charts
+        self.assertIn('Correct Tasks per Task', html)
+        self.assertIn('Correct Tasks per Learner (out of 6)', html)
+        self.assertIn('Correct Tasks per Hour', html)
+        self.assertIn('Median Completion Duration', html)
+        self.assertIn('Speedup Advantage Ratio', html)
+
+        # 2. Removed deprecated charts
+        self.assertNotIn('Task Outcomes: Correct vs. Incorrect', html)
+        self.assertNotIn('Overall Correct vs. Incorrect', html)
+
+        # 3. Download for paper buttons on every chart
+        download_btn_count = html.count('Download for paper')
+        self.assertGreaterEqual(download_btn_count, 8, "Expected at least 8 Download for paper buttons across charts")
+        self.assertIn('exportChartForPaper', html)
+
+        # 4. Supplementary section with Comprehension & Survey Likert charts
+        self.assertIn('Supplementary', html)
+        self.assertIn('Attempt Distribution', html)
+        self.assertIn('Code Comprehension Score', html)
+        self.assertIn('Survey Likert Responses by Condition', html)
+
+        # 5. Check unified paired speedup ratio (1.54x) on both Overview and Comparison pages
+        resp_overview = self.client.get('/dashboard/')
+        self.assertEqual(resp_overview.status_code, 200)
+        overview_html = resp_overview.get_data(as_text=True)
+
+        self.assertIn('1.54x', html, "Comparison page must display unified 1.54x paired ratio")
+        self.assertIn('1.54x', overview_html, "Dashboard overview must display unified 1.54x paired ratio")
+
+        # 6. Verify absolute absence of forbidden words in visible text
+        for forbidden in ['telemetry', 'empirical', 'synthesis']:
+            self.assertNotIn(forbidden, html.lower(), f"Forbidden word '{forbidden}' found in charts page")
+            self.assertNotIn(forbidden, overview_html.lower(), f"Forbidden word '{forbidden}' found in overview page")
+
 
 if __name__ == '__main__':
     unittest.main()
+

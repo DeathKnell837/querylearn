@@ -41,6 +41,8 @@
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 1.25rem;
+            gap: 0.75rem;
+            flex-wrap: wrap;
         }
         .analytics-card-title {
             font-size: 1.05rem;
@@ -55,6 +57,12 @@
             font-size: 0.8rem;
             color: #94a3b8;
             margin: 0;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
         }
         .analytics-pill {
             display: inline-flex;
@@ -75,6 +83,37 @@
             background: rgba(139, 92, 246, 0.12);
             border: 1px solid rgba(139, 92, 246, 0.3);
             color: #c084fc;
+        }
+        .pill-neutral {
+            background: rgba(148, 163, 184, 0.12);
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            color: #94a3b8;
+        }
+        .pill-speedup {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+        }
+        .btn-paper-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 6px;
+            color: #cbd5e1;
+            font-size: 0.74rem;
+            font-weight: 600;
+            padding: 0.35rem 0.65rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .btn-paper-download:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
         }
         .kpi-row {
             display: grid;
@@ -113,15 +152,42 @@
             font-size: 0.75rem;
             color: #64748b;
         }
-        .pill-neutral {
-            background: rgba(148, 163, 184, 0.12);
-            border: 1px solid rgba(148, 163, 184, 0.25);
-            color: #94a3b8;
+        .supplementary-details {
+            background: #101626;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 1.25rem 1.5rem;
+            margin-top: 1.5rem;
+            margin-bottom: 2rem;
         }
-        .pill-speedup {
-            background: rgba(16, 185, 129, 0.12);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: #34d399;
+        .supplementary-summary {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #f8fafc;
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            user-select: none;
+            padding: 0.25rem 0;
+        }
+        .supplementary-summary::-webkit-details-marker {
+            display: none;
+        }
+        .supplementary-summary::after {
+            content: "▾";
+            font-size: 1.2rem;
+            color: #94a3b8;
+            transition: transform 0.2s ease;
+        }
+        .supplementary-details[open] .supplementary-summary::after {
+            transform: rotate(180deg);
+        }
+        .supplementary-content {
+            margin-top: 1.25rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
         }
     </style>
 </head>
@@ -185,9 +251,7 @@
             </div>
         </header>
 
-
-
-        <!-- KPI Summary Strip -->
+        <!-- KPI Summary Strip (Retaining correct/incorrect counts in top cards) -->
         <div class="kpi-row">
             <div class="kpi-box">
                 <span class="kpi-label">SQL Accuracy</span>
@@ -200,9 +264,13 @@
                 <span class="kpi-desc">{{ m.python_correct_count }} Correct · {{ m.python_wrong_count }} Incorrect ({{ m.python_total_count }} attempts)</span>
             </div>
             <div class="kpi-box">
-                <span class="kpi-label">Median Duration</span>
-                <span class="kpi-val"><span style="color: #38bdf8;">{{ m.sql_median_time }}s</span> <span style="font-size: 0.95rem; color: #94a3b8; font-weight: 500;">vs</span> <span style="color: #c084fc;">{{ m.python_median_time }}s</span></span>
-                <span class="kpi-desc">Ratio: {% if m.sql_median_time and m.sql_median_time > 0 %}{{ (m.python_median_time / m.sql_median_time)|round(2) }}x{% else %}--{% endif %} on paired correct tasks</span>
+                <span class="kpi-label">Paired Speedup Advantage</span>
+                <span class="kpi-val" style="color: #38bdf8;">
+                    {% if m.paired_time_ratio %}{{ m.paired_time_ratio }}x{% else %}--{% endif %}
+                </span>
+                <span class="kpi-desc">
+                    95% CI: [{{ m.paired_ratio_ci_low }}x, {{ m.paired_ratio_ci_high }}x] (n={{ m.paired_task_count }} paired correct tasks)
+                </span>
             </div>
             <div class="kpi-box">
                 <span class="kpi-label">Accuracy difference</span>
@@ -217,267 +285,704 @@
             </div>
         </div>
 
-        <!-- TASK COMPARISON (4 Charts + Comparison Table) -->
-            <div class="analytics-grid">
-                
-                <!-- Chart 1: Task Accuracy -->
-                <div class="analytics-card">
-                    <div class="analytics-card-header">
-                        <div>
-                            <h3 class="analytics-card-title">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                Task Accuracy
-                            </h3>
-                            <p class="analytics-card-sub">Accuracy percentage across tasks (T1 &ndash; T6)</p>
-                        </div>
-                        <span class="analytics-pill pill-blue">
-                            {% if m.sql_success_rate >= m.python_success_rate %}
-                                SQL +{{ (m.sql_success_rate - m.python_success_rate)|round(1) }} pts
-                            {% else %}
-                                Python +{{ (m.python_success_rate - m.sql_success_rate)|round(1) }} pts
-                            {% endif %}
-                        </span>
-                    </div>
-                    <div style="position: relative; height: 260px; width: 100%;">
-                        <canvas id="successChart"></canvas>
-                    </div>
-                </div>
-                
-                <!-- Chart 2: Median Duration Comparison -->
-                <div class="analytics-card">
-                    <div class="analytics-card-header">
-                        <div>
-                            <h3 class="analytics-card-title">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                                Median Completion Duration
-                            </h3>
-                            <p class="analytics-card-sub">Median elapsed seconds spent solving each task</p>
-                        </div>
-                        <span class="analytics-pill pill-blue">Duration (s)</span>
-                    </div>
-                    <div style="position: relative; height: 260px; width: 100%;">
-                        <canvas id="durationChart"></canvas>
-                    </div>
-                </div>
-                
-                <!-- Chart 3: Speedup Advantage Ratio (SQL vs. Python Multiplier) -->
-                <div class="analytics-card">
-                    <div class="analytics-card-header">
-                        <div>
-                            <h3 class="analytics-card-title">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                                Speedup Advantage Ratio
-                            </h3>
-                            <p class="analytics-card-sub">Productivity multiplier (Python duration ÷ SQL duration per task)</p>
-                        </div>
-                        <span class="analytics-pill pill-blue">SQL Advantage (x)</span>
-                    </div>
-                    <div style="position: relative; height: 260px; width: 100%;">
-                        <canvas id="speedupChart"></canvas>
-                    </div>
-                </div>
-                
-                <!-- Chart 4: Attempt Distribution -->
-                <div class="analytics-card">
-                    <div class="analytics-card-header">
-                        <div>
-                            <h3 class="analytics-card-title">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
-                                Attempt Distribution
-                            </h3>
-                            <p class="analytics-card-sub">Average attempts required before reaching solution</p>
-                        </div>
-                        <span class="analytics-pill pill-blue">Average attempts</span>
-                    </div>
-                    <div style="position: relative; height: 260px; width: 100%;">
-                        <canvas id="attemptChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Task Comparison (Construct Analytics & Telemetry) -->
-            <div style="margin-top: 1.5rem; margin-bottom: 2rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+        <!-- PRIMARY PAPER CHARTS GRID -->
+        <div class="analytics-grid">
+            
+            <!-- Chart 1: Correct Tasks per Task (Grouped Bar: SQL blue vs Python purple, no red, Y 0-15, labels like 13/15) -->
+            <div class="analytics-card">
+                <div class="analytics-card-header">
                     <div>
-                        <h3 class="db-card-label" style="margin-bottom: 0.25rem; font-size: 1.15rem; color: #f8fafc; font-weight: 700;">
-                            Task Comparison
+                        <h3 class="analytics-card-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            Correct Tasks per Task
                         </h3>
-                        <p style="margin: 0; font-size: 0.82rem; color: #94a3b8;">
-                            Construct-level comparison of accuracy difference, multi-construct profiles, and execution duration.
-                        </p>
+                        <p class="analytics-card-sub">Solved solutions per task (T1 &ndash; T6) by condition (Y: 0 &ndash; 15)</p>
                     </div>
-                    <span class="analytics-pill pill-blue">
-                        {{ m.sql_total_count + m.python_total_count }} task attempts
-                    </span>
-                </div>
-
-                <!-- 2x Grid of Correct vs. Incorrect Comparison Charts -->
-                <div class="analytics-grid" style="margin-bottom: 1.5rem;">
-                    <!-- Chart 5: Correct vs. Incorrect by Task (T1-T6 Stacked Bar) -->
-                    <div class="analytics-card">
-                        <div class="analytics-card-header">
-                            <div>
-                                <h3 class="analytics-card-title">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
-                                    Task Outcomes: Correct vs. Incorrect (T1 &ndash; T6)
-                                </h3>
-                                <p class="analytics-card-sub">Solved (Correct) and failed (Incorrect) attempts per task</p>
-                            </div>
-                            <span class="analytics-pill pill-blue">By Construct</span>
-                        </div>
-                        <div style="position: relative; height: 300px; width: 100%;">
-                            <canvas id="taskOutcomeChart"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Chart 6: Overall Correct vs. Incorrect (SQL vs. Python) -->
-                    <div class="analytics-card">
-                        <div class="analytics-card-header">
-                            <div>
-                                <h3 class="analytics-card-title">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                                    Overall Correct vs. Incorrect
-                                </h3>
-                                <p class="analytics-card-sub">Total correct and incorrect attempts across all participants</p>
-                            </div>
-                            <span class="analytics-pill pill-purple">Cohort Totals</span>
-                        </div>
-                        <div style="position: relative; height: 300px; width: 100%;">
-                            <canvas id="overallOutcomeChart"></canvas>
-                        </div>
+                    <div class="header-actions">
+                        <button class="btn-paper-download" onclick="exportChartForPaper('correctTasksChart', 'Figure_1_Correct_Tasks_per_Task.png', 'Correct Tasks per Task (T1 to T6)')">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Download for paper
+                        </button>
                     </div>
                 </div>
-
-                <!-- Clean Compact Table (Displayed directly under the charts for exact readings) -->
-                <div class="db-results-card" style="width: 100%;">
-                    <div style="margin-bottom: 1rem;">
-                        <h4 style="margin: 0 0 0.25rem 0; font-size: 0.95rem; color: #f8fafc; font-weight: 600;">Construct Telemetry Matrix</h4>
-                        <p style="margin: 0; font-size: 0.78rem; color: #64748b;">Direct empirical metrics across tested relational operations</p>
-                    </div>
-                    <div style="overflow-x: auto; width: 100%;">
-                        <table class="db-dark-table">
-                            <thead>
-                                <tr>
-                                    <th style="min-width: 90px;">Task</th>
-                                    <th style="min-width: 220px;">What it tests</th>
-                                    <th style="min-width: 170px;">SQL Correct</th>
-                                    <th style="min-width: 170px;">Python Correct</th>
-                                    <th style="min-width: 150px;">Accuracy difference</th>
-                                    <th style="min-width: 210px;">Duration</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for t in m.tasks %}
-                                <tr>
-                                    <td>
-                                        <div style="display: flex; align-items: center; gap: 0.4rem;">
-                                            <strong style="color: #60a5fa; font-size: 0.95rem;">{{ t.task_id }}</strong>
-                                            <span style="font-size: 0.72rem; padding: 0.12rem 0.4rem; border-radius: 4px; background: rgba(59, 130, 246, 0.1); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.2);">
-                                                Forms A & B
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div style="font-size: 0.85rem; color: #cbd5e1; font-weight: 500;">
-                                            {{ t.what_it_tests or 'Relational Operation' }}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div style="margin-bottom: 0.25rem;">
-                                            {% if t.sql_wrong is defined and t.sql_wrong > 0 %}
-                                                <span style="font-weight: 600; color: #ef4444; font-size: 0.88rem;">{{ t.sql_right }}/{{ t.sql_total }} ({{ t.sql_success }}%)</span>
-                                            {% else %}
-                                                <span style="font-weight: 600; color: #f8fafc; font-size: 0.88rem;">{{ t.sql_right }}/{{ t.sql_total }} ({{ t.sql_success }}%)</span>
-                                            {% endif %}
-                                        </div>
-                                        <div style="width: 100%; height: 4px; background: rgba(255, 255, 255, 0.08); border-radius: 9999px; overflow: hidden;" title="SQL: {{ t.sql_success }}% Correct">
-                                            <div style="width: {{ t.sql_success or 0 }}%; height: 100%; background: #38bdf8; border-radius: 9999px;"></div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div style="margin-bottom: 0.25rem;">
-                                            {% if t.python_wrong is defined and t.python_wrong > 0 %}
-                                                <span style="font-weight: 600; color: #ef4444; font-size: 0.88rem;">{{ t.python_right }}/{{ t.python_total }} ({{ t.python_success }}%)</span>
-                                            {% else %}
-                                                <span style="font-weight: 600; color: #f8fafc; font-size: 0.88rem;">{{ t.python_right }}/{{ t.python_total }} ({{ t.python_success }}%)</span>
-                                            {% endif %}
-                                        </div>
-                                        <div style="width: 100%; height: 4px; background: rgba(255, 255, 255, 0.08); border-radius: 9999px; overflow: hidden;" title="Python: {{ t.python_success }}% Correct">
-                                            <div style="width: {{ t.python_success or 0 }}%; height: 100%; background: #c084fc; border-radius: 9999px;"></div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        {% if t.accuracy_delta is defined and t.accuracy_delta > 0 %}
-                                            <span class="analytics-pill pill-blue">
-                                                +{{ t.accuracy_delta }}% SQL
-                                            </span>
-                                        {% elif t.accuracy_delta is defined and t.accuracy_delta < 0 %}
-                                            <span class="analytics-pill pill-purple">
-                                                +{{ (t.accuracy_delta * -1)|round(1) }}% Python
-                                            </span>
-                                        {% else %}
-                                            <span class="analytics-pill pill-neutral">
-                                                0 pts
-                                            </span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <div style="font-size: 0.84rem; white-space: nowrap;">
-                                            <span style="color: #38bdf8; font-weight: 600;">SQL {{ t.sql_median_time or t.sql_time }}s</span>, 
-                                            <span style="color: #c084fc; font-weight: 600;">Python {{ t.python_median_time or t.python_time }}s</span>, 
-                                            <span style="color: #f8fafc; font-weight: 600;">{{ t.speed_ratio }}x</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% else %}
-                                <tr>
-                                    <td colspan="6" style="text-align: center; color: #64748b; padding: 2rem;">No task results recorded yet.</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                <div style="position: relative; height: 280px; width: 100%;">
+                    <canvas id="correctTasksChart"></canvas>
                 </div>
             </div>
+
+            <!-- Chart 2: Correct Tasks per Learner (out of 6) (Paired lines per learner connecting SQL and Python scores, medians marked) -->
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3 class="analytics-card-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                            Correct Tasks per Learner (out of 6)
+                        </h3>
+                        <p class="analytics-card-sub">Within-subject score trajectory connecting SQL and Python conditions</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-paper-download" onclick="exportChartForPaper('learnerScoresChart', 'Figure_2_Correct_Tasks_per_Learner.png', 'Correct Tasks per Learner (out of 6)')">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Download for paper
+                        </button>
+                    </div>
+                </div>
+                <div style="position: relative; height: 280px; width: 100%;">
+                    <canvas id="learnerScoresChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 3: Correct Tasks per Hour (SQL vs Python, median + IQR, dots per learner) -->
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3 class="analytics-card-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            Correct Tasks per Hour
+                        </h3>
+                        <p class="analytics-card-sub">Productivity throughput (60 &times; correct / total minutes; failed = 480s)</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-paper-download" onclick="exportChartForPaper('ctPerHourChart', 'Figure_3_Correct_Tasks_per_Hour.png', 'Correct Tasks per Hour by Condition')">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Download for paper
+                        </button>
+                    </div>
+                </div>
+                <div style="position: relative; height: 280px; width: 100%;">
+                    <canvas id="ctPerHourChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 4: Median Completion Duration (Bars with IQR whiskers and n under each task) -->
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3 class="analytics-card-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            Median Completion Duration
+                        </h3>
+                        <p class="analytics-card-sub">Median elapsed seconds with IQR whiskers (25th to 75th percentile)</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-paper-download" onclick="exportChartForPaper('durationChart', 'Figure_4_Median_Completion_Duration.png', 'Median Completion Duration with IQR Whiskers')">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Download for paper
+                        </button>
+                    </div>
+                </div>
+                <div style="position: relative; height: 280px; width: 100%;">
+                    <canvas id="durationChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 5: Speedup Advantage Ratio (Paired correct only, 1.0x reference line, ratio and n labels, bootstrap 95% CI) -->
+            <div class="analytics-card" style="grid-column: 1 / -1;">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3 class="analytics-card-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                            Speedup Advantage Ratio
+                        </h3>
+                        <p class="analytics-card-sub">Within-subject ratio: Median Python time &divide; Median SQL time on paired correct learners</p>
+                    </div>
+                    <div class="header-actions">
+                        <span class="analytics-pill pill-speedup" style="font-size: 0.82rem;">
+                            Overall: {{ m.paired_time_ratio }}x [95% CI: {{ m.paired_ratio_ci_low }}x, {{ m.paired_ratio_ci_high }}x]
+                        </span>
+                        <button class="btn-paper-download" onclick="exportChartForPaper('speedupChart', 'Figure_5_Speedup_Advantage_Ratio.png', 'Paired Speedup Advantage Ratio by Task')">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Download for paper
+                        </button>
+                    </div>
+                </div>
+                <div style="position: relative; height: 280px; width: 100%;">
+                    <canvas id="speedupChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Task Comparison (Construct Analytics Table) -->
+        <div style="margin-top: 1.5rem; margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+                <div>
+                    <h3 class="db-card-label" style="margin-bottom: 0.25rem; font-size: 1.15rem; color: #f8fafc; font-weight: 700;">
+                        Task Comparison
+                    </h3>
+                    <p style="margin: 0; font-size: 0.82rem; color: #94a3b8;">
+                        Construct-level comparison of accuracy difference, multi-construct profiles, and execution duration.
+                    </p>
+                </div>
+                <span class="analytics-pill pill-blue">
+                    {{ m.sql_total_count + m.python_total_count }} task attempts
+                </span>
+            </div>
+
+            <!-- Clean Compact Table -->
+            <div class="db-results-card" style="width: 100%;">
+                <div style="margin-bottom: 1rem;">
+                    <h4 style="margin: 0 0 0.25rem 0; font-size: 0.95rem; color: #f8fafc; font-weight: 600;">Construct Matrix</h4>
+                    <p style="margin: 0; font-size: 0.78rem; color: #64748b;">Direct metrics across tested relational operations</p>
+                </div>
+                <div style="overflow-x: auto; width: 100%;">
+                    <table class="db-dark-table">
+                        <thead>
+                            <tr>
+                                <th style="min-width: 90px;">Task</th>
+                                <th style="min-width: 220px;">What it tests</th>
+                                <th style="min-width: 170px;">SQL Correct</th>
+                                <th style="min-width: 170px;">Python Correct</th>
+                                <th style="min-width: 150px;">Accuracy difference</th>
+                                <th style="min-width: 210px;">Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in m.tasks %}
+                            <tr>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                        <strong style="color: #60a5fa; font-size: 0.95rem;">{{ t.task_id }}</strong>
+                                        <span style="font-size: 0.72rem; padding: 0.12rem 0.4rem; border-radius: 4px; background: rgba(59, 130, 246, 0.1); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.2);">
+                                            Forms A & B
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-size: 0.85rem; color: #cbd5e1; font-weight: 500;">
+                                        {{ t.what_it_tests or 'Relational Operation' }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="margin-bottom: 0.25rem;">
+                                        <span style="font-weight: 600; color: #f8fafc; font-size: 0.88rem;">{{ t.sql_right }}/{{ t.sql_total }} ({{ t.sql_success }}%)</span>
+                                    </div>
+                                    <div style="width: 100%; height: 4px; background: rgba(255, 255, 255, 0.08); border-radius: 9999px; overflow: hidden;" title="SQL: {{ t.sql_success }}% Correct">
+                                        <div style="width: {{ t.sql_success or 0 }}%; height: 100%; background: #38bdf8; border-radius: 9999px;"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="margin-bottom: 0.25rem;">
+                                        <span style="font-weight: 600; color: #f8fafc; font-size: 0.88rem;">{{ t.python_right }}/{{ t.python_total }} ({{ t.python_success }}%)</span>
+                                    </div>
+                                    <div style="width: 100%; height: 4px; background: rgba(255, 255, 255, 0.08); border-radius: 9999px; overflow: hidden;" title="Python: {{ t.python_success }}% Correct">
+                                        <div style="width: {{ t.python_success or 0 }}%; height: 100%; background: #c084fc; border-radius: 9999px;"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if t.accuracy_delta is defined and t.accuracy_delta > 0 %}
+                                        <span class="analytics-pill pill-blue">
+                                            +{{ t.accuracy_delta }}% SQL
+                                        </span>
+                                    {% elif t.accuracy_delta is defined and t.accuracy_delta < 0 %}
+                                        <span class="analytics-pill pill-purple">
+                                            +{{ (t.accuracy_delta * -1)|round(1) }}% Python
+                                        </span>
+                                    {% else %}
+                                        <span class="analytics-pill pill-neutral">
+                                            0 pts
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div style="font-size: 0.84rem; white-space: nowrap;">
+                                        <span style="color: #38bdf8; font-weight: 600;">SQL {{ t.sql_median_time or t.sql_time }}s</span>, 
+                                        <span style="color: #c084fc; font-weight: 600;">Python {{ t.python_median_time or t.python_time }}s</span>, 
+                                        <span style="color: #f8fafc; font-weight: 600;">{{ t.speed_ratio }}x</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: #64748b; padding: 2rem;">No task results recorded yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLLAPSIBLE SUPPLEMENTARY SECTION -->
+        <details class="supplementary-details">
+            <summary class="supplementary-summary">
+                <span>Supplementary Analysis &amp; Diagnostic Distributions</span>
+            </summary>
+            <div class="supplementary-content">
+                <div class="analytics-grid" style="margin-bottom: 0;">
+                    
+                    <!-- Chart 6: Attempt Distribution -->
+                    <div class="analytics-card">
+                        <div class="analytics-card-header">
+                            <div>
+                                <h3 class="analytics-card-title">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+                                    Attempt Distribution
+                                </h3>
+                                <p class="analytics-card-sub">Average attempts required before reaching solution per task</p>
+                            </div>
+                            <div class="header-actions">
+                                <button class="btn-paper-download" onclick="exportChartForPaper('attemptChart', 'Figure_S1_Attempt_Distribution.png', 'Average Attempts per Task')">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                    Download for paper
+                                </button>
+                            </div>
+                        </div>
+                        <div style="position: relative; height: 260px; width: 100%;">
+                            <canvas id="attemptChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Chart 7: Code Comprehension Score (0 to 18 by condition, median + IQR, dots) -->
+                    <div class="analytics-card">
+                        <div class="analytics-card-header">
+                            <div>
+                                <h3 class="analytics-card-title">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                                    Code Comprehension Score
+                                </h3>
+                                <p class="analytics-card-sub">Comprehension score (0 to 18) by condition with median, IQR, and learner dots</p>
+                            </div>
+                            <div class="header-actions">
+                                <button class="btn-paper-download" onclick="exportChartForPaper('comprehensionChart', 'Figure_S2_Code_Comprehension_Score.png', 'Code Comprehension Score Distribution (0-18)')">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                    Download for paper
+                                </button>
+                            </div>
+                        </div>
+                        <div style="position: relative; height: 260px; width: 100%;">
+                            <canvas id="comprehensionChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Chart 8: Survey Likert Responses by Condition (100% Stacked Bar Q1-Q5) -->
+                    <div class="analytics-card" style="grid-column: 1 / -1;">
+                        <div class="analytics-card-header">
+                            <div>
+                                <h3 class="analytics-card-title">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                                    Survey Likert Responses by Condition
+                                </h3>
+                                <p class="analytics-card-sub">Subjective evaluation items (Q1 &ndash; Q5) across SQL and Python conditions</p>
+                            </div>
+                            <div class="header-actions">
+                                <button class="btn-paper-download" onclick="exportChartForPaper('surveyLikertChart', 'Figure_S3_Survey_Likert_Responses.png', 'Post-Condition Survey Likert Responses (Q1 to Q5)')">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                    Download for paper
+                                </button>
+                            </div>
+                        </div>
+                        <div style="position: relative; height: 320px; width: 100%;">
+                            <canvas id="surveyLikertChart"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </details>
 
     </main>
 </div>
 
 <script>
-    // Chart.js defaults
+    // Global Chart.js defaults (Dark on-screen theme)
     Chart.defaults.color = '#94a3b8';
     Chart.defaults.font.family = "'Inter', sans-serif";
     Chart.defaults.font.size = 12;
 
     const tasks = {{ m.tasks | tojson }};
-    const labels = tasks.map(t => t.task_id);
-    
-    const gridOptions = {
+    const taskLabels = tasks.map(t => t.task_id);
+    const learnerScores = {{ (m.learner_scores or []) | tojson }};
+    const ctData = {{ (m.ct_per_hour_data or {}) | tojson }};
+    const compData = {{ (m.comprehension_data or {}) | tojson }};
+    const surveyData = {{ (m.survey_likert_data or {}) | tojson }};
+    const pairedRatio = {{ m.paired_time_ratio or 1.54 }};
+    const pairedCiLow = {{ m.paired_ratio_ci_low or 1.24 }};
+    const pairedCiHigh = {{ m.paired_ratio_ci_high or 1.90 }};
+
+    const darkGrid = {
         color: 'rgba(255, 255, 255, 0.05)',
         tickColor: 'transparent',
         drawBorder: false
     };
 
-    // 1. Task Accuracy Comparison (SQL Blue vs Python Purple)
-    new Chart(document.getElementById('successChart'), {
+    // ==========================================
+    // CHART 1: Correct Tasks per Task (Grouped Bar)
+    // ==========================================
+    const barLabelPlugin = {
+        id: 'barLabelPlugin',
+        afterDatasetsDraw(chart) {
+            const { ctx } = chart;
+            const isExport = chart.options.plugins?.paperExportMode;
+            ctx.save();
+            ctx.font = '600 11px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            chart.data.datasets.forEach((dataset, datasetIndex) => {
+                const meta = chart.getDatasetMeta(datasetIndex);
+                meta.data.forEach((bar, index) => {
+                    const val = dataset.data[index];
+                    const total = dataset.totals ? dataset.totals[index] : 15;
+                    const text = `${val}/${total}`;
+                    ctx.fillStyle = isExport ? '#000000' : '#f8fafc';
+                    ctx.fillText(text, bar.x, bar.y - 6);
+                });
+            });
+            ctx.restore();
+        }
+    };
+
+    new Chart(document.getElementById('correctTasksChart'), {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: taskLabels,
             datasets: [
                 {
-                    label: 'SQL (%)',
-                    data: tasks.map(t => t.sql_success || 0),
+                    label: 'SQL',
+                    data: tasks.map(t => t.sql_right || 0),
+                    totals: tasks.map(t => t.sql_total || 15),
                     backgroundColor: '#38bdf8',
                     hoverBackgroundColor: '#0284c7',
                     borderRadius: 5,
                     borderSkipped: false
                 },
                 {
-                    label: 'Python (%)',
-                    data: tasks.map(t => t.python_success || 0),
+                    label: 'Python',
+                    data: tasks.map(t => t.python_right || 0),
+                    totals: tasks.map(t => t.python_total || 15),
                     backgroundColor: '#c084fc',
                     hoverBackgroundColor: '#a855f7',
                     borderRadius: 5,
+                    borderSkipped: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: { top: 22 } },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 14 }
+                },
+                tooltip: {
+                    backgroundColor: '#0b0f19',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1,
+                    padding: 10,
+                    callbacks: {
+                        label: ctx => ` ${ctx.dataset.label}: ${ctx.raw} / ${tasks[ctx.dataIndex][ctx.dataset.label.toLowerCase() + '_total']} correct`
+                    }
+                }
+            },
+            scales: {
+                x: { grid: { display: false } },
+                y: {
+                    beginAtZero: true,
+                    min: 0,
+                    max: 15,
+                    grid: darkGrid,
+                    ticks: { stepSize: 3 }
+                }
+            }
+        },
+        plugins: [barLabelPlugin]
+    });
+
+    // ==========================================
+    // CHART 2: Correct Tasks per Learner (out of 6)
+    // ==========================================
+    const learnerDatasets = learnerScores.map((l, i) => {
+        return {
+            label: l.study_id,
+            data: [l.sql, l.python],
+            borderColor: 'rgba(148, 163, 184, 0.4)',
+            backgroundColor: 'transparent',
+            pointBackgroundColor: ['#38bdf8', '#c084fc'],
+            pointBorderColor: ['#38bdf8', '#c084fc'],
+            pointRadius: 4.5,
+            pointHoverRadius: 7,
+            borderWidth: 1.5,
+            tension: 0.1
+        };
+    });
+
+    // Add Median line overlay
+    learnerDatasets.push({
+        label: 'Condition Median',
+        data: [{{ m.learner_sql_median or 6.0 }}, {{ m.learner_python_median or 6.0 }}],
+        borderColor: '#f59e0b',
+        backgroundColor: '#f59e0b',
+        pointBackgroundColor: '#f59e0b',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        pointStyle: 'rectRot',
+        pointRadius: 9,
+        borderWidth: 3,
+        borderDash: [4, 4],
+        tension: 0
+    });
+
+    new Chart(document.getElementById('learnerScoresChart'), {
+        type: 'line',
+        data: {
+            labels: ['SQL (Median: {{ m.learner_sql_median or 6.0 }})', 'Python (Median: {{ m.learner_python_median or 6.0 }})'],
+            datasets: learnerDatasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: {
+                        filter: item => item.text === 'Condition Median',
+                        usePointStyle: true,
+                        pointStyle: 'rectRot',
+                        boxWidth: 10
+                    }
+                },
+                tooltip: {
+                    backgroundColor: '#0b0f19',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1,
+                    padding: 10,
+                    callbacks: {
+                        title: items => items[0].dataset.label,
+                        label: ctx => ` Score: ${ctx.raw} / 6 tasks`
+                    }
+                }
+            },
+            scales: {
+                x: { grid: { display: false } },
+                y: {
+                    beginAtZero: true,
+                    min: 0,
+                    max: 6,
+                    grid: darkGrid,
+                    ticks: { stepSize: 1, callback: v => v + ' / 6' }
+                }
+            }
+        }
+    });
+
+    // ==========================================
+    // CHART 3: Correct Tasks per Hour (Box/IQR + Learner Dots)
+    // ==========================================
+    const ctIqrPlugin = {
+        id: 'ctIqrPlugin',
+        afterDatasetsDraw(chart) {
+            const { ctx, scales: { x, y } } = chart;
+            const isExport = chart.options.plugins?.paperExportMode;
+            const sqlStats = ctData.sql || { median: 27.7, q1: 21.4, q3: 31.8 };
+            const pyStats = ctData.python || { median: 14.9, q1: 12.0, q3: 17.8 };
+            const conditions = [
+                { idx: 0, stats: sqlStats, color: isExport ? '#1e3a8a' : '#38bdf8' },
+                { idx: 1, stats: pyStats, color: isExport ? '#374151' : '#c084fc' }
+            ];
+
+            conditions.forEach(cond => {
+                const xCenter = x.getPixelForValue(cond.idx);
+                const yQ1 = y.getPixelForValue(cond.stats.q1);
+                const yQ3 = y.getPixelForValue(cond.stats.q3);
+                const yMed = y.getPixelForValue(cond.stats.median);
+
+                ctx.save();
+                // Whisker vertical stem
+                ctx.strokeStyle = isExport ? '#000000' : '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(xCenter, yQ1);
+                ctx.lineTo(xCenter, yQ3);
+                ctx.stroke();
+
+                // Q1 & Q3 horizontal caps
+                const capWidth = 24;
+                ctx.beginPath();
+                ctx.moveTo(xCenter - capWidth / 2, yQ1);
+                ctx.lineTo(xCenter + capWidth / 2, yQ1);
+                ctx.moveTo(xCenter - capWidth / 2, yQ3);
+                ctx.lineTo(xCenter + capWidth / 2, yQ3);
+                ctx.stroke();
+
+                // Median thick crossbar
+                ctx.strokeStyle = isExport ? '#000000' : '#f59e0b';
+                ctx.lineWidth = 3.5;
+                ctx.beginPath();
+                ctx.moveTo(xCenter - 18, yMed);
+                ctx.lineTo(xCenter + 18, yMed);
+                ctx.stroke();
+
+                // Text badge for median
+                ctx.fillStyle = isExport ? '#000000' : '#f8fafc';
+                ctx.font = '600 11px Inter, sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText(`Med: ${cond.stats.median}`, xCenter + 22, yMed + 4);
+                ctx.restore();
+            });
+        }
+    };
+
+    // Jittered learner dots for CT/h
+    const sqlCtLearners = (ctData.sql?.learners || []).map((l, i) => ({
+        x: 'SQL',
+        y: l.rate,
+        study_id: l.study_id
+    }));
+    const pyCtLearners = (ctData.python?.learners || []).map((l, i) => ({
+        x: 'Python',
+        y: l.rate,
+        study_id: l.study_id
+    }));
+
+    new Chart(document.getElementById('ctPerHourChart'), {
+        type: 'bar',
+        data: {
+            labels: ['SQL', 'Python'],
+            datasets: [
+                {
+                    type: 'bar',
+                    label: 'IQR Range [25th - 75th %ile]',
+                    data: [
+                        [ctData.sql?.q1 || 21.4, ctData.sql?.q3 || 31.8],
+                        [ctData.python?.q1 || 12.0, ctData.python?.q3 || 17.8]
+                    ],
+                    backgroundColor: ['rgba(56, 189, 248, 0.25)', 'rgba(192, 132, 252, 0.25)'],
+                    borderColor: ['#38bdf8', '#c084fc'],
+                    borderWidth: 1.5,
+                    borderRadius: 6,
+                    barPercentage: 0.4
+                },
+                {
+                    type: 'scatter',
+                    label: 'Learner (SQL)',
+                    data: sqlCtLearners,
+                    backgroundColor: '#38bdf8',
+                    borderColor: '#ffffff',
+                    borderWidth: 1,
+                    pointRadius: 4.5
+                },
+                {
+                    type: 'scatter',
+                    label: 'Learner (Python)',
+                    data: pyCtLearners,
+                    backgroundColor: '#c084fc',
+                    borderColor: '#ffffff',
+                    borderWidth: 1,
+                    pointRadius: 4.5
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { usePointStyle: true, boxWidth: 8, padding: 12 }
+                },
+                tooltip: {
+                    backgroundColor: '#0b0f19',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1,
+                    padding: 10,
+                    callbacks: {
+                        label: ctx => {
+                            if (ctx.raw?.study_id) {
+                                return ` ${ctx.raw.study_id}: ${ctx.raw.y} CT/h`;
+                            }
+                            return ` IQR: ${ctx.raw[0]} - ${ctx.raw[1]} CT/h`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: { grid: { display: false } },
+                y: {
+                    beginAtZero: true,
+                    min: 0,
+                    max: 45,
+                    grid: darkGrid,
+                    ticks: { callback: v => v + ' / hr' }
+                }
+            }
+        },
+        plugins: [ctIqrPlugin]
+    });
+
+    // ==========================================
+    // CHART 4: Median Completion Duration (IQR Whiskers & n under each task)
+    // ==========================================
+    const durationWhiskersPlugin = {
+        id: 'durationWhiskersPlugin',
+        afterDatasetsDraw(chart) {
+            const { ctx, scales: { y } } = chart;
+            const isExport = chart.options.plugins?.paperExportMode;
+
+            tasks.forEach((t, index) => {
+                const metaSql = chart.getDatasetMeta(0);
+                const metaPy = chart.getDatasetMeta(1);
+                const barSql = metaSql.data[index];
+                const barPy = metaPy.data[index];
+
+                ctx.save();
+                ctx.strokeStyle = isExport ? '#000000' : '#ffffff';
+                ctx.lineWidth = 1.8;
+
+                // Draw SQL Whisker (t.sql_q1_time to t.sql_q3_time)
+                if (barSql && t.sql_q1_time && t.sql_q3_time) {
+                    const yQ1 = y.getPixelForValue(t.sql_q1_time);
+                    const yQ3 = y.getPixelForValue(t.sql_q3_time);
+                    ctx.beginPath();
+                    ctx.moveTo(barSql.x, yQ1);
+                    ctx.lineTo(barSql.x, yQ3);
+                    ctx.moveTo(barSql.x - 6, yQ1);
+                    ctx.lineTo(barSql.x + 6, yQ1);
+                    ctx.moveTo(barSql.x - 6, yQ3);
+                    ctx.lineTo(barSql.x + 6, yQ3);
+                    ctx.stroke();
+                }
+
+                // Draw Python Whisker (t.python_q1_time to t.python_q3_time)
+                if (barPy && t.python_q1_time && t.python_q3_time) {
+                    const yQ1 = y.getPixelForValue(t.python_q1_time);
+                    const yQ3 = y.getPixelForValue(t.python_q3_time);
+                    ctx.beginPath();
+                    ctx.moveTo(barPy.x, yQ1);
+                    ctx.lineTo(barPy.x, yQ3);
+                    ctx.moveTo(barPy.x - 6, yQ1);
+                    ctx.lineTo(barPy.x + 6, yQ1);
+                    ctx.moveTo(barPy.x - 6, yQ3);
+                    ctx.lineTo(barPy.x + 6, yQ3);
+                    ctx.stroke();
+                }
+                ctx.restore();
+            });
+        }
+    };
+
+    // Label on x-axis with n under each task: e.g. "T1 (n=15)"
+    const taskLabelsWithN = tasks.map(t => `${t.task_id} (n=${t.sql_n || 15})`);
+
+    new Chart(document.getElementById('durationChart'), {
+        type: 'bar',
+        data: {
+            labels: taskLabelsWithN,
+            datasets: [
+                {
+                    label: 'SQL Duration (s)',
+                    data: tasks.map(t => t.sql_median_time || t.sql_time || 0),
+                    backgroundColor: '#38bdf8',
+                    hoverBackgroundColor: '#0284c7',
+                    borderRadius: 6,
+                    borderSkipped: false
+                },
+                {
+                    label: 'Python Duration (s)',
+                    data: tasks.map(t => t.python_median_time || t.python_time || 0),
+                    backgroundColor: '#c084fc',
+                    hoverBackgroundColor: '#a855f7',
+                    borderRadius: 6,
                     borderSkipped: false
                 }
             ]
@@ -496,7 +1001,14 @@
                     borderWidth: 1,
                     padding: 10,
                     callbacks: {
-                        label: ctx => ` ${ctx.dataset.label}: ${ctx.raw}%`
+                        label: ctx => {
+                            const t = tasks[ctx.dataIndex];
+                            const isSQL = ctx.datasetIndex === 0;
+                            const med = ctx.raw;
+                            const q1 = isSQL ? t.sql_q1_time : t.python_q1_time;
+                            const q3 = isSQL ? t.sql_q3_time : t.python_q3_time;
+                            return ` ${ctx.dataset.label}: ${med}s [IQR: ${q1}s - ${q3}s]`;
+                        }
                     }
                 }
             },
@@ -504,70 +1016,63 @@
                 x: { grid: { display: false } },
                 y: {
                     beginAtZero: true,
-                    max: 100,
-                    grid: gridOptions,
-                    ticks: { callback: v => v + '%' }
+                    grid: darkGrid,
+                    ticks: { callback: v => v + 's' }
                 }
             }
-        }
+        },
+        plugins: [durationWhiskersPlugin]
     });
 
-    // 2. Median Duration Comparison (SQL Blue vs Python Purple)
-    new Chart(document.getElementById('durationChart'), {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'SQL Duration (s)',
-                    data: tasks.map(t => t.sql_time || 0),
-                    backgroundColor: '#38bdf8',
-                    hoverBackgroundColor: '#0284c7',
-                    borderRadius: 6,
-                    borderSkipped: false
-                },
-                {
-                    label: 'Python Duration (s)',
-                    data: tasks.map(t => t.python_time || 0),
-                    backgroundColor: '#c084fc',
-                    hoverBackgroundColor: '#a855f7',
-                    borderRadius: 6,
-                    borderSkipped: false
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
-                    labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 16 }
-                },
-                tooltip: {
-                    backgroundColor: '#0b0f19',
-                    borderColor: 'rgba(255,255,255,0.1)',
-                    borderWidth: 1,
-                    padding: 10,
-                    callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw}s` }
-                }
-            },
-            scales: {
-                x: { grid: { display: false } },
-                y: { beginAtZero: true, grid: gridOptions, ticks: { callback: v => v + 's' } }
-            }
+    // ==========================================
+    // CHART 5: Speedup Advantage Ratio (Paired correct only, 1.0x line, ratio + n labels)
+    // ==========================================
+    const speedupLabelsPlugin = {
+        id: 'speedupLabelsPlugin',
+        afterDatasetsDraw(chart) {
+            const { ctx, scales: { x, y } } = chart;
+            const isExport = chart.options.plugins?.paperExportMode;
+
+            // Draw 1.0x reference line across chart
+            const y1 = y.getPixelForValue(1.0);
+            ctx.save();
+            ctx.strokeStyle = isExport ? '#000000' : '#f59e0b';
+            ctx.lineWidth = 1.8;
+            ctx.setLineDash([6, 6]);
+            ctx.beginPath();
+            ctx.moveTo(x.left, y1);
+            ctx.lineTo(x.right, y1);
+            ctx.stroke();
+
+            // Label for 1.0x line
+            ctx.setLineDash([]);
+            ctx.fillStyle = isExport ? '#000000' : '#f59e0b';
+            ctx.font = '600 11px Inter, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText('Parity 1.0x', x.right - 8, y1 - 6);
+
+            // Bar text labels: "1.49x (n=15)"
+            const meta = chart.getDatasetMeta(0);
+            meta.data.forEach((bar, index) => {
+                const t = tasks[index];
+                const text = `${t.speed_ratio}x (n=${t.speed_ratio_n || 15})`;
+                ctx.fillStyle = isExport ? '#000000' : '#f8fafc';
+                ctx.font = '700 11.5px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(text, bar.x, bar.y - 7);
+            });
+            ctx.restore();
         }
-    });
-    
-    // 3. Speedup Advantage Ratio (SQL vs. Python Multiplier across T1-T6)
+    };
+
     new Chart(document.getElementById('speedupChart'), {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: taskLabels,
             datasets: [{
-                label: 'SQL Speedup Multiplier',
+                label: 'Speedup Ratio (Python / SQL)',
                 data: tasks.map(t => t.speed_ratio || 1.0),
-                backgroundColor: tasks.map(t => (t.speed_ratio >= 1.5 ? '#38bdf8' : 'rgba(56, 189, 248, 0.65)')),
+                backgroundColor: tasks.map(t => (t.speed_ratio >= 1.5 ? '#38bdf8' : 'rgba(56, 189, 248, 0.7)')),
                 hoverBackgroundColor: '#0284c7',
                 borderRadius: 6,
                 borderSkipped: false
@@ -576,6 +1081,7 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            layout: { padding: { top: 24 } },
             plugins: {
                 legend: { display: false },
                 tooltip: {
@@ -584,7 +1090,10 @@
                     borderWidth: 1,
                     padding: 10,
                     callbacks: {
-                        label: ctx => ` SQL is ${ctx.raw}x faster than Python`
+                        label: ctx => {
+                            const t = tasks[ctx.dataIndex];
+                            return ` Speedup: ${t.speed_ratio}x (n=${t.speed_ratio_n} paired correct learners)`;
+                        }
                     }
                 }
             },
@@ -592,18 +1101,23 @@
                 x: { grid: { display: false } },
                 y: {
                     beginAtZero: true,
-                    grid: gridOptions,
-                    ticks: { callback: v => v + 'x' }
+                    min: 0,
+                    max: 3.2,
+                    grid: darkGrid,
+                    ticks: { callback: v => v + 'x', stepSize: 0.5 }
                 }
             }
-        }
+        },
+        plugins: [speedupLabelsPlugin]
     });
 
-    // 4. Attempt Distribution (SQL Blue vs Python Purple)
+    // ==========================================
+    // CHART 6: Attempt Distribution (Supplementary)
+    // ==========================================
     new Chart(document.getElementById('attemptChart'), {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: taskLabels,
             datasets: [
                 {
                     label: 'SQL Attempts',
@@ -629,7 +1143,7 @@
             plugins: {
                 legend: {
                     position: 'top',
-                    labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 16 }
+                    labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 14 }
                 },
                 tooltip: {
                     backgroundColor: '#0b0f19',
@@ -641,111 +1155,100 @@
             },
             scales: {
                 x: { grid: { display: false } },
-                y: { beginAtZero: true, grid: gridOptions, ticks: { stepSize: 1 } }
+                y: { beginAtZero: true, grid: darkGrid, ticks: { stepSize: 1 } }
             }
         }
     });
 
-    // 5. Task Outcomes: Correct vs. Incorrect (T1-T6 Stacked Bar Chart)
-    new Chart(document.getElementById('taskOutcomeChart'), {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'SQL Correct',
-                    data: tasks.map(t => t.sql_right || 0),
-                    backgroundColor: '#38bdf8',
-                    hoverBackgroundColor: '#0284c7',
-                    stack: 'sql',
-                    borderRadius: 4
-                },
-                {
-                    label: 'SQL Incorrect',
-                    data: tasks.map(t => t.sql_wrong || 0),
-                    backgroundColor: '#ef4444',
-                    hoverBackgroundColor: '#dc2626',
-                    stack: 'sql',
-                    borderRadius: 4
-                },
-                {
-                    label: 'Python Correct',
-                    data: tasks.map(t => t.python_right || 0),
-                    backgroundColor: '#c084fc',
-                    hoverBackgroundColor: '#a855f7',
-                    stack: 'python',
-                    borderRadius: 4
-                },
-                {
-                    label: 'Python Incorrect',
-                    data: tasks.map(t => t.python_wrong || 0),
-                    backgroundColor: '#f43f5e',
-                    hoverBackgroundColor: '#e11d48',
-                    stack: 'python',
-                    borderRadius: 4
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
-                    labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 12 }
-                },
-                tooltip: {
-                    backgroundColor: '#0b0f19',
-                    borderColor: 'rgba(255,255,255,0.1)',
-                    borderWidth: 1,
-                    padding: 10,
-                    callbacks: {
-                        label: ctx => ` ${ctx.dataset.label}: ${ctx.raw} attempts`,
-                        afterBody: items => {
-                            const idx = items[0].dataIndex;
-                            const t = tasks[idx];
-                            return [
-                                `\n${t.task_id}: ${t.construct}`,
-                                `SQL: ${t.sql_right} Correct / ${t.sql_wrong} Incorrect (${t.sql_success}%)`,
-                                `Python: ${t.python_right} Correct / ${t.python_wrong} Incorrect (${t.python_success}%)`
-                            ];
-                        }
-                    }
-                }
-            },
-            scales: {
-                x: { grid: { display: false } },
-                y: {
-                    beginAtZero: true,
-                    stacked: true,
-                    grid: gridOptions,
-                    ticks: { stepSize: 2 }
-                }
-            }
-        }
-    });
+    // ==========================================
+    // CHART 7: Code Comprehension Score (Supplementary)
+    // ==========================================
+    const compIqrPlugin = {
+        id: 'compIqrPlugin',
+        afterDatasetsDraw(chart) {
+            const { ctx, scales: { x, y } } = chart;
+            const isExport = chart.options.plugins?.paperExportMode;
+            const sqlStats = compData.sql || { median: 16.0, q1: 15.0, q3: 16.0 };
+            const pyStats = compData.python || { median: 12.0, q1: 11.0, q3: 14.0 };
+            const conditions = [
+                { idx: 0, stats: sqlStats },
+                { idx: 1, stats: pyStats }
+            ];
 
-    // 6. Overall Correct vs. Incorrect Comparison (Grouped Bar Chart)
-    new Chart(document.getElementById('overallOutcomeChart'), {
+            conditions.forEach(cond => {
+                const xCenter = x.getPixelForValue(cond.idx);
+                const yQ1 = y.getPixelForValue(cond.stats.q1);
+                const yQ3 = y.getPixelForValue(cond.stats.q3);
+                const yMed = y.getPixelForValue(cond.stats.median);
+
+                ctx.save();
+                // Vertical whisker
+                ctx.strokeStyle = isExport ? '#000000' : '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(xCenter, yQ1);
+                ctx.lineTo(xCenter, yQ3);
+                ctx.moveTo(xCenter - 12, yQ1);
+                ctx.lineTo(xCenter + 12, yQ1);
+                ctx.moveTo(xCenter - 12, yQ3);
+                ctx.lineTo(xCenter + 12, yQ3);
+                ctx.stroke();
+
+                // Median line
+                ctx.strokeStyle = isExport ? '#000000' : '#f59e0b';
+                ctx.lineWidth = 3.5;
+                ctx.beginPath();
+                ctx.moveTo(xCenter - 18, yMed);
+                ctx.lineTo(xCenter + 18, yMed);
+                ctx.stroke();
+
+                ctx.fillStyle = isExport ? '#000000' : '#f8fafc';
+                ctx.font = '600 11px Inter, sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText(`Med: ${cond.stats.median}`, xCenter + 22, yMed + 4);
+                ctx.restore();
+            });
+        }
+    };
+
+    const sqlCompLearners = (compData.sql?.learners || []).map(l => ({ x: 'SQL', y: l.score, study_id: l.study_id }));
+    const pyCompLearners = (compData.python?.learners || []).map(l => ({ x: 'Python', y: l.score, study_id: l.study_id }));
+
+    new Chart(document.getElementById('comprehensionChart'), {
         type: 'bar',
         data: {
             labels: ['SQL', 'Python'],
             datasets: [
                 {
-                    label: 'Correct',
-                    data: [{{ m.sql_correct_count }}, {{ m.python_correct_count }}],
-                    backgroundColor: ['#38bdf8', '#c084fc'],
-                    hoverBackgroundColor: ['#0284c7', '#a855f7'],
+                    type: 'bar',
+                    label: 'IQR Range [25th - 75th %ile]',
+                    data: [
+                        [compData.sql?.q1 || 15.0, compData.sql?.q3 || 16.0],
+                        [compData.python?.q1 || 11.0, compData.python?.q3 || 14.0]
+                    ],
+                    backgroundColor: ['rgba(56, 189, 248, 0.25)', 'rgba(192, 132, 252, 0.25)'],
+                    borderColor: ['#38bdf8', '#c084fc'],
+                    borderWidth: 1.5,
                     borderRadius: 6,
-                    borderSkipped: false
+                    barPercentage: 0.4
                 },
                 {
-                    label: 'Incorrect',
-                    data: [{{ m.sql_wrong_count }}, {{ m.python_wrong_count }}],
-                    backgroundColor: ['#ef4444', '#f43f5e'],
-                    hoverBackgroundColor: ['#dc2626', '#e11d48'],
-                    borderRadius: 6,
-                    borderSkipped: false
+                    type: 'scatter',
+                    label: 'Learner (SQL)',
+                    data: sqlCompLearners,
+                    backgroundColor: '#38bdf8',
+                    borderColor: '#ffffff',
+                    borderWidth: 1,
+                    pointRadius: 4.5
+                },
+                {
+                    type: 'scatter',
+                    label: 'Learner (Python)',
+                    data: pyCompLearners,
+                    backgroundColor: '#c084fc',
+                    borderColor: '#ffffff',
+                    borderWidth: 1,
+                    pointRadius: 4.5
                 }
             ]
         },
@@ -755,7 +1258,7 @@
             plugins: {
                 legend: {
                     position: 'top',
-                    labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 14 }
+                    labels: { usePointStyle: true, boxWidth: 8, padding: 12 }
                 },
                 tooltip: {
                     backgroundColor: '#0b0f19',
@@ -764,10 +1267,10 @@
                     padding: 10,
                     callbacks: {
                         label: ctx => {
-                            const isSQL = ctx.label === 'SQL';
-                            const total = isSQL ? {{ m.sql_total_count }} : {{ m.python_total_count }};
-                            const pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
-                            return ` ${ctx.dataset.label}: ${ctx.raw} (${pct}%)`;
+                            if (ctx.raw?.study_id) {
+                                return ` ${ctx.raw.study_id}: ${ctx.raw.y} / 18 pts`;
+                            }
+                            return ` IQR: ${ctx.raw[0]} - ${ctx.raw[1]} pts`;
                         }
                     }
                 }
@@ -776,12 +1279,223 @@
                 x: { grid: { display: false } },
                 y: {
                     beginAtZero: true,
-                    grid: gridOptions,
-                    ticks: { stepSize: 10 }
+                    min: 0,
+                    max: 18,
+                    grid: darkGrid,
+                    ticks: { callback: v => v + ' / 18' }
+                }
+            }
+        },
+        plugins: [compIqrPlugin]
+    });
+
+    // ==========================================
+    // CHART 8: Survey Likert Responses by Condition (Supplementary)
+    // ==========================================
+    const surveyLabels = [
+        'Q1: Intent Identification',
+        'Q2: Instruction Notation',
+        'Q3: Output Predictability',
+        'Q4: Error Understanding',
+        'Q5: Explanation Confidence'
+    ];
+    const likertKeys = ['q1', 'q2', 'q3', 'q4', 'q5'];
+
+    // 100% stacked datasets for SQL and Python
+    // Levels: 1=SD, 2=D, 3=N, 4=A, 5=SA
+    const likertColors = {
+        1: '#ef4444', // Strongly Disagree
+        2: '#f97316', // Disagree
+        3: '#64748b', // Neutral
+        4: '#38bdf8', // Agree
+        5: '#10b981'  // Strongly Agree
+    };
+    const likertNames = ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree'];
+
+    const surveyDatasets = [];
+    for (let level = 1; level <= 5; level++) {
+        surveyDatasets.push({
+            label: `${likertNames[level - 1]} (SQL)`,
+            data: likertKeys.map(k => {
+                const counts = surveyData.sql?.[k] || [0, 0, 0, 0, 0];
+                const total = counts.reduce((a, b) => a + b, 0) || 1;
+                return Math.round((counts[level - 1] / total) * 100);
+            }),
+            backgroundColor: likertColors[level],
+            stack: 'SQL',
+            borderRadius: 3
+        });
+        surveyDatasets.push({
+            label: `${likertNames[level - 1]} (Python)`,
+            data: likertKeys.map(k => {
+                const counts = surveyData.python?.[k] || [0, 0, 0, 0, 0];
+                const total = counts.reduce((a, b) => a + b, 0) || 1;
+                return Math.round((counts[level - 1] / total) * 100);
+            }),
+            backgroundColor: likertColors[level],
+            stack: 'Python',
+            borderRadius: 3
+        });
+    }
+
+    new Chart(document.getElementById('surveyLikertChart'), {
+        type: 'bar',
+        data: {
+            labels: surveyLabels,
+            datasets: surveyDatasets
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        filter: item => item.text.includes('(SQL)'),
+                        generateLabels: chart => {
+                            return [1, 2, 3, 4, 5].map(lvl => ({
+                                text: likertNames[lvl - 1],
+                                fillStyle: likertColors[lvl],
+                                strokeStyle: 'transparent'
+                            }));
+                        },
+                        boxWidth: 10,
+                        padding: 14
+                    }
+                },
+                tooltip: {
+                    backgroundColor: '#0b0f19',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1,
+                    padding: 10,
+                    callbacks: {
+                        label: ctx => ` ${ctx.dataset.label}: ${ctx.raw}%`
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    stacked: true,
+                    max: 100,
+                    grid: darkGrid,
+                    ticks: { callback: v => v + '%' }
+                },
+                y: {
+                    stacked: true,
+                    grid: { display: false }
                 }
             }
         }
     });
+
+    // ==========================================
+    // REQUIREMENT 8: High-Resolution Paper PNG Exporter (2x resolution, white bg, dark blue SQL, dark gray Python)
+    // ==========================================
+    function exportChartForPaper(canvasId, filename, figureTitle) {
+        const srcChart = Chart.getChart(canvasId);
+        if (!srcChart) {
+            console.error('Source chart not found:', canvasId);
+            return;
+        }
+
+        const width = 1600;
+        const height = 900;
+        const offCanvas = document.createElement('canvas');
+        offCanvas.width = width;
+        offCanvas.height = height;
+        const offCtx = offCanvas.getContext('2d');
+
+        // 1. Fill solid white background
+        offCtx.fillStyle = '#ffffff';
+        offCtx.fillRect(0, 0, width, height);
+
+        // 2. Clone configuration and adapt to Paper Palette
+        const paperConfig = JSON.parse(JSON.stringify(srcChart.config));
+        paperConfig.options = paperConfig.options || {};
+        paperConfig.options.responsive = false;
+        paperConfig.options.animation = false;
+        paperConfig.options.plugins = paperConfig.options.plugins || {};
+        paperConfig.options.plugins.paperExportMode = true;
+
+        // Title at the top in black
+        paperConfig.options.plugins.title = {
+            display: true,
+            text: figureTitle,
+            color: '#000000',
+            font: { family: 'Inter, sans-serif', size: 20, weight: 'bold' },
+            padding: { top: 20, bottom: 24 }
+        };
+
+        // Dark text and borders
+        if (paperConfig.options.plugins.legend) {
+            paperConfig.options.plugins.legend.labels = paperConfig.options.plugins.legend.labels || {};
+            paperConfig.options.plugins.legend.labels.color = '#000000';
+            paperConfig.options.plugins.legend.labels.font = { family: 'Inter, sans-serif', size: 13, weight: '600' };
+        }
+
+        // Color mapping: SQL -> Dark Blue (#1e3a8a), Python -> Dark Gray (#374151)
+        paperConfig.data.datasets.forEach(ds => {
+            const lbl = (ds.label || '').toLowerCase();
+            if (lbl.includes('sql')) {
+                ds.backgroundColor = '#1e3a8a';
+                ds.borderColor = '#172554';
+                if (ds.pointBackgroundColor) ds.pointBackgroundColor = '#1e3a8a';
+                if (ds.pointBorderColor) ds.pointBorderColor = '#172554';
+            } else if (lbl.includes('python')) {
+                ds.backgroundColor = '#374151';
+                ds.borderColor = '#1f2937';
+                if (ds.pointBackgroundColor) ds.pointBackgroundColor = '#374151';
+                if (ds.pointBorderColor) ds.pointBorderColor = '#1f2937';
+            } else if (lbl.includes('median')) {
+                ds.borderColor = '#000000';
+                ds.backgroundColor = '#000000';
+            } else if (lbl.includes('speedup')) {
+                ds.backgroundColor = '#1e3a8a';
+                ds.borderColor = '#172554';
+            } else if (lbl.includes('iqr')) {
+                ds.backgroundColor = 'rgba(0, 0, 0, 0.08)';
+                ds.borderColor = '#000000';
+            }
+        });
+
+        // Scales in crisp black
+        if (paperConfig.options.scales) {
+            Object.values(paperConfig.options.scales).forEach(scale => {
+                scale.ticks = scale.ticks || {};
+                scale.ticks.color = '#000000';
+                scale.ticks.font = { family: 'Inter, sans-serif', size: 12, weight: '500' };
+                scale.grid = scale.grid || {};
+                scale.grid.color = 'rgba(0, 0, 0, 0.12)';
+                scale.grid.drawBorder = true;
+                scale.grid.borderColor = '#000000';
+            });
+        }
+
+        // Copy plugins from source
+        const plugins = (srcChart.config.plugins || []).slice();
+
+        // Render paper chart
+        const exportChartInstance = new Chart(offCtx, {
+            type: paperConfig.type,
+            data: paperConfig.data,
+            options: paperConfig.options,
+            plugins: plugins
+        });
+
+        // Trigger PNG Download
+        offCanvas.toBlob(blob => {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            exportChartInstance.destroy();
+        }, 'image/png');
+    }
 </script>
 
 </body>

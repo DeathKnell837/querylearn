@@ -35,6 +35,100 @@ def _safe_sync_cloud():
     except Exception:
         pass
 
+def compute_paired_speedup_data(cursor):
+    """
+    Computes paired task speedup ratios and overall learner-level cluster bootstrap 95% CI.
+    A paired record requires that the same participant succeeded (success = 1) in BOTH
+    SQL and Python conditions on the same task_id.
+    """
+    cursor.execute("""
+        SELECT r_sql.task_id, s_sql.participant_id, r_sql.elapsed_seconds as sql_time, r_py.elapsed_seconds as py_time
+        FROM task_results r_sql
+        JOIN sessions s_sql ON r_sql.session_id = s_sql.id AND s_sql.language = 'sql'
+        JOIN task_results r_py ON r_sql.task_id = r_py.task_id
+        JOIN sessions s_py ON r_py.session_id = s_py.id AND s_py.language = 'python' AND s_py.participant_id = s_sql.participant_id
+        WHERE r_sql.success = 1 AND r_py.success = 1
+        ORDER BY r_sql.task_id ASC, s_sql.participant_id ASC
+    """)
+    rows = cursor.fetchall()
+    if not rows:
+        return {
+            'overall_ratio': 1.0,
+            'ci_low': 1.0,
+            'ci_high': 1.0,
+            'paired_task_count': 0,
+            'task_ratios': {}
+        }
+
+    from collections import defaultdict
+    import random
+    task_map = defaultdict(lambda: {'sql': [], 'py': []})
+    learner_map = defaultdict(list)
+    all_sql_times = []
+    all_py_times = []
+
+    for r in rows:
+        tid = r['task_id']
+        pid = r['participant_id']
+        sq = r['sql_time']
+        py = r['py_time']
+        if sq is not None and py is not None:
+            task_map[tid]['sql'].append(sq)
+            task_map[tid]['py'].append(py)
+            learner_map[pid].append((sq, py))
+            all_sql_times.append(sq)
+            all_py_times.append(py)
+
+    task_ratios = {}
+    for tid, times in task_map.items():
+        n = len(times['sql'])
+        med_sql = statistics.median(times['sql']) if times['sql'] else 0.0
+        med_py = statistics.median(times['py']) if times['py'] else 0.0
+        ratio = round(med_py / med_sql, 2) if med_sql > 0 else 1.0
+        task_ratios[tid] = {
+            'n': n,
+            'sql_median': round(med_sql, 1),
+            'py_median': round(med_py, 1),
+            'ratio': ratio
+        }
+
+    med_paired_sql = statistics.median(all_sql_times) if all_sql_times else 0.0
+    med_paired_py = statistics.median(all_py_times) if all_py_times else 0.0
+    overall_ratio = round(med_paired_py / med_paired_sql, 2) if med_paired_sql > 0 else 1.0
+
+    unique_pids = sorted(list(learner_map.keys()))
+    if len(unique_pids) > 1:
+        rng = random.Random(42)
+        boot_ratios = []
+        n_learners = len(unique_pids)
+        for _ in range(2000):
+            sampled_pids = rng.choices(unique_pids, k=n_learners)
+            boot_sql = []
+            boot_py = []
+            for pid in sampled_pids:
+                for sq, py in learner_map[pid]:
+                    boot_sql.append(sq)
+                    boot_py.append(py)
+            if boot_sql and boot_py:
+                m_s = statistics.median(boot_sql)
+                m_p = statistics.median(boot_py)
+                if m_s > 0:
+                    boot_ratios.append(m_p / m_s)
+        boot_ratios.sort()
+        ci_low = round(boot_ratios[int(0.025 * len(boot_ratios))], 2)
+        ci_high = round(boot_ratios[int(0.975 * len(boot_ratios))], 2)
+    else:
+        ci_low = overall_ratio
+        ci_high = overall_ratio
+
+    return {
+        'overall_ratio': overall_ratio,
+        'ci_low': ci_low,
+        'ci_high': ci_high,
+        'paired_task_count': len(rows),
+        'task_ratios': task_ratios
+    }
+
 def _has_seeded_data(cursor):
     try:
         cursor.execute("SELECT 1 FROM participants WHERE study_id LIKE 'P0%' AND CAST(SUBSTR(study_id, 2) AS INTEGER) <= 16 LIMIT 1")
@@ -95,27 +189,12 @@ def overview():
     sql_median_time = round(statistics.median(sql_durations), 1) if sql_durations else 0.0
     py_median_time = round(statistics.median(py_durations), 1) if py_durations else 0.0
 
-    # 3. Paired Successful-Task Time Ratio:
-    # Median Python time / Median SQL time calculated ONLY on tasks that the same participant answered correctly in both conditions
-    cursor.execute("""
-        SELECT r_sql.elapsed_seconds as sql_time, r_py.elapsed_seconds as py_time
-        FROM task_results r_sql
-        JOIN sessions s_sql ON r_sql.session_id = s_sql.id AND s_sql.language = 'sql'
-        JOIN task_results r_py ON r_sql.task_id = r_py.task_id
-        JOIN sessions s_py ON r_py.session_id = s_py.id AND s_py.language = 'python' AND s_py.participant_id = s_sql.participant_id
-        WHERE r_sql.success = 1 AND r_py.success = 1
-    """)
-    paired_rows = cursor.fetchall()
-    if paired_rows:
-        paired_sql_times = [r['sql_time'] for r in paired_rows if r['sql_time'] is not None]
-        paired_py_times = [r['py_time'] for r in paired_rows if r['py_time'] is not None]
-        med_paired_sql = statistics.median(paired_sql_times) if paired_sql_times else 0
-        med_paired_py = statistics.median(paired_py_times) if paired_py_times else 0
-        paired_time_ratio = round(med_paired_py / med_paired_sql, 2) if med_paired_sql > 0 else None
-        paired_task_count = len(paired_rows)
-    else:
-        paired_time_ratio = None
-        paired_task_count = 0
+    # 3. Paired Successful-Task Time Ratio & Learner Bootstrap 95% CI
+    paired_data = compute_paired_speedup_data(cursor)
+    paired_time_ratio = paired_data['overall_ratio']
+    paired_task_count = paired_data['paired_task_count']
+    paired_ratio_ci_low = paired_data['ci_low']
+    paired_ratio_ci_high = paired_data['ci_high']
 
     # 4. Correct Tasks per Hour (CT/h)
     # Formula: 60 * (number of correct tasks) / (total task minutes)
@@ -282,6 +361,8 @@ def overview():
         "sql_median_time": sql_median_time,
         "python_median_time": py_median_time,
         "paired_time_ratio": paired_time_ratio,
+        "paired_ratio_ci_low": paired_ratio_ci_low,
+        "paired_ratio_ci_high": paired_ratio_ci_high,
         "paired_task_count": paired_task_count,
         "sql_ct_per_hour": sql_ct_per_hour,
         "python_ct_per_hour": py_ct_per_hour,
@@ -432,12 +513,16 @@ def results():
 @dashboard_bp.route('/charts')
 @require_researcher
 def charts():
-    """Comparative Analytics & Benchmarks combined page — uses medians."""
+    """Comparative Analytics page for publication in the case study paper."""
     conn = sqlite3.connect(get_research_db_path())
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
-    # Fetch raw rows for median computation in Python
+    # 1. Unified paired speedup data & learner bootstrap 95% CI
+    paired_data = compute_paired_speedup_data(cursor)
+    task_paired_ratios = paired_data['task_ratios']
+
+    # 2. Fetch raw task results for task breakdown and duration stats
     cursor.execute("""
         SELECT r.task_id, s.language, r.success, r.elapsed_seconds, r.attempt_count
         FROM task_results r
@@ -492,14 +577,18 @@ def charts():
         for lang in ['sql', 'python']:
             group = task_groups.get((tid, lang), {'success': [], 'times': [], 'attempts': []})
             s_list = group['success']
-            t_list = group['times']
+            t_list = sorted(group['times'])
             a_list = group['attempts']
             t_total = len(s_list)
             t_right = sum(s_list)
             t_wrong = max(0, t_total - t_right)
             succ_pct = round((t_right / t_total) * 100, 1) if t_total else 0.0
             fail_pct = round((t_wrong / t_total) * 100, 1) if t_total else 0.0
+            
+            n_t = len(t_list)
             med_time = round(statistics.median(t_list), 1) if t_list else 0.0
+            q1_time = round(t_list[int(0.25 * n_t)], 1) if t_list else 0.0
+            q3_time = round(t_list[int(0.75 * n_t)], 1) if t_list else 0.0
             avg_att = round(sum(a_list) / len(a_list), 1) if a_list else 0.0
             
             task_breakdown[tid][f"{lang}_total"] = t_total
@@ -507,20 +596,23 @@ def charts():
             task_breakdown[tid][f"{lang}_wrong"] = t_wrong
             task_breakdown[tid][f"{lang}_success"] = succ_pct
             task_breakdown[tid][f"{lang}_fail"] = fail_pct
-            task_breakdown[tid][f"{lang}_time"] = med_time  # median
+            task_breakdown[tid][f"{lang}_time"] = med_time
             task_breakdown[tid][f"{lang}_median_time"] = med_time
+            task_breakdown[tid][f"{lang}_q1_time"] = q1_time
+            task_breakdown[tid][f"{lang}_q3_time"] = q3_time
+            task_breakdown[tid][f"{lang}_n"] = n_t
             task_breakdown[tid][f"{lang}_attempts"] = avg_att
 
-        # Compute delta metrics
         sql_s = task_breakdown[tid].get('sql_success', 0.0)
         py_s = task_breakdown[tid].get('python_success', 0.0)
         task_breakdown[tid]['accuracy_delta'] = round(sql_s - py_s, 1)
         
-        sql_t = task_breakdown[tid].get('sql_median_time', 0.0)
-        py_t = task_breakdown[tid].get('python_median_time', 0.0)
-        task_breakdown[tid]['speed_ratio'] = round(py_t / sql_t, 2) if sql_t > 0 else 1.0
+        # Paired speedup definition: median Python time / median SQL time using only learners correct in both conditions
+        p_info = task_paired_ratios.get(tid, {'ratio': 1.0, 'n': 0})
+        task_breakdown[tid]['speed_ratio'] = p_info['ratio']
+        task_breakdown[tid]['speed_ratio_n'] = p_info['n']
 
-    # Aggregate cohort metrics (Right vs Wrong)
+    # 3. Overall Accuracy Totals
     sql_total = len(lang_success['sql'])
     sql_correct = sum(lang_success['sql'])
     sql_wrong = max(0, sql_total - sql_correct)
@@ -533,9 +625,10 @@ def charts():
     py_succ_rate = round((py_correct / py_total) * 100, 1) if py_total else 0.0
     py_fail_rate = round((py_wrong / py_total) * 100, 1) if py_total else 0.0
 
-    sql_med_time = round(statistics.median(lang_times['sql']), 1) if lang_times['sql'] else 0
-    py_med_time = round(statistics.median(lang_times['python']), 1) if lang_times['python'] else 0
+    sql_med_time = round(statistics.median(lang_times['sql']), 1) if lang_times['sql'] else 0.0
+    py_med_time = round(statistics.median(lang_times['python']), 1) if lang_times['python'] else 0.0
 
+    # 4. Attempt Averages
     cursor.execute("""
         SELECT s.language, AVG(r.attempt_count) as avg_att
         FROM task_results r
@@ -545,6 +638,124 @@ def charts():
     att_rows = {r['language']: round(r['avg_att'] or 0, 1) for r in cursor.fetchall()}
     sql_avg_att = att_rows.get('sql', 1.0)
     py_avg_att = att_rows.get('python', 1.0)
+
+    # 5. Correct Tasks per Learner (out of 6)
+    cursor.execute("""
+        SELECT p.study_id, s.language,
+               SUM(CASE WHEN r.success = 1 THEN 1 ELSE 0 END) as correct_count
+        FROM participants p
+        JOIN sessions s ON s.participant_id = p.id
+        LEFT JOIN task_results r ON r.session_id = s.id
+        GROUP BY p.id, s.language
+        ORDER BY p.study_id ASC
+    """)
+    p_score_rows = cursor.fetchall()
+    p_scores = {}
+    for r in p_score_rows:
+        sid = r['study_id']
+        if sid not in p_scores:
+            p_scores[sid] = {'study_id': sid, 'sql': 0, 'python': 0}
+        p_scores[sid][r['language']] = r['correct_count'] or 0
+    learner_scores = list(p_scores.values())
+    learner_scores.sort(key=lambda x: x['study_id'])
+    learner_sql_scores = [l['sql'] for l in learner_scores]
+    learner_py_scores = [l['python'] for l in learner_scores]
+    learner_sql_median = round(statistics.median(learner_sql_scores), 1) if learner_sql_scores else 0.0
+    learner_python_median = round(statistics.median(learner_py_scores), 1) if learner_py_scores else 0.0
+
+    # 6. Correct Tasks per Hour (Learner Level)
+    cursor.execute("""
+        SELECT p.study_id, s.language, r.success, r.elapsed_seconds
+        FROM task_results r
+        JOIN sessions s ON r.session_id = s.id
+        JOIN participants p ON s.participant_id = p.id
+        ORDER BY p.study_id, s.language, r.task_id
+    """)
+    ct_all_rows = cursor.fetchall()
+    p_task_data = defaultdict(list)
+    for r in ct_all_rows:
+        p_task_data[(r['study_id'], r['language'])].append(r)
+
+    ct_sql_learners = []
+    ct_py_learners = []
+    for (sid, lang), t_rows in sorted(p_task_data.items()):
+        corr = sum(1 for r in t_rows if r['success'] == 1)
+        tot_mins = sum(
+            (r['elapsed_seconds'] / 60.0) if (r['success'] == 1 and r['elapsed_seconds'] is not None) else (Config.TASK_TIMEOUT_SECONDS / 60.0)
+            for r in t_rows
+        )
+        rate = round(60.0 * corr / tot_mins, 1) if tot_mins > 0 else 0.0
+        if lang == 'sql':
+            ct_sql_learners.append({'study_id': sid, 'rate': rate})
+        else:
+            ct_py_learners.append({'study_id': sid, 'rate': rate})
+
+    def calc_stat_iqr(data_list):
+        vals = sorted([d['rate'] for d in data_list])
+        if not vals:
+            return {'median': 0.0, 'q1': 0.0, 'q3': 0.0}
+        n = len(vals)
+        med = round(statistics.median(vals), 1)
+        q1 = round(vals[int(0.25 * n)], 1)
+        q3 = round(vals[int(0.75 * n)], 1)
+        return {'median': med, 'q1': q1, 'q3': q3}
+
+    ct_per_hour_data = {
+        'sql': {
+            'learners': ct_sql_learners,
+            **calc_stat_iqr(ct_sql_learners)
+        },
+        'python': {
+            'learners': ct_py_learners,
+            **calc_stat_iqr(ct_py_learners)
+        }
+    }
+
+    # 7. Code Comprehension Scores (0 to 18 by condition)
+    cursor.execute("""
+        SELECT s.language, p.study_id,
+               SUM(COALESCE(cr.explanation_score, 0) + COALESCE(cr.prediction_score, 0)) AS total_score
+        FROM comprehension_responses cr
+        JOIN sessions s ON cr.session_id = s.id
+        JOIN participants p ON s.participant_id = p.id
+        WHERE cr.item_id IN ('C1', 'C2', 'C3', 'C4', 'C5', 'C6')
+        GROUP BY cr.session_id, s.language, p.study_id
+        HAVING COUNT(cr.id) = 6
+    """)
+    comp_raw = cursor.fetchall()
+    comp_sql_learners = [{'study_id': r['study_id'], 'score': r['total_score']} for r in comp_raw if r['language'] == 'sql']
+    comp_py_learners = [{'study_id': r['study_id'], 'score': r['total_score']} for r in comp_raw if r['language'] == 'python']
+
+    def calc_comp_stats(learners):
+        vals = sorted([l['score'] for l in learners])
+        if not vals:
+            return {'median': 0.0, 'q1': 0.0, 'q3': 0.0}
+        n = len(vals)
+        med = round(statistics.median(vals), 1)
+        q1 = round(vals[int(0.25 * n)], 1)
+        q3 = round(vals[int(0.75 * n)], 1)
+        return {'median': med, 'q1': q1, 'q3': q3}
+
+    comprehension_data = {
+        'sql': {
+            'learners': comp_sql_learners,
+            **calc_comp_stats(comp_sql_learners)
+        },
+        'python': {
+            'learners': comp_py_learners,
+            **calc_comp_stats(comp_py_learners)
+        }
+    }
+
+    # 8. Survey Likert Responses by Condition (Q1 to Q5)
+    cursor.execute("SELECT language, q1, q2, q3, q4, q5 FROM survey_responses")
+    survey_raw = cursor.fetchall()
+    survey_likert_data = {'sql': {}, 'python': {}}
+    for lang in ['sql', 'python']:
+        l_rows = [r for r in survey_raw if r['language'] == lang]
+        for q in ['q1', 'q2', 'q3', 'q4', 'q5']:
+            # counts for [1 (SD), 2 (D), 3 (N), 4 (A), 5 (SA)]
+            survey_likert_data[lang][q] = [sum(1 for r in l_rows if r[q] == score) for score in range(1, 6)]
 
     # Fetch Benchmarks records
     cursor.execute("SELECT * FROM benchmarks ORDER BY measured_at DESC, dataset_size ASC")
@@ -571,6 +782,16 @@ def charts():
         "python_avg_time": py_med_time,
         "sql_avg_attempts": sql_avg_att,
         "python_avg_attempts": py_avg_att,
+        "paired_time_ratio": paired_data['overall_ratio'],
+        "paired_ratio_ci_low": paired_data['ci_low'],
+        "paired_ratio_ci_high": paired_data['ci_high'],
+        "paired_task_count": paired_data['paired_task_count'],
+        "learner_scores": learner_scores,
+        "learner_sql_median": learner_sql_median,
+        "learner_python_median": learner_python_median,
+        "ct_per_hour_data": ct_per_hour_data,
+        "comprehension_data": comprehension_data,
+        "survey_likert_data": survey_likert_data,
         "has_seeded": has_seeded,
     }
 
