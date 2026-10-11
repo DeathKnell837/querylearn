@@ -656,7 +656,8 @@
                 meta.data.forEach((bar, index) => {
                     const val = dataset.data[index];
                     const text = `${val}/15`;
-                    ctx.fillStyle = isExport ? '#000000' : '#f8fafc';
+                    ctx.fillStyle = isExport ? '#000000' : '#ffffff';
+                    ctx.font = '700 11px Inter, sans-serif';
                     const xOffset = datasetIndex === 0 ? -1.5 : 1.5;
                     ctx.fillText(text, bar.x + xOffset, bar.y - 7);
                 });
@@ -731,6 +732,7 @@
         id: 'dumbbellPlugin',
         afterDatasetsDraw(chart) {
             const { ctx, chartArea, scales: { x, y } } = chart;
+            if (!x || !y || !chartArea) return;
             const isExport = chart.options.plugins?.paperExportMode;
 
             ctx.save();
@@ -745,11 +747,11 @@
             ctx.stroke();
             ctx.setLineDash([]);
 
-            // Label for reference line placed in free space above top row
+            // Label for reference line placed in free space above top row with generous padding
             ctx.fillStyle = isExport ? '#000000' : '#f59e0b';
-            ctx.font = '700 10px Inter, sans-serif';
+            ctx.font = '700 11px Inter, sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('Median: 6.0', xMed, chartArea.top - 7);
+            ctx.fillText('Median: 6.0', xMed, chartArea.top - 10);
 
             // Draw horizontal dumbbell rows
             learnerScores.forEach((l, idx) => {
@@ -817,7 +819,7 @@
             indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
-            layout: { padding: { top: 22, right: 18 } },
+            layout: { padding: { top: 32, right: 28, left: 10, bottom: 6 } },
             plugins: {
                 legend: { display: false },
                 tooltip: {
@@ -868,6 +870,7 @@
         id: 'ctStripPlugin',
         afterDatasetsDraw(chart) {
             const { ctx, scales: { x, y } } = chart;
+            if (!x || !y) return;
             const isExport = chart.options.plugins?.paperExportMode;
 
             const conditions = [
@@ -899,7 +902,7 @@
                 ctx.stroke();
 
                 // 3. Median value label placed cleanly to the right of the IQR box in whitespace
-                ctx.fillStyle = isExport ? '#000000' : '#f8fafc';
+                ctx.fillStyle = isExport ? '#000000' : '#f59e0b';
                 ctx.font = '700 11px Inter, sans-serif';
                 ctx.textAlign = 'left';
                 ctx.fillText(`Med: ${cond.stats.median} CT/h`, xCenter + (boxW / 2) + 12, yMed + 4);
@@ -942,7 +945,7 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            layout: { padding: { top: 20, right: 65, left: 10, bottom: 6 } },
+            layout: { padding: { top: 22, right: 90, left: 10, bottom: 6 } },
             plugins: {
                 legend: { display: false },
                 tooltip: {
@@ -987,6 +990,7 @@
         id: 'durationWhiskersPlugin',
         afterDatasetsDraw(chart) {
             const { ctx, scales: { x, y } } = chart;
+            if (!x || !y) return;
             const isExport = chart.options.plugins?.paperExportMode;
 
             // Draw 480s timeout cap dashed line
@@ -1125,6 +1129,7 @@
         id: 'speedupLabelsPlugin',
         afterDatasetsDraw(chart) {
             const { ctx, scales: { x, y } } = chart;
+            if (!x || !y) return;
             const isExport = chart.options.plugins?.paperExportMode;
 
             // Draw 1.0x parity line across chart
@@ -1151,7 +1156,7 @@
                 const t = tasks[index];
                 const ratioNum = parseFloat(t.speed_ratio) || 1.0;
                 const text = `${ratioNum.toFixed(2)}x (n=${t.speed_ratio_n || 15})`;
-                ctx.fillStyle = isExport ? '#000000' : '#f8fafc';
+                ctx.fillStyle = isExport ? '#000000' : '#ffffff';
                 ctx.font = '700 11px Inter, sans-serif';
                 ctx.textAlign = 'center';
                 ctx.fillText(text, bar.x, bar.y - 8);
@@ -1279,6 +1284,7 @@
         id: 'compIqrPlugin',
         afterDatasetsDraw(chart) {
             const { ctx, scales: { x, y } } = chart;
+            if (!x || !y) return;
             const isExport = chart.options.plugins?.paperExportMode;
             const sqlStats = compData.sql || { median: 16.0, q1: 15.0, q3: 16.0 };
             const pyStats = compData.python || { median: 12.0, q1: 11.0, q3: 14.0 };
@@ -1311,7 +1317,7 @@
                 ctx.stroke();
 
                 // 3. Median value label placed cleanly to the right of the IQR box in whitespace
-                ctx.fillStyle = isExport ? '#000000' : '#f8fafc';
+                ctx.fillStyle = isExport ? '#000000' : '#f59e0b';
                 ctx.font = '700 11px Inter, sans-serif';
                 ctx.textAlign = 'left';
                 ctx.fillText(`Med: ${cond.stats.median}`, xCenter + (boxW / 2) + 12, yMed + 4);
@@ -1355,7 +1361,7 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            layout: { padding: { top: 20, right: 55, left: 10, bottom: 6 } },
+            layout: { padding: { top: 22, right: 80, left: 10, bottom: 6 } },
             plugins: {
                 legend: { display: false },
                 tooltip: {
@@ -1503,7 +1509,9 @@
         offCtx.fillRect(0, 0, width, height);
 
         // 2. Clone configuration and adapt to Paper Palette
-        const paperConfig = JSON.parse(JSON.stringify(srcChart.config));
+        const rawConfig = srcChart.config._config || srcChart.config;
+        const paperConfig = JSON.parse(JSON.stringify(rawConfig));
+        paperConfig.type = rawConfig.type || srcChart.config.type || 'bar';
         paperConfig.options = paperConfig.options || {};
         paperConfig.options.responsive = false;
         paperConfig.options.animation = false;
@@ -1598,6 +1606,7 @@
             options: paperConfig.options,
             plugins: plugins
         });
+        exportChartInstance.update();
 
         // Trigger PNG Download
         offCanvas.toBlob(blob => {
