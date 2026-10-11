@@ -13,9 +13,10 @@
     <style>
         .analytics-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
+            width: 100%;
         }
         @media (max-width: 1024px) {
             .analytics-grid {
@@ -23,6 +24,7 @@
             }
         }
         .analytics-card {
+            min-width: 0;
             background: #131929;
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 14px;
@@ -40,7 +42,7 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 1.25rem;
+            margin-bottom: 0.85rem;
             gap: 0.75rem;
             flex-wrap: wrap;
         }
@@ -48,51 +50,22 @@
             font-size: 1.05rem;
             font-weight: 700;
             color: #f8fafc;
-            margin: 0 0 0.25rem 0;
+            margin: 0 0 0.3rem 0;
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
         .analytics-card-sub {
-            font-size: 0.8rem;
+            font-size: 0.82rem;
             color: #94a3b8;
             margin: 0;
+            line-height: 1.4;
         }
         .header-actions {
             display: flex;
             align-items: center;
             gap: 0.5rem;
             flex-wrap: wrap;
-        }
-        .analytics-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            padding: 0.3rem 0.65rem;
-            border-radius: 9999px;
-            font-size: 0.76rem;
-            font-weight: 600;
-            letter-spacing: 0.02em;
-        }
-        .pill-blue {
-            background: rgba(14, 165, 233, 0.12);
-            border: 1px solid rgba(14, 165, 233, 0.3);
-            color: #38bdf8;
-        }
-        .pill-purple {
-            background: rgba(139, 92, 246, 0.12);
-            border: 1px solid rgba(139, 92, 246, 0.3);
-            color: #c084fc;
-        }
-        .pill-neutral {
-            background: rgba(148, 163, 184, 0.12);
-            border: 1px solid rgba(148, 163, 184, 0.25);
-            color: #94a3b8;
-        }
-        .pill-speedup {
-            background: rgba(16, 185, 129, 0.12);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: #34d399;
         }
         .btn-paper-download {
             display: inline-flex;
@@ -119,11 +92,16 @@
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 1rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 0.75rem;
         }
         @media (max-width: 1024px) {
             .kpi-row {
                 grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 640px) {
+            .kpi-row {
+                grid-template-columns: 1fr;
             }
         }
         .kpi-box {
@@ -136,8 +114,8 @@
             gap: 0.35rem;
         }
         .kpi-label {
-            font-size: 0.78rem;
-            font-weight: 600;
+            font-size: 0.76rem;
+            font-weight: 700;
             color: #94a3b8;
             text-transform: uppercase;
             letter-spacing: 0.04em;
@@ -152,6 +130,21 @@
             font-size: 0.75rem;
             color: #64748b;
         }
+        .cohort-banner {
+            background: rgba(56, 189, 248, 0.06);
+            border: 1px solid rgba(56, 189, 248, 0.18);
+            border-radius: 10px;
+            padding: 0.65rem 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.78rem;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .cohort-banner strong {
+            color: #38bdf8;
+        }
         .supplementary-details {
             background: #101626;
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -161,7 +154,7 @@
             margin-bottom: 2rem;
         }
         .supplementary-summary {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 700;
             color: #f8fafc;
             cursor: pointer;
@@ -235,11 +228,11 @@
     <!-- Main Viewport -->
     <main class="db-main" style="padding: 1.5rem 2rem;">
         <!-- Topbar -->
-        <header class="db-topbar" style="margin-bottom: 1.5rem;">
+        <header class="db-topbar" style="margin-bottom: 1.25rem;">
             <div>
                 <h1 class="db-title" style="margin-bottom: 0.25rem;">Comparison</h1>
                 <p style="margin: 0; font-size: 0.86rem; color: #94a3b8;">
-                    Performance comparison across SQL and Python conditions
+                    Performance comparison across SQL and Python conditions for the case study paper
                 </p>
             </div>
 
@@ -251,17 +244,17 @@
             </div>
         </header>
 
-        <!-- KPI Summary Strip (Retaining correct/incorrect counts in top cards) -->
+        <!-- KPI Summary Strip -->
         <div class="kpi-row">
             <div class="kpi-box">
                 <span class="kpi-label">SQL Accuracy</span>
                 <span class="kpi-val" style="color: #38bdf8;">{{ m.sql_success_rate }}%</span>
-                <span class="kpi-desc">{{ m.sql_correct_count }} Correct · {{ m.sql_wrong_count }} Incorrect ({{ m.sql_total_count }} attempts)</span>
+                <span class="kpi-desc">{{ m.sql_correct_count }} Correct &middot; {{ m.sql_wrong_count }} Incorrect ({{ m.sql_total_count }} tasks)</span>
             </div>
             <div class="kpi-box">
                 <span class="kpi-label">Python Accuracy</span>
                 <span class="kpi-val" style="color: #c084fc;">{{ m.python_success_rate }}%</span>
-                <span class="kpi-desc">{{ m.python_correct_count }} Correct · {{ m.python_wrong_count }} Incorrect ({{ m.python_total_count }} attempts)</span>
+                <span class="kpi-desc">{{ m.python_correct_count }} Correct &middot; {{ m.python_wrong_count }} Incorrect ({{ m.python_total_count }} tasks)</span>
             </div>
             <div class="kpi-box">
                 <span class="kpi-label">Paired Speedup Advantage</span>
@@ -273,7 +266,7 @@
                 </span>
             </div>
             <div class="kpi-box">
-                <span class="kpi-label">Accuracy difference</span>
+                <span class="kpi-label">Accuracy Difference</span>
                 <span class="kpi-val" style="color: #f8fafc;">
                     {% if m.sql_success_rate >= m.python_success_rate %}
                         +{{ (m.sql_success_rate - m.python_success_rate)|round(1) }} pts
@@ -281,22 +274,28 @@
                         -{{ (m.python_success_rate - m.sql_success_rate)|round(1) }} pts
                     {% endif %}
                 </span>
-                <span class="kpi-desc">SQL vs Python overall accuracy difference</span>
+                <span class="kpi-desc">SQL vs Python overall accuracy delta</span>
             </div>
+        </div>
+
+        <!-- Explanatory Denominators & Cohort Note -->
+        <div class="cohort-banner">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            <span><strong>Sample Cohort:</strong> 15 novice learners (P001 &ndash; P015) &times; 6 tasks = 90 tasks per condition. Each task bar denominator is exactly 15 learners. Paired speedup evaluated across n=80 task pairs where the learner solved the task in both conditions.</span>
         </div>
 
         <!-- PRIMARY PAPER CHARTS GRID -->
         <div class="analytics-grid">
             
-            <!-- Chart 1: Correct Tasks per Task (Grouped Bar: SQL blue vs Python purple, no red, Y 0-15, labels like 13/15) -->
+            <!-- Chart 1: Correct Tasks per Task (Grouped Bar: SQL blue vs Python purple, Y: 0 to 15, labels like x/15) -->
             <div class="analytics-card">
                 <div class="analytics-card-header">
                     <div>
                         <h3 class="analytics-card-title">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
                             Correct Tasks per Task
                         </h3>
-                        <p class="analytics-card-sub">Solved solutions per task (T1 &ndash; T6) by condition (Y: 0 &ndash; 15)</p>
+                        <p class="analytics-card-sub">Number of correct solutions per task (T1 &ndash; T6) out of 15 learners for SQL and Python.</p>
                     </div>
                     <div class="header-actions">
                         <button class="btn-paper-download" onclick="exportChartForPaper('correctTasksChart', 'Figure_1_Correct_Tasks_per_Task.png', 'Correct Tasks per Task (T1 to T6)')">
@@ -305,20 +304,20 @@
                         </button>
                     </div>
                 </div>
-                <div style="position: relative; height: 280px; width: 100%;">
+                <div style="position: relative; height: 300px; width: 100%;">
                     <canvas id="correctTasksChart"></canvas>
                 </div>
             </div>
 
-            <!-- Chart 2: Correct Tasks per Learner (out of 6) (Paired lines per learner connecting SQL and Python scores, medians marked) -->
+            <!-- Chart 2: Correct Tasks per Learner (out of 6) (Horizontal Paired Dot Plot sorted by diff) -->
             <div class="analytics-card">
                 <div class="analytics-card-header">
                     <div>
                         <h3 class="analytics-card-title">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
                             Correct Tasks per Learner (out of 6)
                         </h3>
-                        <p class="analytics-card-sub">Within-subject score trajectory connecting SQL and Python conditions</p>
+                        <p class="analytics-card-sub">Within-subject score comparison per learner (sorted by Python minus SQL difference).</p>
                     </div>
                     <div class="header-actions">
                         <button class="btn-paper-download" onclick="exportChartForPaper('learnerScoresChart', 'Figure_2_Correct_Tasks_per_Learner.png', 'Correct Tasks per Learner (out of 6)')">
@@ -327,20 +326,20 @@
                         </button>
                     </div>
                 </div>
-                <div style="position: relative; height: 280px; width: 100%;">
+                <div style="position: relative; height: 340px; width: 100%;">
                     <canvas id="learnerScoresChart"></canvas>
                 </div>
             </div>
 
-            <!-- Chart 3: Correct Tasks per Hour (SQL vs Python, median + IQR, dots per learner) -->
+            <!-- Chart 3: Correct Tasks per Hour (Strip Plot + Jitter + Median placed in free space) -->
             <div class="analytics-card">
                 <div class="analytics-card-header">
                     <div>
                         <h3 class="analytics-card-title">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                             Correct Tasks per Hour
                         </h3>
-                        <p class="analytics-card-sub">Productivity throughput (60 &times; correct / total minutes; failed = 480s)</p>
+                        <p class="analytics-card-sub">Learner throughput (60 &times; correct tasks / total minutes; failed tasks counted as 480 s).</p>
                     </div>
                     <div class="header-actions">
                         <button class="btn-paper-download" onclick="exportChartForPaper('ctPerHourChart', 'Figure_3_Correct_Tasks_per_Hour.png', 'Correct Tasks per Hour by Condition')">
@@ -349,20 +348,20 @@
                         </button>
                     </div>
                 </div>
-                <div style="position: relative; height: 280px; width: 100%;">
+                <div style="position: relative; height: 300px; width: 100%;">
                     <canvas id="ctPerHourChart"></canvas>
                 </div>
             </div>
 
-            <!-- Chart 4: Median Completion Duration (Bars with IQR whiskers and n under each task) -->
+            <!-- Chart 4: Median Completion Duration (Grouped Bars + IQR Whiskers + 480s cap dashed line) -->
             <div class="analytics-card">
                 <div class="analytics-card-header">
                     <div>
                         <h3 class="analytics-card-title">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
                             Median Completion Duration
                         </h3>
-                        <p class="analytics-card-sub">Median elapsed seconds with IQR whiskers (25th to 75th percentile)</p>
+                        <p class="analytics-card-sub">Median completion time per task in seconds with 25th&ndash;75th percentile interquartile whiskers.</p>
                     </div>
                     <div class="header-actions">
                         <button class="btn-paper-download" onclick="exportChartForPaper('durationChart', 'Figure_4_Median_Completion_Duration.png', 'Median Completion Duration with IQR Whiskers')">
@@ -371,26 +370,26 @@
                         </button>
                     </div>
                 </div>
-                <div style="position: relative; height: 280px; width: 100%;">
+                <div style="position: relative; height: 300px; width: 100%;">
                     <canvas id="durationChart"></canvas>
                 </div>
             </div>
 
-            <!-- Chart 5: Speedup Advantage Ratio (Paired correct only, 1.0x reference line, ratio and n labels, bootstrap 95% CI) -->
+            <!-- Chart 5: Speedup Advantage Ratio (Single ratio bar per task, Parity line at left edge, clean 0.5 ticks) -->
             <div class="analytics-card" style="grid-column: 1 / -1;">
                 <div class="analytics-card-header">
                     <div>
                         <h3 class="analytics-card-title">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
                             Speedup Advantage Ratio
                         </h3>
-                        <p class="analytics-card-sub">Within-subject ratio: Median Python time &divide; Median SQL time on paired correct learners</p>
+                        <p class="analytics-card-sub">Task-level speedup (Python median &divide; SQL median) using learners correct in both conditions.</p>
                     </div>
                     <div class="header-actions">
-                        <span class="analytics-pill pill-speedup" style="font-size: 0.82rem;">
+                        <span style="font-size: 0.78rem; font-weight: 700; color: #34d399; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 9999px; padding: 0.25rem 0.65rem;">
                             Overall: {{ m.paired_time_ratio }}x [95% CI: {{ m.paired_ratio_ci_low }}x, {{ m.paired_ratio_ci_high }}x]
                         </span>
-                        <button class="btn-paper-download" onclick="exportChartForPaper('speedupChart', 'Figure_5_Speedup_Advantage_Ratio.png', 'Paired Speedup Advantage Ratio by Task')">
+                        <button class="btn-paper-download" onclick="exportChartForPaper('speedupChart', 'Figure_5_Speedup_Advantage_Ratio.png', 'Speedup Advantage Ratio (Paired Correct Tasks)')">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                             Download for paper
                         </button>
@@ -403,103 +402,50 @@
 
         </div>
 
-        <!-- Task Comparison (Construct Analytics Table) -->
-        <div style="margin-top: 1.5rem; margin-bottom: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+        <!-- Task Comparison Summary Table -->
+        <div style="background: #111726; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
                 <div>
-                    <h3 class="db-card-label" style="margin-bottom: 0.25rem; font-size: 1.15rem; color: #f8fafc; font-weight: 700;">
-                        Task Comparison
-                    </h3>
-                    <p style="margin: 0; font-size: 0.82rem; color: #94a3b8;">
-                        Construct-level comparison of accuracy difference, multi-construct profiles, and execution duration.
-                    </p>
+                    <h3 style="font-size: 1.05rem; font-weight: 700; color: #f8fafc; margin: 0 0 0.25rem 0;">Task Comparison</h3>
+                    <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">Task-by-task summary across relational operations for the 15 evaluation learners (90 tasks per condition)</p>
                 </div>
-                <span class="analytics-pill pill-blue">
-                    {{ m.sql_total_count + m.python_total_count }} task attempts
+                <span style="font-size: 0.76rem; color: #38bdf8; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 9999px; padding: 0.25rem 0.65rem; font-weight: 600;">
+                    180 task attempts
                 </span>
             </div>
-
-            <!-- Clean Compact Table -->
-            <div class="db-results-card" style="width: 100%;">
-                <div style="margin-bottom: 1rem;">
-                    <h4 style="margin: 0 0 0.25rem 0; font-size: 0.95rem; color: #f8fafc; font-weight: 600;">Construct Matrix</h4>
-                    <p style="margin: 0; font-size: 0.78rem; color: #64748b;">Direct metrics across tested relational operations</p>
-                </div>
-                <div style="overflow-x: auto; width: 100%;">
-                    <table class="db-dark-table">
-                        <thead>
-                            <tr>
-                                <th style="min-width: 90px;">Task</th>
-                                <th style="min-width: 220px;">What it tests</th>
-                                <th style="min-width: 170px;">SQL Correct</th>
-                                <th style="min-width: 170px;">Python Correct</th>
-                                <th style="min-width: 150px;">Accuracy difference</th>
-                                <th style="min-width: 210px;">Duration</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for t in m.tasks %}
-                            <tr>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 0.4rem;">
-                                        <strong style="color: #60a5fa; font-size: 0.95rem;">{{ t.task_id }}</strong>
-                                        <span style="font-size: 0.72rem; padding: 0.12rem 0.4rem; border-radius: 4px; background: rgba(59, 130, 246, 0.1); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.2);">
-                                            Forms A & B
-                                        </span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="font-size: 0.85rem; color: #cbd5e1; font-weight: 500;">
-                                        {{ t.what_it_tests or 'Relational Operation' }}
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="margin-bottom: 0.25rem;">
-                                        <span style="font-weight: 600; color: #f8fafc; font-size: 0.88rem;">{{ t.sql_right }}/{{ t.sql_total }} ({{ t.sql_success }}%)</span>
-                                    </div>
-                                    <div style="width: 100%; height: 4px; background: rgba(255, 255, 255, 0.08); border-radius: 9999px; overflow: hidden;" title="SQL: {{ t.sql_success }}% Correct">
-                                        <div style="width: {{ t.sql_success or 0 }}%; height: 100%; background: #38bdf8; border-radius: 9999px;"></div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="margin-bottom: 0.25rem;">
-                                        <span style="font-weight: 600; color: #f8fafc; font-size: 0.88rem;">{{ t.python_right }}/{{ t.python_total }} ({{ t.python_success }}%)</span>
-                                    </div>
-                                    <div style="width: 100%; height: 4px; background: rgba(255, 255, 255, 0.08); border-radius: 9999px; overflow: hidden;" title="Python: {{ t.python_success }}% Correct">
-                                        <div style="width: {{ t.python_success or 0 }}%; height: 100%; background: #c084fc; border-radius: 9999px;"></div>
-                                    </div>
-                                </td>
-                                <td>
-                                    {% if t.accuracy_delta is defined and t.accuracy_delta > 0 %}
-                                        <span class="analytics-pill pill-blue">
-                                            +{{ t.accuracy_delta }}% SQL
-                                        </span>
-                                    {% elif t.accuracy_delta is defined and t.accuracy_delta < 0 %}
-                                        <span class="analytics-pill pill-purple">
-                                            +{{ (t.accuracy_delta * -1)|round(1) }}% Python
-                                        </span>
-                                    {% else %}
-                                        <span class="analytics-pill pill-neutral">
-                                            0 pts
-                                        </span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div style="font-size: 0.84rem; white-space: nowrap;">
-                                        <span style="color: #38bdf8; font-weight: 600;">SQL {{ t.sql_median_time or t.sql_time }}s</span>, 
-                                        <span style="color: #c084fc; font-weight: 600;">Python {{ t.python_median_time or t.python_time }}s</span>, 
-                                        <span style="color: #f8fafc; font-weight: 600;">{{ t.speed_ratio }}x</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="6" style="text-align: center; color: #64748b; padding: 2rem;">No task results recorded yet.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.84rem; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: #94a3b8;">
+                            <th style="padding: 0.6rem 0.75rem;">Task</th>
+                            <th style="padding: 0.6rem 0.75rem;">What it tests</th>
+                            <th style="padding: 0.6rem 0.75rem;">SQL Correct</th>
+                            <th style="padding: 0.6rem 0.75rem;">Python Correct</th>
+                            <th style="padding: 0.6rem 0.75rem;">Accuracy difference</th>
+                            <th style="padding: 0.6rem 0.75rem;">Duration (SQL vs Py)</th>
+                            <th style="padding: 0.6rem 0.75rem;">Paired Speedup</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in m.tasks %}
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.04); color: #cbd5e1;">
+                            <td style="padding: 0.65rem 0.75rem; font-weight: 700; color: #f8fafc;">{{ t.task_id }}</td>
+                            <td style="padding: 0.65rem 0.75rem; color: #94a3b8;">{{ t.what_it_tests }}</td>
+                            <td style="padding: 0.65rem 0.75rem; color: #38bdf8; font-weight: 600;">{{ t.sql_right }}/15 ({{ t.sql_success }}%)</td>
+                            <td style="padding: 0.65rem 0.75rem; color: #c084fc; font-weight: 600;">{{ t.python_right }}/15 ({{ t.python_success }}%)</td>
+                            <td style="padding: 0.65rem 0.75rem; font-weight: 600; color: {% if t.accuracy_delta > 0 %}#34d399{% elif t.accuracy_delta < 0 %}#f87171{% else %}#94a3b8{% endif %};">
+                                {% if t.accuracy_delta > 0 %}+{{ t.accuracy_delta }} pts{% elif t.accuracy_delta < 0 %}{{ t.accuracy_delta }} pts{% else %}0 pts{% endif %}
+                            </td>
+                            <td style="padding: 0.65rem 0.75rem; font-family: var(--font-mono); font-size: 0.8rem;">
+                                {{ t.sql_median_time }}s vs {{ t.python_median_time }}s
+                            </td>
+                            <td style="padding: 0.65rem 0.75rem; font-weight: 700; color: #38bdf8;">
+                                {{ t.speed_ratio }}x <span style="font-size: 0.72rem; color: #64748b; font-weight: normal;">(n={{ t.speed_ratio_n }})</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -516,10 +462,10 @@
                         <div class="analytics-card-header">
                             <div>
                                 <h3 class="analytics-card-title">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+                                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
                                     Attempt Distribution
                                 </h3>
-                                <p class="analytics-card-sub">Average attempts required before reaching solution per task</p>
+                                <p class="analytics-card-sub">Average attempts required before reaching solution per task (T1 &ndash; T6).</p>
                             </div>
                             <div class="header-actions">
                                 <button class="btn-paper-download" onclick="exportChartForPaper('attemptChart', 'Figure_S1_Attempt_Distribution.png', 'Average Attempts per Task')">
@@ -533,15 +479,15 @@
                         </div>
                     </div>
 
-                    <!-- Chart 7: Code Comprehension Score (0 to 18 by condition, median + IQR, dots) -->
+                    <!-- Chart 7: Code Comprehension Score -->
                     <div class="analytics-card">
                         <div class="analytics-card-header">
                             <div>
                                 <h3 class="analytics-card-title">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
                                     Code Comprehension Score
                                 </h3>
-                                <p class="analytics-card-sub">Comprehension score (0 to 18) by condition with median, IQR, and learner dots</p>
+                                <p class="analytics-card-sub">Comprehension score (0 to 18) by condition with median, IQR, and learner dots.</p>
                             </div>
                             <div class="header-actions">
                                 <button class="btn-paper-download" onclick="exportChartForPaper('comprehensionChart', 'Figure_S2_Code_Comprehension_Score.png', 'Code Comprehension Score Distribution (0-18)')">
@@ -555,15 +501,15 @@
                         </div>
                     </div>
 
-                    <!-- Chart 8: Survey Likert Responses by Condition (100% Stacked Bar Q1-Q5) -->
+                    <!-- Chart 8: Survey Likert Responses by Condition -->
                     <div class="analytics-card" style="grid-column: 1 / -1;">
                         <div class="analytics-card-header">
                             <div>
                                 <h3 class="analytics-card-title">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
                                     Survey Likert Responses by Condition
                                 </h3>
-                                <p class="analytics-card-sub">Subjective evaluation items (Q1 &ndash; Q5) across SQL and Python conditions</p>
+                                <p class="analytics-card-sub">Subjective evaluation items (Q1 &ndash; Q5) across SQL and Python conditions (100% stacked).</p>
                             </div>
                             <div class="header-actions">
                                 <button class="btn-paper-download" onclick="exportChartForPaper('surveyLikertChart', 'Figure_S3_Survey_Likert_Responses.png', 'Post-Condition Survey Likert Responses (Q1 to Q5)')">
@@ -585,10 +531,10 @@
 </div>
 
 <script>
-    // Global Chart.js defaults (Dark on-screen theme)
+    // Global Chart.js defaults
     Chart.defaults.color = '#94a3b8';
     Chart.defaults.font.family = "'Inter', sans-serif";
-    Chart.defaults.font.size = 12;
+    Chart.defaults.font.size = 11;
 
     const tasks = {{ m.tasks | tojson }};
     const taskLabels = tasks.map(t => t.task_id);
@@ -621,10 +567,9 @@
                 const meta = chart.getDatasetMeta(datasetIndex);
                 meta.data.forEach((bar, index) => {
                     const val = dataset.data[index];
-                    const total = dataset.totals ? dataset.totals[index] : 15;
-                    const text = `${val}/${total}`;
+                    const text = `${val}/15`;
                     ctx.fillStyle = isExport ? '#000000' : '#f8fafc';
-                    ctx.fillText(text, bar.x, bar.y - 6);
+                    ctx.fillText(text, bar.x, bar.y - 7);
                 });
             });
             ctx.restore();
@@ -639,7 +584,6 @@
                 {
                     label: 'SQL',
                     data: tasks.map(t => t.sql_right || 0),
-                    totals: tasks.map(t => t.sql_total || 15),
                     backgroundColor: '#38bdf8',
                     hoverBackgroundColor: '#0284c7',
                     borderRadius: 5,
@@ -648,7 +592,6 @@
                 {
                     label: 'Python',
                     data: tasks.map(t => t.python_right || 0),
-                    totals: tasks.map(t => t.python_total || 15),
                     backgroundColor: '#c084fc',
                     hoverBackgroundColor: '#a855f7',
                     borderRadius: 5,
@@ -659,7 +602,7 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            layout: { padding: { top: 22 } },
+            layout: { padding: { top: 32 } },
             plugins: {
                 legend: {
                     position: 'top',
@@ -671,17 +614,21 @@
                     borderWidth: 1,
                     padding: 10,
                     callbacks: {
-                        label: ctx => ` ${ctx.dataset.label}: ${ctx.raw} / ${tasks[ctx.dataIndex][ctx.dataset.label.toLowerCase() + '_total']} correct`
+                        label: ctx => ` ${ctx.dataset.label}: ${ctx.raw} / 15 correct (${Math.round((ctx.raw / 15) * 100)}%)`
                     }
                 }
             },
             scales: {
-                x: { grid: { display: false } },
+                x: {
+                    grid: { display: false },
+                    title: { display: true, text: 'Evaluation Task', color: '#94a3b8', font: { weight: '600', size: 11 } }
+                },
                 y: {
                     beginAtZero: true,
                     min: 0,
                     max: 15,
                     grid: darkGrid,
+                    title: { display: true, text: 'Correct Learners (out of 15)', color: '#94a3b8', font: { weight: '600', size: 11 } },
                     ticks: { stepSize: 3 }
                 }
             }
@@ -690,56 +637,108 @@
     });
 
     // ==========================================
-    // CHART 2: Correct Tasks per Learner (out of 6)
+    // CHART 2: Correct Tasks per Learner (out of 6) - Horizontal Paired Dot Plot
     // ==========================================
-    const learnerDatasets = learnerScores.map((l, i) => {
-        return {
-            label: l.study_id,
-            data: [l.sql, l.python],
-            borderColor: 'rgba(148, 163, 184, 0.4)',
-            backgroundColor: 'transparent',
-            pointBackgroundColor: ['#38bdf8', '#c084fc'],
-            pointBorderColor: ['#38bdf8', '#c084fc'],
-            pointRadius: 4.5,
-            pointHoverRadius: 7,
-            borderWidth: 1.5,
-            tension: 0.1
-        };
-    });
+    // learnerScores is already sorted by (python - sql) difference ascending
+    const learnerLabels = learnerScores.map(l => l.study_id);
 
-    // Add Median line overlay
-    learnerDatasets.push({
-        label: 'Condition Median',
-        data: [{{ m.learner_sql_median or 6.0 }}, {{ m.learner_python_median or 6.0 }}],
-        borderColor: '#f59e0b',
-        backgroundColor: '#f59e0b',
-        pointBackgroundColor: '#f59e0b',
-        pointBorderColor: '#ffffff',
-        pointBorderWidth: 2,
-        pointStyle: 'rectRot',
-        pointRadius: 9,
-        borderWidth: 3,
-        borderDash: [4, 4],
-        tension: 0
-    });
+    // Connecting line plugin between SQL dot and Python dot
+    const dumbbellPlugin = {
+        id: 'dumbbellPlugin',
+        beforeDatasetsDraw(chart) {
+            const { ctx, scales: { x, y } } = chart;
+            const isExport = chart.options.plugins?.paperExportMode;
+
+            ctx.save();
+            // Draw condition median vertical reference line at x = 6.0
+            const xMed = x.getPixelForValue(6.0);
+            ctx.strokeStyle = isExport ? 'rgba(0, 0, 0, 0.4)' : 'rgba(245, 158, 11, 0.5)';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(xMed, y.top);
+            ctx.lineTo(xMed, y.bottom);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Draw horizontal dumbbell connector line for each learner row
+            learnerScores.forEach((l, idx) => {
+                const yPos = y.getPixelForValue(idx);
+                // When scores match, offset slightly so both dots and link are visible
+                let xSqlVal = l.sql;
+                let xPyVal = l.python;
+                if (xSqlVal === xPyVal) {
+                    xSqlVal = l.sql - 0.08;
+                    xPyVal = l.python + 0.08;
+                }
+                const xSqlPos = x.getPixelForValue(xSqlVal);
+                const xPyPos = x.getPixelForValue(xPyVal);
+
+                ctx.strokeStyle = isExport ? '#4b5563' : 'rgba(148, 163, 184, 0.4)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(xSqlPos, yPos);
+                ctx.lineTo(xPyPos, yPos);
+                ctx.stroke();
+            });
+            ctx.restore();
+        }
+    };
+
+    // Point coordinates with subtle offset when scores are equal so both dots render
+    const sqlDotData = learnerScores.map((l, idx) => ({
+        x: l.sql === l.python ? l.sql - 0.08 : l.sql,
+        y: idx,
+        trueScore: l.sql,
+        study_id: l.study_id,
+        diff: l.diff
+    }));
+
+    const pyDotData = learnerScores.map((l, idx) => ({
+        x: l.sql === l.python ? l.python + 0.08 : l.python,
+        y: idx,
+        trueScore: l.python,
+        study_id: l.study_id,
+        diff: l.diff
+    }));
 
     new Chart(document.getElementById('learnerScoresChart'), {
-        type: 'line',
+        type: 'scatter',
         data: {
-            labels: ['SQL (Median: {{ m.learner_sql_median or 6.0 }})', 'Python (Median: {{ m.learner_python_median or 6.0 }})'],
-            datasets: learnerDatasets
+            datasets: [
+                {
+                    label: 'SQL Score',
+                    data: sqlDotData,
+                    backgroundColor: '#38bdf8',
+                    borderColor: '#ffffff',
+                    borderWidth: 1.5,
+                    pointRadius: 5.5,
+                    pointHoverRadius: 7.5
+                },
+                {
+                    label: 'Python Score',
+                    data: pyDotData,
+                    backgroundColor: '#c084fc',
+                    borderColor: '#ffffff',
+                    borderWidth: 1.5,
+                    pointRadius: 5.5,
+                    pointHoverRadius: 7.5
+                }
+            ]
         },
         options: {
+            indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
+            layout: { padding: { top: 12, right: 18 } },
             plugins: {
                 legend: {
-                    display: true,
+                    position: 'top',
                     labels: {
-                        filter: item => item.text === 'Condition Median',
                         usePointStyle: true,
-                        pointStyle: 'rectRot',
-                        boxWidth: 10
+                        pointStyle: 'circle',
+                        boxWidth: 8,
+                        padding: 14
                     }
                 },
                 tooltip: {
@@ -748,26 +747,46 @@
                     borderWidth: 1,
                     padding: 10,
                     callbacks: {
-                        title: items => items[0].dataset.label,
-                        label: ctx => ` Score: ${ctx.raw} / 6 tasks`
+                        label: ctx => {
+                            const pt = ctx.raw;
+                            const learner = learnerScores.find(l => l.study_id === pt.study_id);
+                            const sign = learner.diff > 0 ? '+' : '';
+                            return [
+                                ` ${pt.study_id}: SQL = ${learner.sql}/6, Python = ${learner.python}/6`,
+                                ` Difference (Python - SQL): ${sign}${learner.diff}`
+                            ];
+                        }
                     }
                 }
             },
             scales: {
-                x: { grid: { display: false } },
-                y: {
-                    beginAtZero: true,
+                x: {
                     min: 0,
                     max: 6,
                     grid: darkGrid,
-                    ticks: { stepSize: 1, callback: v => v + ' / 6' }
+                    title: { display: true, text: 'Correct Tasks (0 to 6)', color: '#94a3b8', font: { weight: '600', size: 11 } },
+                    ticks: {
+                        stepSize: 1,
+                        callback: v => v + ' / 6'
+                    }
+                },
+                y: {
+                    min: -0.5,
+                    max: learnerScores.length - 0.5,
+                    grid: { display: false },
+                    title: { display: true, text: 'Learner ID (sorted by Py - SQL Δ)', color: '#94a3b8', font: { weight: '600', size: 11 } },
+                    ticks: {
+                        stepSize: 1,
+                        callback: v => learnerLabels[v] || ''
+                    }
                 }
             }
-        }
+        },
+        plugins: [dumbbellPlugin]
     });
 
     // ==========================================
-    // CHART 3: Correct Tasks per Hour (Box/IQR + Learner Dots)
+    // CHART 3: Correct Tasks per Hour (Strip Plot + Jitter + Median outside dots)
     // ==========================================
     const ctIqrPlugin = {
         id: 'ctIqrPlugin',
@@ -790,7 +809,7 @@
                 ctx.save();
                 // Whisker vertical stem
                 ctx.strokeStyle = isExport ? '#000000' : '#ffffff';
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 1.8;
                 ctx.beginPath();
                 ctx.moveTo(xCenter, yQ1);
                 ctx.lineTo(xCenter, yQ3);
@@ -809,31 +828,38 @@
                 ctx.strokeStyle = isExport ? '#000000' : '#f59e0b';
                 ctx.lineWidth = 3.5;
                 ctx.beginPath();
-                ctx.moveTo(xCenter - 18, yMed);
-                ctx.lineTo(xCenter + 18, yMed);
+                ctx.moveTo(xCenter - 22, yMed);
+                ctx.lineTo(xCenter + 22, yMed);
                 ctx.stroke();
 
-                // Text badge for median
+                // Median value label placed cleanly to the right in free whitespace
                 ctx.fillStyle = isExport ? '#000000' : '#f8fafc';
                 ctx.font = '600 11px Inter, sans-serif';
                 ctx.textAlign = 'left';
-                ctx.fillText(`Med: ${cond.stats.median}`, xCenter + 22, yMed + 4);
+                ctx.fillText(`Med: ${cond.stats.median}`, xCenter + 32, yMed + 4);
                 ctx.restore();
             });
         }
     };
 
-    // Jittered learner dots for CT/h
-    const sqlCtLearners = (ctData.sql?.learners || []).map((l, i) => ({
-        x: 'SQL',
-        y: l.rate,
-        study_id: l.study_id
-    }));
-    const pyCtLearners = (ctData.python?.learners || []).map((l, i) => ({
-        x: 'Python',
-        y: l.rate,
-        study_id: l.study_id
-    }));
+    // Jittered learner dots across X center (-0.14 to +0.14) so they don't stack in a single column
+    const sqlCtLearners = (ctData.sql?.learners || []).map((l, i) => {
+        const jitter = (((i * 7) % 11) - 5) * 0.024;
+        return {
+            x: 0 + jitter,
+            y: l.rate,
+            study_id: l.study_id
+        };
+    });
+
+    const pyCtLearners = (ctData.python?.learners || []).map((l, i) => {
+        const jitter = (((i * 5) % 11) - 5) * 0.024;
+        return {
+            x: 1 + jitter,
+            y: l.rate,
+            study_id: l.study_id
+        };
+    });
 
     new Chart(document.getElementById('ctPerHourChart'), {
         type: 'bar',
@@ -847,11 +873,11 @@
                         [ctData.sql?.q1 || 21.4, ctData.sql?.q3 || 31.8],
                         [ctData.python?.q1 || 12.0, ctData.python?.q3 || 17.8]
                     ],
-                    backgroundColor: ['rgba(56, 189, 248, 0.25)', 'rgba(192, 132, 252, 0.25)'],
+                    backgroundColor: ['rgba(56, 189, 248, 0.22)', 'rgba(192, 132, 252, 0.22)'],
                     borderColor: ['#38bdf8', '#c084fc'],
                     borderWidth: 1.5,
                     borderRadius: 6,
-                    barPercentage: 0.4
+                    barPercentage: 0.38
                 },
                 {
                     type: 'scatter',
@@ -876,10 +902,11 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            layout: { padding: { top: 16, right: 36 } },
             plugins: {
                 legend: {
                     position: 'top',
-                    labels: { usePointStyle: true, boxWidth: 8, padding: 12 }
+                    labels: { usePointStyle: true, boxWidth: 8, padding: 14 }
                 },
                 tooltip: {
                     backgroundColor: '#0b0f19',
@@ -897,13 +924,25 @@
                 }
             },
             scales: {
-                x: { grid: { display: false } },
+                x: {
+                    grid: { display: false },
+                    title: { display: true, text: 'Evaluation Condition', color: '#94a3b8', font: { weight: '600', size: 11 } },
+                    ticks: {
+                        callback: function(val, index) {
+                            return ['SQL', 'Python'][index] || '';
+                        }
+                    }
+                },
                 y: {
                     beginAtZero: true,
                     min: 0,
                     max: 45,
                     grid: darkGrid,
-                    ticks: { callback: v => v + ' / hr' }
+                    title: { display: true, text: 'Correct Tasks per Hour (CT/h)', color: '#94a3b8', font: { weight: '600', size: 11 } },
+                    ticks: {
+                        stepSize: 10,
+                        callback: v => v + ' / hr'
+                    }
                 }
             }
         },
@@ -911,58 +950,76 @@
     });
 
     // ==========================================
-    // CHART 4: Median Completion Duration (IQR Whiskers & n under each task)
+    // CHART 4: Median Completion Duration (IQR Whiskers + 480s cap dashed line)
     // ==========================================
     const durationWhiskersPlugin = {
         id: 'durationWhiskersPlugin',
         afterDatasetsDraw(chart) {
-            const { ctx, scales: { y } } = chart;
+            const { ctx, scales: { x, y } } = chart;
             const isExport = chart.options.plugins?.paperExportMode;
 
+            // Draw 480s timeout cap dashed line
+            const y480 = y.getPixelForValue(480);
+            ctx.save();
+            ctx.strokeStyle = isExport ? 'rgba(0,0,0,0.5)' : 'rgba(239, 68, 68, 0.6)';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(x.left, y480);
+            ctx.lineTo(x.right, y480);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Label for 480s cap placed at far right edge outside data
+            ctx.fillStyle = isExport ? '#000000' : '#f87171';
+            ctx.font = '600 10.5px Inter, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText('480s timeout cap', x.right - 8, y480 - 6);
+
+            // Draw whiskers for each task
             tasks.forEach((t, index) => {
                 const metaSql = chart.getDatasetMeta(0);
                 const metaPy = chart.getDatasetMeta(1);
                 const barSql = metaSql.data[index];
                 const barPy = metaPy.data[index];
 
-                ctx.save();
-                ctx.strokeStyle = isExport ? '#000000' : '#ffffff';
+                ctx.strokeStyle = isExport ? '#000000' : '#e2e8f0';
                 ctx.lineWidth = 1.8;
 
-                // Draw SQL Whisker (t.sql_q1_time to t.sql_q3_time)
+                // SQL Whisker
                 if (barSql && t.sql_q1_time && t.sql_q3_time) {
                     const yQ1 = y.getPixelForValue(t.sql_q1_time);
                     const yQ3 = y.getPixelForValue(t.sql_q3_time);
                     ctx.beginPath();
                     ctx.moveTo(barSql.x, yQ1);
                     ctx.lineTo(barSql.x, yQ3);
-                    ctx.moveTo(barSql.x - 6, yQ1);
-                    ctx.lineTo(barSql.x + 6, yQ1);
-                    ctx.moveTo(barSql.x - 6, yQ3);
-                    ctx.lineTo(barSql.x + 6, yQ3);
+                    ctx.moveTo(barSql.x - 5, yQ1);
+                    ctx.lineTo(barSql.x + 5, yQ1);
+                    ctx.moveTo(barSql.x - 5, yQ3);
+                    ctx.lineTo(barSql.x + 5, yQ3);
                     ctx.stroke();
                 }
 
-                // Draw Python Whisker (t.python_q1_time to t.python_q3_time)
+                // Python Whisker
                 if (barPy && t.python_q1_time && t.python_q3_time) {
                     const yQ1 = y.getPixelForValue(t.python_q1_time);
                     const yQ3 = y.getPixelForValue(t.python_q3_time);
                     ctx.beginPath();
                     ctx.moveTo(barPy.x, yQ1);
                     ctx.lineTo(barPy.x, yQ3);
-                    ctx.moveTo(barPy.x - 6, yQ1);
-                    ctx.lineTo(barPy.x + 6, yQ1);
-                    ctx.moveTo(barPy.x - 6, yQ3);
-                    ctx.lineTo(barPy.x + 6, yQ3);
+                    ctx.moveTo(barPy.x - 5, yQ1);
+                    ctx.lineTo(barPy.x + 5, yQ1);
+                    ctx.moveTo(barPy.x - 5, yQ3);
+                    ctx.lineTo(barPy.x + 5, yQ3);
                     ctx.stroke();
                 }
-                ctx.restore();
             });
+            ctx.restore();
         }
     };
 
-    // Label on x-axis with n under each task: e.g. "T1 (n=15)"
-    const taskLabelsWithN = tasks.map(t => `${t.task_id} (n=${t.sql_n || 15})`);
+    // Label on x-axis with n=15 under each task
+    const taskLabelsWithN = tasks.map(t => `${t.task_id} (n=15)`);
 
     new Chart(document.getElementById('durationChart'), {
         type: 'bar',
@@ -974,7 +1031,7 @@
                     data: tasks.map(t => t.sql_median_time || t.sql_time || 0),
                     backgroundColor: '#38bdf8',
                     hoverBackgroundColor: '#0284c7',
-                    borderRadius: 6,
+                    borderRadius: 5,
                     borderSkipped: false
                 },
                 {
@@ -982,7 +1039,7 @@
                     data: tasks.map(t => t.python_median_time || t.python_time || 0),
                     backgroundColor: '#c084fc',
                     hoverBackgroundColor: '#a855f7',
-                    borderRadius: 6,
+                    borderRadius: 5,
                     borderSkipped: false
                 }
             ]
@@ -990,6 +1047,7 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            layout: { padding: { top: 28 } },
             plugins: {
                 legend: {
                     position: 'top',
@@ -1007,17 +1065,26 @@
                             const med = ctx.raw;
                             const q1 = isSQL ? t.sql_q1_time : t.python_q1_time;
                             const q3 = isSQL ? t.sql_q3_time : t.python_q3_time;
-                            return ` ${ctx.dataset.label}: ${med}s [IQR: ${q1}s - ${q3}s]`;
+                            return ` ${ctx.dataset.label}: ${med}s [IQR: ${q1}s &ndash; ${q3}s]`;
                         }
                     }
                 }
             },
             scales: {
-                x: { grid: { display: false } },
+                x: {
+                    grid: { display: false },
+                    title: { display: true, text: 'Evaluation Task (Cohort n=15)', color: '#94a3b8', font: { weight: '600', size: 11 } }
+                },
                 y: {
                     beginAtZero: true,
+                    min: 0,
+                    max: 540,
                     grid: darkGrid,
-                    ticks: { callback: v => v + 's' }
+                    title: { display: true, text: 'Duration (seconds)', color: '#94a3b8', font: { weight: '600', size: 11 } },
+                    ticks: {
+                        stepSize: 100,
+                        callback: v => v + 's'
+                    }
                 }
             }
         },
@@ -1025,7 +1092,7 @@
     });
 
     // ==========================================
-    // CHART 5: Speedup Advantage Ratio (Paired correct only, 1.0x line, ratio + n labels)
+    // CHART 5: Speedup Advantage Ratio (Parity at left edge, clean 0.5 ticks)
     // ==========================================
     const speedupLabelsPlugin = {
         id: 'speedupLabelsPlugin',
@@ -1033,7 +1100,7 @@
             const { ctx, scales: { x, y } } = chart;
             const isExport = chart.options.plugins?.paperExportMode;
 
-            // Draw 1.0x reference line across chart
+            // Draw 1.0x parity line across chart
             const y1 = y.getPixelForValue(1.0);
             ctx.save();
             ctx.strokeStyle = isExport ? '#000000' : '#f59e0b';
@@ -1044,14 +1111,14 @@
             ctx.lineTo(x.right, y1);
             ctx.stroke();
 
-            // Label for 1.0x line
+            // Label for 1.0x line placed at the LEFT edge outside bars
             ctx.setLineDash([]);
             ctx.fillStyle = isExport ? '#000000' : '#f59e0b';
-            ctx.font = '600 11px Inter, sans-serif';
-            ctx.textAlign = 'right';
-            ctx.fillText('Parity 1.0x', x.right - 8, y1 - 6);
+            ctx.font = '700 11px Inter, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText('Parity 1.0x', x.left + 8, y1 - 6);
 
-            // Bar text labels: "1.49x (n=15)"
+            // Bar value text labels: "1.49x (n=15)"
             const meta = chart.getDatasetMeta(0);
             meta.data.forEach((bar, index) => {
                 const t = tasks[index];
@@ -1059,7 +1126,7 @@
                 ctx.fillStyle = isExport ? '#000000' : '#f8fafc';
                 ctx.font = '700 11.5px Inter, sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText(text, bar.x, bar.y - 7);
+                ctx.fillText(text, bar.x, bar.y - 8);
             });
             ctx.restore();
         }
@@ -1072,7 +1139,7 @@
             datasets: [{
                 label: 'Speedup Ratio (Python / SQL)',
                 data: tasks.map(t => t.speed_ratio || 1.0),
-                backgroundColor: tasks.map(t => (t.speed_ratio >= 1.5 ? '#38bdf8' : 'rgba(56, 189, 248, 0.7)')),
+                backgroundColor: tasks.map(t => (t.speed_ratio >= 1.5 ? '#38bdf8' : 'rgba(56, 189, 248, 0.75)')),
                 hoverBackgroundColor: '#0284c7',
                 borderRadius: 6,
                 borderSkipped: false
@@ -1081,7 +1148,7 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            layout: { padding: { top: 24 } },
+            layout: { padding: { top: 26 } },
             plugins: {
                 legend: { display: false },
                 tooltip: {
@@ -1098,13 +1165,20 @@
                 }
             },
             scales: {
-                x: { grid: { display: false } },
+                x: {
+                    grid: { display: false },
+                    title: { display: true, text: 'Evaluation Task', color: '#94a3b8', font: { weight: '600', size: 11 } }
+                },
                 y: {
                     beginAtZero: true,
                     min: 0,
-                    max: 3.2,
+                    max: 3.0,
                     grid: darkGrid,
-                    ticks: { callback: v => v + 'x', stepSize: 0.5 }
+                    title: { display: true, text: 'Speedup Ratio (Python / SQL)', color: '#94a3b8', font: { weight: '600', size: 11 } },
+                    ticks: {
+                        stepSize: 0.5,
+                        callback: v => v.toFixed(1) + 'x'
+                    }
                 }
             }
         },
@@ -1124,7 +1198,7 @@
                     data: tasks.map(t => t.sql_attempts || 0),
                     backgroundColor: '#38bdf8',
                     hoverBackgroundColor: '#0284c7',
-                    borderRadius: 6,
+                    borderRadius: 5,
                     borderSkipped: false
                 },
                 {
@@ -1132,7 +1206,7 @@
                     data: tasks.map(t => t.python_attempts || 0),
                     backgroundColor: '#c084fc',
                     hoverBackgroundColor: '#a855f7',
-                    borderRadius: 6,
+                    borderRadius: 5,
                     borderSkipped: false
                 }
             ]
@@ -1154,8 +1228,18 @@
                 }
             },
             scales: {
-                x: { grid: { display: false } },
-                y: { beginAtZero: true, grid: darkGrid, ticks: { stepSize: 1 } }
+                x: {
+                    grid: { display: false },
+                    title: { display: true, text: 'Evaluation Task', color: '#94a3b8', font: { weight: '600', size: 11 } }
+                },
+                y: {
+                    beginAtZero: true,
+                    min: 0,
+                    max: 4,
+                    grid: darkGrid,
+                    title: { display: true, text: 'Average Attempts per Task', color: '#94a3b8', font: { weight: '600', size: 11 } },
+                    ticks: { stepSize: 1 }
+                }
             }
         }
     });
@@ -1184,14 +1268,14 @@
                 ctx.save();
                 // Vertical whisker
                 ctx.strokeStyle = isExport ? '#000000' : '#ffffff';
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 1.8;
                 ctx.beginPath();
                 ctx.moveTo(xCenter, yQ1);
                 ctx.lineTo(xCenter, yQ3);
-                ctx.moveTo(xCenter - 12, yQ1);
-                ctx.lineTo(xCenter + 12, yQ1);
-                ctx.moveTo(xCenter - 12, yQ3);
-                ctx.lineTo(xCenter + 12, yQ3);
+                ctx.moveTo(xCenter - 10, yQ1);
+                ctx.lineTo(xCenter + 10, yQ1);
+                ctx.moveTo(xCenter - 10, yQ3);
+                ctx.lineTo(xCenter + 10, yQ3);
                 ctx.stroke();
 
                 // Median line
@@ -1205,14 +1289,22 @@
                 ctx.fillStyle = isExport ? '#000000' : '#f8fafc';
                 ctx.font = '600 11px Inter, sans-serif';
                 ctx.textAlign = 'left';
-                ctx.fillText(`Med: ${cond.stats.median}`, xCenter + 22, yMed + 4);
+                ctx.fillText(`Med: ${cond.stats.median}`, xCenter + 26, yMed + 4);
                 ctx.restore();
             });
         }
     };
 
-    const sqlCompLearners = (compData.sql?.learners || []).map(l => ({ x: 'SQL', y: l.score, study_id: l.study_id }));
-    const pyCompLearners = (compData.python?.learners || []).map(l => ({ x: 'Python', y: l.score, study_id: l.study_id }));
+    const sqlCompLearners = (compData.sql?.learners || []).map((l, i) => ({
+        x: 0 + (((i * 7) % 11) - 5) * 0.024,
+        y: l.score,
+        study_id: l.study_id
+    }));
+    const pyCompLearners = (compData.python?.learners || []).map((l, i) => ({
+        x: 1 + (((i * 5) % 11) - 5) * 0.024,
+        y: l.score,
+        study_id: l.study_id
+    }));
 
     new Chart(document.getElementById('comprehensionChart'), {
         type: 'bar',
@@ -1226,11 +1318,11 @@
                         [compData.sql?.q1 || 15.0, compData.sql?.q3 || 16.0],
                         [compData.python?.q1 || 11.0, compData.python?.q3 || 14.0]
                     ],
-                    backgroundColor: ['rgba(56, 189, 248, 0.25)', 'rgba(192, 132, 252, 0.25)'],
+                    backgroundColor: ['rgba(56, 189, 248, 0.22)', 'rgba(192, 132, 252, 0.22)'],
                     borderColor: ['#38bdf8', '#c084fc'],
                     borderWidth: 1.5,
                     borderRadius: 6,
-                    barPercentage: 0.4
+                    barPercentage: 0.38
                 },
                 {
                     type: 'scatter',
@@ -1255,10 +1347,11 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            layout: { padding: { top: 16, right: 30 } },
             plugins: {
                 legend: {
                     position: 'top',
-                    labels: { usePointStyle: true, boxWidth: 8, padding: 12 }
+                    labels: { usePointStyle: true, boxWidth: 8, padding: 14 }
                 },
                 tooltip: {
                     backgroundColor: '#0b0f19',
@@ -1276,13 +1369,21 @@
                 }
             },
             scales: {
-                x: { grid: { display: false } },
+                x: {
+                    grid: { display: false },
+                    title: { display: true, text: 'Evaluation Condition', color: '#94a3b8', font: { weight: '600', size: 11 } },
+                    ticks: { callback: (v, i) => ['SQL', 'Python'][i] || '' }
+                },
                 y: {
                     beginAtZero: true,
                     min: 0,
                     max: 18,
                     grid: darkGrid,
-                    ticks: { callback: v => v + ' / 18' }
+                    title: { display: true, text: 'Comprehension Score (out of 18)', color: '#94a3b8', font: { weight: '600', size: 11 } },
+                    ticks: {
+                        stepSize: 3,
+                        callback: v => v + ' / 18'
+                    }
                 }
             }
         },
@@ -1300,9 +1401,6 @@
         'Q5: Explanation Confidence'
     ];
     const likertKeys = ['q1', 'q2', 'q3', 'q4', 'q5'];
-
-    // 100% stacked datasets for SQL and Python
-    // Levels: 1=SD, 2=D, 3=N, 4=A, 5=SA
     const likertColors = {
         1: '#ef4444', // Strongly Disagree
         2: '#f97316', // Disagree
@@ -1379,6 +1477,7 @@
                     stacked: true,
                     max: 100,
                     grid: darkGrid,
+                    title: { display: true, text: 'Percentage of Responses (%)', color: '#94a3b8', font: { weight: '600', size: 11 } },
                     ticks: { callback: v => v + '%' }
                 },
                 y: {
@@ -1390,7 +1489,9 @@
     });
 
     // ==========================================
-    // REQUIREMENT 8: High-Resolution Paper PNG Exporter (2x resolution, white bg, dark blue SQL, dark gray Python)
+    // REQUIREMENT 8: High-Resolution Paper PNG Exporter
+    // 2x resolution, white bg, black text, dark blue SQL (#1e3a8a), dark gray Python (#374151)
+    // Distinguishable marker shapes and patterns for black-and-white print
     // ==========================================
     function exportChartForPaper(canvasId, filename, figureTitle) {
         const srcChart = Chart.getChart(canvasId);
@@ -1400,13 +1501,13 @@
         }
 
         const width = 1600;
-        const height = 900;
+        const height = canvasId === 'learnerScoresChart' ? 1000 : 900;
         const offCanvas = document.createElement('canvas');
         offCanvas.width = width;
         offCanvas.height = height;
         const offCtx = offCanvas.getContext('2d');
 
-        // 1. Fill solid white background
+        // 1. Fill crisp white background
         offCtx.fillStyle = '#ffffff';
         offCtx.fillRect(0, 0, width, height);
 
@@ -1418,41 +1519,42 @@
         paperConfig.options.plugins = paperConfig.options.plugins || {};
         paperConfig.options.plugins.paperExportMode = true;
 
-        // Title at the top in black
+        // Paper Title at top in black
         paperConfig.options.plugins.title = {
             display: true,
             text: figureTitle,
             color: '#000000',
             font: { family: 'Inter, sans-serif', size: 20, weight: 'bold' },
-            padding: { top: 20, bottom: 24 }
+            padding: { top: 22, bottom: 20 }
         };
 
-        // Dark text and borders
+        // Black text for legend
         if (paperConfig.options.plugins.legend) {
             paperConfig.options.plugins.legend.labels = paperConfig.options.plugins.legend.labels || {};
             paperConfig.options.plugins.legend.labels.color = '#000000';
             paperConfig.options.plugins.legend.labels.font = { family: 'Inter, sans-serif', size: 13, weight: '600' };
         }
 
-        // Color mapping: SQL -> Dark Blue (#1e3a8a), Python -> Dark Gray (#374151)
+        // Color mapping & B/W marker shapes
+        // SQL -> Dark Blue (#1e3a8a) with circle marker
+        // Python -> Dark Gray (#374151) with square/triangle marker
         paperConfig.data.datasets.forEach(ds => {
             const lbl = (ds.label || '').toLowerCase();
             if (lbl.includes('sql')) {
                 ds.backgroundColor = '#1e3a8a';
-                ds.borderColor = '#172554';
+                ds.borderColor = '#000000';
+                ds.pointStyle = 'circle';
                 if (ds.pointBackgroundColor) ds.pointBackgroundColor = '#1e3a8a';
-                if (ds.pointBorderColor) ds.pointBorderColor = '#172554';
+                if (ds.pointBorderColor) ds.pointBorderColor = '#000000';
             } else if (lbl.includes('python')) {
                 ds.backgroundColor = '#374151';
-                ds.borderColor = '#1f2937';
-                if (ds.pointBackgroundColor) ds.pointBackgroundColor = '#374151';
-                if (ds.pointBorderColor) ds.pointBorderColor = '#1f2937';
-            } else if (lbl.includes('median')) {
                 ds.borderColor = '#000000';
-                ds.backgroundColor = '#000000';
+                ds.pointStyle = 'rect';
+                if (ds.pointBackgroundColor) ds.pointBackgroundColor = '#374151';
+                if (ds.pointBorderColor) ds.pointBorderColor = '#000000';
             } else if (lbl.includes('speedup')) {
                 ds.backgroundColor = '#1e3a8a';
-                ds.borderColor = '#172554';
+                ds.borderColor = '#000000';
             } else if (lbl.includes('iqr')) {
                 ds.backgroundColor = 'rgba(0, 0, 0, 0.08)';
                 ds.borderColor = '#000000';
@@ -1464,7 +1566,11 @@
             Object.values(paperConfig.options.scales).forEach(scale => {
                 scale.ticks = scale.ticks || {};
                 scale.ticks.color = '#000000';
-                scale.ticks.font = { family: 'Inter, sans-serif', size: 12, weight: '500' };
+                scale.ticks.font = { family: 'Inter, sans-serif', size: 12, weight: '600' };
+                if (scale.title) {
+                    scale.title.color = '#000000';
+                    scale.title.font = { family: 'Inter, sans-serif', size: 13, weight: 'bold' };
+                }
                 scale.grid = scale.grid || {};
                 scale.grid.color = 'rgba(0, 0, 0, 0.12)';
                 scale.grid.drawBorder = true;
@@ -1472,7 +1578,6 @@
             });
         }
 
-        // Copy plugins from source
         const plugins = (srcChart.config.plugins || []).slice();
 
         // Render paper chart

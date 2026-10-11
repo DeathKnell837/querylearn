@@ -35,19 +35,22 @@ def _safe_sync_cloud():
     except Exception:
         pass
 
-def compute_paired_speedup_data(cursor):
+def compute_paired_speedup_data(cursor, cohort_only=False):
     """
     Computes paired task speedup ratios and overall learner-level cluster bootstrap 95% CI.
     A paired record requires that the same participant succeeded (success = 1) in BOTH
     SQL and Python conditions on the same task_id.
     """
-    cursor.execute("""
+    where_extra = "AND CAST(SUBSTR(p.study_id, 2) AS INTEGER) BETWEEN 1 AND 15" if cohort_only else ""
+    cursor.execute(f"""
         SELECT r_sql.task_id, s_sql.participant_id, r_sql.elapsed_seconds as sql_time, r_py.elapsed_seconds as py_time
         FROM task_results r_sql
         JOIN sessions s_sql ON r_sql.session_id = s_sql.id AND s_sql.language = 'sql'
+        JOIN participants p ON s_sql.participant_id = p.id
         JOIN task_results r_py ON r_sql.task_id = r_py.task_id
         JOIN sessions s_py ON r_py.session_id = s_py.id AND s_py.language = 'python' AND s_py.participant_id = s_sql.participant_id
         WHERE r_sql.success = 1 AND r_py.success = 1
+          {where_extra}
         ORDER BY r_sql.task_id ASC, s_sql.participant_id ASC
     """)
     rows = cursor.fetchall()
@@ -518,18 +521,27 @@ def charts():
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
-    # 1. Unified paired speedup data & learner bootstrap 95% CI
-    paired_data = compute_paired_speedup_data(cursor)
+    # 1. Unified paired speedup data & learner bootstrap 95% CI (Cohort P001-P015)
+    paired_data = compute_paired_speedup_data(cursor, cohort_only=True)
     task_paired_ratios = paired_data['task_ratios']
 
-    # 2. Fetch raw task results for task breakdown and duration stats
+    # 2. Fetch raw task results for task breakdown and duration stats (Cohort P001-P015 only)
     cursor.execute("""
-        SELECT r.task_id, s.language, r.success, r.elapsed_seconds, r.attempt_count
+        SELECT r.task_id, s.language, p.study_id, r.success, r.elapsed_seconds, r.attempt_count
         FROM task_results r
         JOIN sessions s ON r.session_id = s.id
-        ORDER BY r.task_id ASC
+        JOIN participants p ON s.participant_id = p.id
+        WHERE CAST(SUBSTR(p.study_id, 2) AS INTEGER) BETWEEN 1 AND 15
+        ORDER BY r.task_id ASC, p.study_id ASC
     """)
     raw_task_rows = cursor.fetchall()
+    seen_tasks = set()
+    deduped_task_rows = []
+    for r in raw_task_rows:
+        k = (r['task_id'], r['language'], r['study_id'])
+        if k not in seen_tasks:
+            seen_tasks.add(k)
+            deduped_task_rows.append(r)
 
     from collections import defaultdict
     task_groups = defaultdict(lambda: {'success': [], 'times': [], 'attempts': []})
@@ -537,7 +549,7 @@ def charts():
     lang_success = defaultdict(list)
     all_tasks = set()
 
-    for row in raw_task_rows:
+    for row in deduped_task_rows:
         tid = row['task_id']
         lang = row['language']
         all_tasks.add(tid)
@@ -646,6 +658,7 @@ def charts():
         FROM participants p
         JOIN sessions s ON s.participant_id = p.id
         LEFT JOIN task_results r ON r.session_id = s.id
+        WHERE CAST(SUBSTR(p.study_id, 2) AS INTEGER) BETWEEN 1 AND 15
         GROUP BY p.id, s.language
         ORDER BY p.study_id ASC
     """)
@@ -657,7 +670,10 @@ def charts():
             p_scores[sid] = {'study_id': sid, 'sql': 0, 'python': 0}
         p_scores[sid][r['language']] = r['correct_count'] or 0
     learner_scores = list(p_scores.values())
-    learner_scores.sort(key=lambda x: x['study_id'])
+    for l in learner_scores:
+        l['diff'] = (l['python'] or 0) - (l['sql'] or 0)
+    # Sort by Python minus SQL difference ascending, then by numeric study_id
+    learner_scores.sort(key=lambda x: (x['diff'], int(x['study_id'][1:])))
     learner_sql_scores = [l['sql'] for l in learner_scores]
     learner_py_scores = [l['python'] for l in learner_scores]
     learner_sql_median = round(statistics.median(learner_sql_scores), 1) if learner_sql_scores else 0.0
@@ -665,16 +681,21 @@ def charts():
 
     # 6. Correct Tasks per Hour (Learner Level)
     cursor.execute("""
-        SELECT p.study_id, s.language, r.success, r.elapsed_seconds
+        SELECT p.study_id, s.language, r.task_id, r.success, r.elapsed_seconds
         FROM task_results r
         JOIN sessions s ON r.session_id = s.id
         JOIN participants p ON s.participant_id = p.id
+        WHERE CAST(SUBSTR(p.study_id, 2) AS INTEGER) BETWEEN 1 AND 15
         ORDER BY p.study_id, s.language, r.task_id
     """)
     ct_all_rows = cursor.fetchall()
+    seen_ct = set()
     p_task_data = defaultdict(list)
     for r in ct_all_rows:
-        p_task_data[(r['study_id'], r['language'])].append(r)
+        k = (r['study_id'], r['language'], r['task_id'])
+        if k not in seen_ct:
+            seen_ct.add(k)
+            p_task_data[(r['study_id'], r['language'])].append(r)
 
     ct_sql_learners = []
     ct_py_learners = []
@@ -719,6 +740,7 @@ def charts():
         JOIN sessions s ON cr.session_id = s.id
         JOIN participants p ON s.participant_id = p.id
         WHERE cr.item_id IN ('C1', 'C2', 'C3', 'C4', 'C5', 'C6')
+          AND CAST(SUBSTR(p.study_id, 2) AS INTEGER) BETWEEN 1 AND 15
         GROUP BY cr.session_id, s.language, p.study_id
         HAVING COUNT(cr.id) = 6
     """)
@@ -748,7 +770,13 @@ def charts():
     }
 
     # 8. Survey Likert Responses by Condition (Q1 to Q5)
-    cursor.execute("SELECT language, q1, q2, q3, q4, q5 FROM survey_responses")
+    cursor.execute("""
+        SELECT sr.language, sr.q1, sr.q2, sr.q3, sr.q4, sr.q5
+        FROM survey_responses sr
+        JOIN sessions s ON sr.session_id = s.id
+        JOIN participants p ON s.participant_id = p.id
+        WHERE CAST(SUBSTR(p.study_id, 2) AS INTEGER) BETWEEN 1 AND 15
+    """)
     survey_raw = cursor.fetchall()
     survey_likert_data = {'sql': {}, 'python': {}}
     for lang in ['sql', 'python']:
