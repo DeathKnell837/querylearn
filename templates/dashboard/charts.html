@@ -1571,7 +1571,11 @@
         // Python -> Dark Gray (#374151) with square/triangle marker
         paperConfig.data.datasets.forEach(ds => {
             const lbl = (ds.label || '').toLowerCase();
-            if (lbl.includes('sql')) {
+            if (canvasId === 'learnerScoresChart') {
+                ds.backgroundColor = 'transparent';
+                ds.borderColor = 'transparent';
+                ds.pointStyle = lbl.includes('sql') ? 'circle' : 'rect';
+            } else if (lbl.includes('sql')) {
                 ds.backgroundColor = '#1e3a8a';
                 ds.borderColor = '#000000';
                 ds.pointStyle = 'circle';
