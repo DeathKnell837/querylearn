@@ -193,7 +193,7 @@ def overview():
     py_median_time = round(statistics.median(py_durations), 1) if py_durations else 0.0
 
     # 3. Paired Successful-Task Time Ratio & Learner Bootstrap 95% CI
-    paired_data = compute_paired_speedup_data(cursor)
+    paired_data = compute_paired_speedup_data(cursor, cohort_only=True)
     paired_time_ratio = paired_data['overall_ratio']
     paired_task_count = paired_data['paired_task_count']
     paired_ratio_ci_low = paired_data['ci_low']
