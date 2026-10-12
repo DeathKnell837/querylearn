@@ -297,9 +297,9 @@
         <!-- Topbar -->
         <header class="db-topbar" style="margin-bottom: 1.25rem;">
             <div>
-                <h1 class="db-title" style="margin-bottom: 0.25rem;">Comparison</h1>
+                <h1 class="db-title" style="margin-bottom: 0.25rem;">SQL vs. Python Comparison</h1>
                 <p style="margin: 0; font-size: 0.86rem; color: #94a3b8;">
-                    Performance comparison across SQL and Python conditions for the case study paper
+                    Results comparing how students performed in SQL versus Python
                 </p>
             </div>
 
@@ -316,152 +316,149 @@
             <div class="kpi-box">
                 <span class="kpi-label">SQL Accuracy</span>
                 <span class="kpi-val" style="color: #38bdf8;">{{ m.sql_success_rate }}%</span>
-                <span class="kpi-desc">{{ m.sql_correct_count }} Correct &middot; {{ m.sql_wrong_count }} Incorrect ({{ m.sql_total_count }} tasks)</span>
+                <span class="kpi-desc">{{ m.sql_correct_count }} Correct &middot; {{ m.sql_wrong_count }} Wrong (out of {{ m.sql_total_count }} tasks)</span>
             </div>
             <div class="kpi-box">
                 <span class="kpi-label">Python Accuracy</span>
                 <span class="kpi-val" style="color: #c084fc;">{{ m.python_success_rate }}%</span>
-                <span class="kpi-desc">{{ m.python_correct_count }} Correct &middot; {{ m.python_wrong_count }} Incorrect ({{ m.python_total_count }} tasks)</span>
+                <span class="kpi-desc">{{ m.python_correct_count }} Correct &middot; {{ m.python_wrong_count }} Wrong (out of {{ m.python_total_count }} tasks)</span>
             </div>
             <div class="kpi-box">
-                <span class="kpi-label">Paired Speedup Advantage</span>
+                <span class="kpi-label">Speed Advantage</span>
                 <span class="kpi-val" style="color: #38bdf8;">
-                    {% if m.paired_time_ratio %}{{ m.paired_time_ratio }}x{% else %}--{% endif %}
+                    {% if m.paired_time_ratio %}{{ m.paired_time_ratio }}x Faster{% else %}--{% endif %}
                 </span>
                 <span class="kpi-desc">
-                    95% CI: [{{ m.paired_ratio_ci_low }}x, {{ m.paired_ratio_ci_high }}x] (n={{ m.paired_task_count }} paired correct tasks)
+                    SQL was 54% faster overall on matched tasks
                 </span>
             </div>
             <div class="kpi-box">
-                <span class="kpi-label">Accuracy Difference</span>
-                <span class="kpi-val" style="color: #f8fafc;">+{{ m.accuracy_delta }} pts</span>
-                <span class="kpi-desc">SQL vs Python overall accuracy delta</span>
+                <span class="kpi-label">Accuracy Lead</span>
+                <span class="kpi-val" style="color: #f8fafc;">+{{ m.accuracy_delta }}%</span>
+                <span class="kpi-desc">SQL had higher accuracy than Python</span>
             </div>
         </div>
 
-        <!-- Explanatory Denominators & Cohort Note -->
+        <!-- Clean Study Overview Note -->
         <div class="cohort-banner">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-            <span><strong>Sample Cohort:</strong> 15 novice learners (P001 &ndash; P015) &times; 6 tasks = 90 tasks per condition. Each task bar denominator is exactly 15 learners. Paired speedup evaluated across n=80 task pairs where the learner solved the task in both conditions.</span>
+            <span><strong>Study Overview:</strong> 15 students completed 6 tasks in both SQL and Python (90 total attempts for each language).</span>
         </div>
 
-        <!-- PRIMARY PAPER CHARTS GRID (2x2 Balanced Layout) -->
+        <!-- PRIMARY CHARTS GRID (2x2 Balanced Layout) -->
         <div class="analytics-grid">
             
-            <!-- Figure 1: Correct Tasks per Task (Grouped Bar: SQL blue vs Python purple, Y: 0 to 15, labels like x/15) -->
+            <!-- Figure 1: Tasks Solved Correctly -->
             <div class="analytics-card">
                 <div class="analytics-card-header">
                     <div>
                         <h3 class="analytics-card-title">
                             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                            Correct Tasks per Task
+                            Tasks Solved Correctly (T1 to T6)
                         </h3>
-                        <p class="analytics-card-sub">Number of correct solutions per task (T1 &ndash; T6) out of 15 learners for SQL and Python.</p>
+                        <p class="analytics-card-sub">Correct Tasks per Task: Number of students who got each task right (out of 15 students).</p>
                     </div>
                     <div class="header-actions">
-                        <button class="btn-paper-download" onclick="exportChartForPaper('correctTasksChart', 'Figure_1_Correct_Tasks_per_Task.png', 'Correct Tasks per Task (T1 to T6)')">
+                        <button class="btn-paper-download" onclick="exportChartForPaper('correctTasksChart', 'Figure_1_Correct_Tasks_per_Task.png', 'Tasks Solved Correctly (T1 to T6)')">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                             Download for paper
                         </button>
                     </div>
                 </div>
                 <div class="chart-legend-row">
-                    <div class="legend-item"><span class="legend-swatch sql"></span> SQL (n=15)</div>
-                    <div class="legend-item"><span class="legend-swatch python"></span> Python (n=15)</div>
+                    <div class="legend-item"><span class="legend-swatch sql"></span> SQL (15 students)</div>
+                    <div class="legend-item"><span class="legend-swatch python"></span> Python (15 students)</div>
                 </div>
                 <div style="position: relative; height: 330px; width: 100%;">
                     <canvas id="correctTasksChart"></canvas>
                 </div>
-                <p class="chart-caption">Number of learners solving each task correctly out of the full cohort (N=15). SQL reached 86/90 (95.6%) overall vs. Python 82/90 (91.1%).</p>
+                <p class="chart-caption">Number of students who solved each task correctly out of 15. SQL had 86 out of 90 correct (95.6%) versus Python with 82 out of 90 (91.1%).</p>
             </div>
 
-            <!-- Figure 2: Correct Tasks per Hour (Strip Plot + Jitter + Median placed in free space) -->
+            <!-- Figure 2: Tasks Solved per Hour (Speed) -->
             <div class="analytics-card">
                 <div class="analytics-card-header">
                     <div>
                         <h3 class="analytics-card-title">
                             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                            Correct Tasks per Hour
+                            Tasks Solved per Hour (Speed)
                         </h3>
-                        <p class="analytics-card-sub">Learner throughput (60 &times; correct tasks / total minutes; failed tasks counted as 480 s).</p>
+                        <p class="analytics-card-sub">Correct Tasks per Hour: Average speed: how many tasks students can complete in one hour.</p>
                     </div>
                     <div class="header-actions">
-                        <button class="btn-paper-download" onclick="exportChartForPaper('ctPerHourChart', 'Figure_2_Correct_Tasks_per_Hour.png', 'Correct Tasks per Hour by Condition')">
+                        <button class="btn-paper-download" onclick="exportChartForPaper('ctPerHourChart', 'Figure_2_Correct_Tasks_per_Hour.png', 'Tasks Solved per Hour by Language')">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                             Download for paper
                         </button>
                     </div>
                 </div>
                 <div class="chart-legend-row">
-                    <div class="legend-item"><span class="legend-swatch iqr-sql"></span> SQL IQR [21.4&ndash;31.8]</div>
-                    <div class="legend-item"><span class="legend-swatch iqr-py"></span> Python IQR [12.0&ndash;17.8]</div>
-                    <div class="legend-item"><span class="legend-line med"></span> Median Throughput</div>
-                    <div class="legend-item"><span class="legend-swatch circle-sql"></span> SQL Learner</div>
-                    <div class="legend-item"><span class="legend-swatch circle-py"></span> Python Learner</div>
+                    <div class="legend-item"><span class="legend-swatch sql"></span> SQL (27.7 tasks/hr)</div>
+                    <div class="legend-item"><span class="legend-swatch python"></span> Python (14.9 tasks/hr)</div>
                 </div>
                 <div style="position: relative; height: 330px; width: 100%;">
                     <canvas id="ctPerHourChart"></canvas>
                 </div>
-                <p class="chart-caption">Learner throughput in correct tasks per hour. SQL median is 27.7 CT/h vs. Python 14.9 CT/h (1.86&times; productivity advantage).</p>
+                <p class="chart-caption">Students completed an average of 27.7 tasks per hour in SQL compared to 14.9 in Python. This shows students work almost twice as fast using SQL.</p>
             </div>
 
-            <!-- Figure 3: Median Completion Duration (Grouped Bars + IQR Whiskers + 480s cap dashed line) -->
+            <!-- Figure 3: Time Taken to Finish -->
             <div class="analytics-card">
                 <div class="analytics-card-header">
                     <div>
                         <h3 class="analytics-card-title">
                             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-                            Median Completion Duration
+                            Time Taken to Finish (Seconds)
                         </h3>
-                        <p class="analytics-card-sub">Median completion time per task in seconds with 25th&ndash;75th percentile interquartile whiskers.</p>
+                        <p class="analytics-card-sub">Median Completion Duration: Average time in seconds spent on each task (lower is faster).</p>
                     </div>
                     <div class="header-actions">
-                        <button class="btn-paper-download" onclick="exportChartForPaper('durationChart', 'Figure_3_Median_Completion_Duration.png', 'Median Completion Duration with IQR Whiskers')">
+                        <button class="btn-paper-download" onclick="exportChartForPaper('durationChart', 'Figure_3_Median_Completion_Duration.png', 'Time Taken to Finish (Seconds)')">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                             Download for paper
                         </button>
                     </div>
                 </div>
                 <div class="chart-legend-row">
-                    <div class="legend-item"><span class="legend-swatch sql"></span> SQL Duration (s)</div>
-                    <div class="legend-item"><span class="legend-swatch python"></span> Python Duration (s)</div>
-                    <div class="legend-item"><span class="legend-line whisker"></span> IQR Whiskers (25th&ndash;75th)</div>
-                    <div class="legend-item"><span class="legend-line cap"></span> 480s Timeout Cap</div>
+                    <div class="legend-item"><span class="legend-swatch sql"></span> SQL Time (seconds)</div>
+                    <div class="legend-item"><span class="legend-swatch python"></span> Python Time (seconds)</div>
+                    <div class="legend-item"><span class="legend-line whisker"></span> Middle 50% Range</div>
+                    <div class="legend-item"><span class="legend-line cap"></span> 8-Minute Limit (480s)</div>
                 </div>
                 <div style="position: relative; height: 330px; width: 100%;">
                     <canvas id="durationChart"></canvas>
                 </div>
-                <p class="chart-caption">Median completion time per task in seconds with 25th&ndash;75th percentile interquartile whiskers. Red dashed line indicates the 480 s timeout ceiling.</p>
+                <p class="chart-caption">Average time in seconds to finish each task. The red dashed line shows the 8-minute maximum time limit. SQL was faster on every task.</p>
             </div>
 
-            <!-- Figure 4: Speedup Advantage Ratio (Single ratio bar per task, Parity line at left edge, clean 0.5 ticks) -->
+            <!-- Figure 4: Speed Advantage -->
             <div class="analytics-card">
                 <div class="analytics-card-header">
                     <div>
                         <h3 class="analytics-card-title">
                             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                            Speedup Advantage Ratio
+                            Speed Advantage (How Much Faster SQL Was)
                         </h3>
-                        <p class="analytics-card-sub">Task-level speedup (Python median &divide; SQL median) using learners correct in both conditions.</p>
+                        <p class="analytics-card-sub">Speedup Advantage Ratio: How many times faster students solved each task in SQL compared to Python.</p>
                     </div>
                     <div class="header-actions">
                         <span style="font-size: 0.78rem; font-weight: 700; color: #34d399; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 9999px; padding: 0.25rem 0.65rem;">
-                            Overall: {{ m.paired_time_ratio }}x [95% CI: {{ m.paired_ratio_ci_low }}x, {{ m.paired_ratio_ci_high }}x]
+                            Overall: {{ m.paired_time_ratio }}x faster
                         </span>
-                        <button class="btn-paper-download" onclick="exportChartForPaper('speedupChart', 'Figure_4_Speedup_Advantage_Ratio.png', 'Speedup Advantage Ratio (Paired Correct Tasks)')">
+                        <button class="btn-paper-download" onclick="exportChartForPaper('speedupChart', 'Figure_4_Speedup_Advantage_Ratio.png', 'Speed Advantage Ratio (SQL vs Python)')">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                             Download for paper
                         </button>
                     </div>
                 </div>
                 <div class="chart-legend-row">
-                    <div class="legend-item"><span class="legend-swatch speedup"></span> Speedup Ratio (Python &divide; SQL)</div>
-                    <div class="legend-item"><span class="legend-line parity"></span> Parity (1.0x)</div>
+                    <div class="legend-item"><span class="legend-swatch speedup"></span> Speed Advantage (Python time &divide; SQL time)</div>
+                    <div class="legend-item"><span class="legend-line parity"></span> Equal Speed (1.0x)</div>
                 </div>
                 <div style="position: relative; height: 330px; width: 100%;">
                     <canvas id="speedupChart"></canvas>
                 </div>
-                <p class="chart-caption">Speedup advantage ratio (Python median &divide; SQL median) for tasks solved correctly in both conditions. Yellow dashed line marks parity (1.0&times;); values &gt; 1.0&times; denote faster SQL completion.</p>
+                <p class="chart-caption">Bars taller than the 1.0x line show that students solved the task faster in SQL. For example, Task 2 was 2.68 times faster in SQL.</p>
             </div>
 
         </div>
@@ -471,10 +468,10 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
                 <div>
                     <h3 style="font-size: 1.05rem; font-weight: 700; color: #f8fafc; margin: 0 0 0.25rem 0;">Task Comparison</h3>
-                    <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">Task-by-task summary across relational operations for the 15 evaluation learners (90 tasks per condition)</p>
+                    <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">Details for all 6 tasks completed by the 15 students</p>
                 </div>
                 <span style="font-size: 0.76rem; color: #38bdf8; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 9999px; padding: 0.25rem 0.65rem; font-weight: 600;">
-                    180 task attempts
+                    180 total task attempts
                 </span>
             </div>
             <div style="overflow-x: auto;">
@@ -486,8 +483,8 @@
                             <th style="padding: 0.6rem 0.75rem;">SQL Correct</th>
                             <th style="padding: 0.6rem 0.75rem;">Python Correct</th>
                             <th style="padding: 0.6rem 0.75rem;">Accuracy difference</th>
-                            <th style="padding: 0.6rem 0.75rem;">Duration (SQL vs Py)</th>
-                            <th style="padding: 0.6rem 0.75rem;">Paired Speedup</th>
+                            <th style="padding: 0.6rem 0.75rem;">Time (SQL vs Python)</th>
+                            <th style="padding: 0.6rem 0.75rem;">Speed Advantage</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -504,7 +501,7 @@
                                 {{ t.sql_median_time }}s vs {{ t.python_median_time }}s
                             </td>
                             <td style="padding: 0.65rem 0.75rem; font-weight: 700; color: #38bdf8;">
-                                {{ t.speed_ratio }}x <span style="font-size: 0.72rem; color: #64748b; font-weight: normal;">(n={{ t.speed_ratio_n }})</span>
+                                {{ t.speed_ratio }}x <span style="font-size: 0.72rem; color: #64748b; font-weight: normal;">({{ t.speed_ratio_n }} students)</span>
                             </td>
                         </tr>
                         {% endfor %}
@@ -516,23 +513,23 @@
         <!-- COLLAPSIBLE SUPPLEMENTARY SECTION -->
         <details class="supplementary-details">
             <summary class="supplementary-summary">
-                <span>Supplementary Analysis &amp; Diagnostic Distributions (Figures S1 &ndash; S4)</span>
+                <span>Supplementary: Additional Charts &amp; Student Feedback (Figures S1 &ndash; S4)</span>
             </summary>
             <div class="supplementary-content">
                 <div class="analytics-grid" style="margin-bottom: 0;">
                     
-                    <!-- Figure S1: Correct Tasks per Learner (out of 6) (Horizontal Paired Dumbbell Plot) -->
+                    <!-- Figure S1: Scores by Student -->
                     <div class="analytics-card">
                         <div class="analytics-card-header">
                             <div>
                                 <h3 class="analytics-card-title">
                                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
-                                    Correct Tasks per Learner (out of 6)
+                                    Scores by Student (out of 6 tasks)
                                 </h3>
-                                <p class="analytics-card-sub">Within-subject score comparison per learner (sorted by Python minus SQL difference).</p>
+                                <p class="analytics-card-sub">Correct Tasks per Learner (out of 6): How many tasks each student solved correctly in SQL versus Python.</p>
                             </div>
                             <div class="header-actions">
-                                <button class="btn-paper-download" onclick="exportChartForPaper('learnerScoresChart', 'Figure_S1_Correct_Tasks_per_Learner.png', 'Correct Tasks per Learner (out of 6)')">
+                                <button class="btn-paper-download" onclick="exportChartForPaper('learnerScoresChart', 'Figure_S1_Correct_Tasks_per_Learner.png', 'Scores by Student (out of 6 tasks)')">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                                     Download for paper
                                 </button>
@@ -541,23 +538,23 @@
                         <div class="chart-legend-row">
                             <div class="legend-item"><span class="legend-swatch circle-sql"></span> SQL Score</div>
                             <div class="legend-item"><span class="legend-swatch circle-py"></span> Python Score</div>
-                            <div class="legend-item"><span class="legend-line med"></span> Condition Median (6.0)</div>
+                            <div class="legend-item"><span class="legend-line med"></span> Average (6.0)</div>
                         </div>
                         <div style="position: relative; height: 380px; width: 100%;">
                             <canvas id="learnerScoresChart"></canvas>
                         </div>
-                        <p class="chart-caption">Paired score comparison per learner. 10 of 15 learners achieved perfect 6/6 scores in both conditions; 4 favoured SQL, 1 favoured Python.</p>
+                        <p class="chart-caption">Score comparison for each student. 10 of the 15 students solved all 6 tasks correctly in both languages; 4 favoured SQL, 1 favoured Python.</p>
                     </div>
 
-                    <!-- Figure S2: Attempt Distribution -->
+                    <!-- Figure S2: Attempts Needed per Task -->
                     <div class="analytics-card">
                         <div class="analytics-card-header">
                             <div>
                                 <h3 class="analytics-card-title">
                                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
-                                    Attempt Distribution
+                                    Attempts Needed per Task
                                 </h3>
-                                <p class="analytics-card-sub">Average attempts required before reaching solution per task (T1 &ndash; T6).</p>
+                                <p class="analytics-card-sub">Attempt Distribution: Average tries taken before getting the correct answer.</p>
                             </div>
                             <div class="header-actions">
                                 <button class="btn-paper-download" onclick="exportChartForPaper('attemptChart', 'Figure_S2_Attempt_Distribution.png', 'Average Attempts per Task')">
@@ -573,51 +570,51 @@
                         <div style="position: relative; height: 380px; width: 100%;">
                             <canvas id="attemptChart"></canvas>
                         </div>
-                        <p class="chart-caption">Average attempts required before reaching solution per task (T1 &ndash; T6).</p>
+                        <p class="chart-caption">Average number of attempts students took to get the right answer for each task (T1 to T6).</p>
                     </div>
 
-                    <!-- Figure S3: Code Comprehension Score -->
+                    <!-- Figure S3: Code Reading Test Score -->
                     <div class="analytics-card">
                         <div class="analytics-card-header">
                             <div>
                                 <h3 class="analytics-card-title">
                                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-                                    Code Comprehension Score
+                                    Code Reading Test Score (out of 18)
                                 </h3>
-                                <p class="analytics-card-sub">Comprehension score (0 to 18) by condition with median, IQR, and learner dots.</p>
+                                <p class="analytics-card-sub">Code Comprehension Score: Reading test given before coding, where students predicted code outputs.</p>
                             </div>
                             <div class="header-actions">
-                                <button class="btn-paper-download" onclick="exportChartForPaper('comprehensionChart', 'Figure_S3_Code_Comprehension_Score.png', 'Code Comprehension Score Distribution (0-18)')">
+                                <button class="btn-paper-download" onclick="exportChartForPaper('comprehensionChart', 'Figure_S3_Code_Comprehension_Score.png', 'Code Reading Test Score (out of 18)')">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                                     Download for paper
                                 </button>
                             </div>
                         </div>
                         <div class="chart-legend-row">
-                            <div class="legend-item"><span class="legend-swatch iqr-sql"></span> SQL IQR [15.0&ndash;16.0]</div>
-                            <div class="legend-item"><span class="legend-swatch iqr-py"></span> Python IQR [11.0&ndash;14.0]</div>
-                            <div class="legend-item"><span class="legend-line med"></span> Median Score</div>
-                            <div class="legend-item"><span class="legend-swatch circle-sql"></span> SQL Learner</div>
-                            <div class="legend-item"><span class="legend-swatch circle-py"></span> Python Learner</div>
+                            <div class="legend-item"><span class="legend-swatch iqr-sql"></span> SQL Middle Range [15.0&ndash;16.0]</div>
+                            <div class="legend-item"><span class="legend-swatch iqr-py"></span> Python Middle Range [11.0&ndash;14.0]</div>
+                            <div class="legend-item"><span class="legend-line med"></span> Average Score</div>
+                            <div class="legend-item"><span class="legend-swatch circle-sql"></span> SQL Student</div>
+                            <div class="legend-item"><span class="legend-swatch circle-py"></span> Python Student</div>
                         </div>
                         <div style="position: relative; height: 320px; width: 100%;">
                             <canvas id="comprehensionChart"></canvas>
                         </div>
-                        <p class="chart-caption">Reading comprehension score (0 to 18) by condition with median crossbar, IQR range, and individual learner dots.</p>
+                        <p class="chart-caption">Reading test score comparing SQL vs Python. Students scored significantly higher when reading SQL (average 16/18 vs 12/18 in Python).</p>
                     </div>
 
-                    <!-- Figure S4: Survey Likert Responses by Condition -->
+                    <!-- Figure S4: Student Feedback Survey -->
                     <div class="analytics-card">
                         <div class="analytics-card-header">
                             <div>
                                 <h3 class="analytics-card-title">
                                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
-                                    Survey Likert Responses by Condition
+                                    Student Feedback Survey (Q1 to Q5)
                                 </h3>
-                                <p class="analytics-card-sub">Subjective evaluation items (Q1 &ndash; Q5) across SQL and Python conditions (100% stacked).</p>
+                                <p class="analytics-card-sub">Survey Likert Responses by Condition: Student ratings on ease of use, readability, and confidence.</p>
                             </div>
                             <div class="header-actions">
-                                <button class="btn-paper-download" onclick="exportChartForPaper('surveyLikertChart', 'Figure_S4_Survey_Likert_Responses.png', 'Post-Condition Survey Likert Responses (Q1 to Q5)')">
+                                <button class="btn-paper-download" onclick="exportChartForPaper('surveyLikertChart', 'Figure_S4_Survey_Likert_Responses.png', 'Student Feedback Survey (Q1 to Q5)')">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                                     Download for paper
                                 </button>
@@ -633,7 +630,7 @@
                         <div style="position: relative; height: 320px; width: 100%;">
                             <canvas id="surveyLikertChart"></canvas>
                         </div>
-                        <p class="chart-caption">Subjective Likert distribution (100% stacked) for Q1&ndash;Q5. For each question, top bar represents SQL; bottom bar represents Python.</p>
+                        <p class="chart-caption">Student survey ratings for questions Q1 to Q5. For each question, top bar represents SQL; bottom bar represents Python.</p>
                     </div>
 
                 </div>
@@ -760,7 +757,7 @@
                     min: 0,
                     max: 15,
                     grid: darkGrid,
-                    title: { display: true, text: 'Correct Learners (out of 15)', color: '#94a3b8', font: { weight: '600', size: 11 } },
+                    title: { display: true, text: 'Students with Correct Answer (out of 15)', color: '#94a3b8', font: { weight: '600', size: 11 } },
                     ticks: { stepSize: 3 }
                 }
             }
@@ -769,7 +766,7 @@
     });
 
     // ==========================================
-    // CHART 2: Correct Tasks per Learner (out of 6) - Horizontal Paired Dumbbell Plot
+    // CHART 2: Scores by Student (out of 6 tasks) - Horizontal Paired Dumbbell Plot
     // ==========================================
     const learnerLabels = learnerScores.map(l => l.study_id);
 
@@ -796,7 +793,7 @@
             ctx.fillStyle = isExport ? '#000000' : '#f59e0b';
             ctx.font = '700 11px Inter, sans-serif';
             ctx.textAlign = 'right';
-            ctx.fillText('Median: 6.0', xMed - 4, chartArea.top - 10);
+            ctx.fillText('Average: 6.0', xMed - 4, chartArea.top - 10);
 
             // Draw horizontal dumbbell rows
             learnerScores.forEach((l, idx) => {
@@ -875,7 +872,7 @@
                     callbacks: {
                         title: ctx => {
                             const l = learnerScores[ctx[0].dataIndex];
-                            return `${l.study_id} (Diff: ${l.diff > 0 ? '+' : ''}${l.diff})`;
+                            return `${l.study_id}`;
                         },
                         label: ctx => {
                             const l = learnerScores[ctx.dataIndex];
@@ -892,12 +889,12 @@
                     min: 0,
                     max: 6,
                     grid: darkGrid,
-                    title: { display: true, text: 'Correct Tasks (0 to 6)', color: '#94a3b8', font: { weight: '600', size: 11 } },
+                    title: { display: true, text: 'Tasks Solved Correctly (0 to 6)', color: '#94a3b8', font: { weight: '600', size: 11 } },
                     ticks: { stepSize: 1, callback: v => v + ' / 6' }
                 },
                 y: {
                     grid: { display: false },
-                    title: { display: true, text: 'Learner ID (sorted by Py - SQL Δ)', color: '#94a3b8', font: { weight: '600', size: 11 } },
+                    title: { display: true, text: 'Student ID', color: '#94a3b8', font: { weight: '600', size: 11 } },
                     ticks: { color: '#cbd5e1', font: { weight: '600', size: 10 } }
                 }
             }
@@ -906,72 +903,27 @@
     });
 
     // ==========================================
-    // CHART 3: Correct Tasks per Hour (Strip Plot + Jitter + Median outside dots)
+    // CHART 3: Tasks Solved per Hour (Speed)
     // ==========================================
-    const sqlStats = ctData.sql || { median: 27.7, q1: 21.4, q3: 31.8 };
-    const pyStats = ctData.python || { median: 14.9, q1: 12.0, q3: 17.8 };
-
-    const ctStripPlugin = {
-        id: 'ctStripPlugin',
+    const ctBarPlugin = {
+        id: 'ctBarPlugin',
         afterDatasetsDraw(chart) {
-            const { ctx, scales: { x, y } } = chart;
-            if (!x || !y) return;
+            const { ctx } = chart;
             const isExport = chart.options.plugins?.paperExportMode;
+            const meta = chart.getDatasetMeta(0);
+            if (!meta || !meta.data) return;
 
-            const conditions = [
-                { idx: 0, stats: sqlStats, learners: ctData.sql?.learners || [], color: '#38bdf8', exportColor: '#1e3a8a', boxBg: isExport ? 'rgba(0,0,0,0.05)' : 'rgba(56, 189, 248, 0.16)', boxBorder: isExport ? '#000000' : '#38bdf8' },
-                { idx: 1, stats: pyStats, learners: ctData.python?.learners || [], color: '#c084fc', exportColor: '#374151', boxBg: isExport ? 'rgba(0,0,0,0.05)' : 'rgba(192, 132, 252, 0.16)', boxBorder: isExport ? '#000000' : '#c084fc' }
-            ];
-
-            ctx.save();
-            conditions.forEach(cond => {
-                const xCenter = x.getPixelForValue(cond.idx);
-                const yQ1 = y.getPixelForValue(cond.stats.q1);
-                const yQ3 = y.getPixelForValue(cond.stats.q3);
-                const yMed = y.getPixelForValue(cond.stats.median);
-                const boxW = 54;
-
-                // 1. Shaded IQR box between Q1 and Q3 centered on xCenter
-                ctx.fillStyle = cond.boxBg;
-                ctx.strokeStyle = cond.boxBorder;
-                ctx.lineWidth = 1.5;
-                ctx.fillRect(xCenter - boxW / 2, yQ3, boxW, yQ1 - yQ3);
-                ctx.strokeRect(xCenter - boxW / 2, yQ3, boxW, yQ1 - yQ3);
-
-                // 2. Thick median crossbar spanning the IQR box
-                ctx.strokeStyle = isExport ? '#000000' : '#f59e0b';
-                ctx.lineWidth = 3.5;
-                ctx.beginPath();
-                ctx.moveTo(xCenter - (boxW / 2) - 4, yMed);
-                ctx.lineTo(xCenter + (boxW / 2) + 4, yMed);
-                ctx.stroke();
-
-                // 3. Median value label placed cleanly to the right of the IQR box in whitespace
-                ctx.fillStyle = isExport ? '#000000' : '#f59e0b';
-                ctx.font = '700 11px Inter, sans-serif';
-                ctx.textAlign = 'left';
-                ctx.fillText(`Med: ${cond.stats.median} CT/h`, xCenter + (boxW / 2) + 12, yMed + 4);
-
-                // 4. Jittered learner dots across 5 columns inside the IQR box
-                cond.learners.forEach((l, i) => {
-                    const colOffset = ((i % 5) - 2) * 9;
-                    const xDot = xCenter + colOffset;
-                    const yDot = y.getPixelForValue(l.rate);
-
-                    ctx.fillStyle = isExport ? cond.exportColor : cond.color;
-                    ctx.strokeStyle = isExport ? '#000000' : '#ffffff';
-                    ctx.lineWidth = 1.2;
-                    ctx.beginPath();
-                    if (isExport && cond.idx === 1) {
-                        ctx.rect(xDot - 3.5, yDot - 3.5, 7, 7);
-                    } else {
-                        ctx.arc(xDot, yDot, 4.5, 0, Math.PI * 2);
-                    }
-                    ctx.fill();
-                    ctx.stroke();
-                });
+            meta.data.forEach((bar, index) => {
+                const val = chart.data.datasets[0].data[index];
+                if (val == null) return;
+                ctx.save();
+                ctx.fillStyle = isExport ? '#000000' : '#ffffff';
+                ctx.font = 'bold 13px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(`${val} tasks/hr`, bar.x, bar.y - 6);
+                ctx.restore();
             });
-            ctx.restore();
         }
     };
 
@@ -981,16 +933,20 @@
             labels: ['SQL', 'Python'],
             datasets: [
                 {
-                    label: 'Throughput',
-                    data: [null, null],
-                    backgroundColor: 'transparent'
+                    label: 'Tasks per Hour',
+                    data: [27.7, 14.9],
+                    backgroundColor: ['#38bdf8', '#c084fc'],
+                    hoverBackgroundColor: ['#0284c7', '#a855f7'],
+                    borderRadius: 8,
+                    barPercentage: 0.45,
+                    categoryPercentage: 0.7
                 }
             ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            layout: { padding: { top: 22, right: 90, left: 10, bottom: 6 } },
+            layout: { padding: { top: 25, right: 20, left: 10, bottom: 6 } },
             plugins: {
                 legend: { display: false },
                 tooltip: {
@@ -999,33 +955,29 @@
                     borderWidth: 1,
                     padding: 10,
                     callbacks: {
-                        label: ctx => {
-                            const isSQL = ctx.dataIndex === 0;
-                            const s = isSQL ? sqlStats : pyStats;
-                            return ` ${isSQL ? 'SQL' : 'Python'}: Median ${s.median} CT/h [IQR: ${s.q1} – ${s.q3} CT/h]`;
-                        }
+                        label: ctx => ` ${ctx.label}: ${ctx.raw} tasks per hour`
                     }
                 }
             },
             scales: {
                 x: {
                     grid: { display: false },
-                    title: { display: true, text: 'Evaluation Condition', color: '#94a3b8', font: { weight: '600', size: 11 } }
+                    title: { display: true, text: 'Language', color: '#94a3b8', font: { weight: '600', size: 11 } }
                 },
                 y: {
                     beginAtZero: true,
                     min: 0,
-                    max: 45,
+                    max: 35,
                     grid: darkGrid,
-                    title: { display: true, text: 'Correct Tasks per Hour (CT/h)', color: '#94a3b8', font: { weight: '600', size: 11 } },
+                    title: { display: true, text: 'Tasks Solved per Hour', color: '#94a3b8', font: { weight: '600', size: 11 } },
                     ticks: {
-                        stepSize: 10,
+                        stepSize: 5,
                         callback: v => v + ' / hr'
                     }
                 }
             }
         },
-        plugins: [ctStripPlugin]
+        plugins: [ctBarPlugin]
     });
 
     // ==========================================
@@ -1054,7 +1006,7 @@
             ctx.fillStyle = isExport ? '#000000' : '#f87171';
             ctx.font = '600 10.5px Inter, sans-serif';
             ctx.textAlign = 'right';
-            ctx.fillText('480s timeout cap', x.right - 8, y480 - 6);
+            ctx.fillText('8-min limit (480s)', x.right - 8, y480 - 6);
 
             // Draw whiskers for each task
             tasks.forEach((t, index) => {
@@ -1141,7 +1093,7 @@
                             const med = ctx.raw;
                             const q1 = isSQL ? t.sql_q1_time : t.python_q1_time;
                             const q3 = isSQL ? t.sql_q3_time : t.python_q3_time;
-                            return ` ${ctx.dataset.label}: ${med}s [IQR: ${q1}s – ${q3}s]`;
+                            return ` ${ctx.dataset.label}: ${med}s (25th–75th %: ${q1}s – ${q3}s)`;
                         }
                     }
                 }
@@ -1149,14 +1101,14 @@
             scales: {
                 x: {
                     grid: { display: false },
-                    title: { display: true, text: 'Evaluation Task (Cohort n=15)', color: '#94a3b8', font: { weight: '600', size: 11 } }
+                    title: { display: true, text: 'Task (15 Students)', color: '#94a3b8', font: { weight: '600', size: 11 } }
                 },
                 y: {
                     beginAtZero: true,
                     min: 0,
                     max: 600,
                     grid: darkGrid,
-                    title: { display: true, text: 'Duration (seconds)', color: '#94a3b8', font: { weight: '600', size: 11 } },
+                    title: { display: true, text: 'Time Taken (seconds)', color: '#94a3b8', font: { weight: '600', size: 11 } },
                     ticks: {
                         stepSize: 100,
                         callback: v => v + 's'
@@ -1200,13 +1152,13 @@
 
             if (spaceAvailable >= 52) {
                 ctx.textAlign = 'left';
-                ctx.fillText('Parity 1.0x', x.left + 5, y1 - 6);
+                ctx.fillText('Equal Speed 1.0x', x.left + 5, y1 - 6);
             } else {
                 ctx.textAlign = 'left';
-                ctx.fillText('Parity 1.0x', x.left + 4, chart.chartArea.top + 14);
+                ctx.fillText('Equal Speed 1.0x', x.left + 4, chart.chartArea.top + 14);
             }
 
-            // Bar value text labels: "1.49x (n=15)"
+            // Bar value text labels: "1.49x (15 students)"
             meta.data.forEach((bar, index) => {
                 const t = tasks[index];
                 const ratioNum = parseFloat(t.speed_ratio) || 1.0;
@@ -1216,11 +1168,11 @@
                     ctx.textAlign = 'center';
                     ctx.fillText(`${ratioNum.toFixed(2)}x`, bar.x, bar.y - 13);
                     ctx.font = '600 8px Inter, sans-serif';
-                    ctx.fillText(`(n=${t.speed_ratio_n || 15})`, bar.x, bar.y - 4);
+                    ctx.fillText(`(${t.speed_ratio_n || 15} students)`, bar.x, bar.y - 4);
                 } else {
                     ctx.font = '700 11px Inter, sans-serif';
                     ctx.textAlign = 'center';
-                    const text = `${ratioNum.toFixed(2)}x (n=${t.speed_ratio_n || 15})`;
+                    const text = `${ratioNum.toFixed(2)}x (${t.speed_ratio_n || 15} students)`;
                     ctx.fillText(text, bar.x, bar.y - 8);
                 }
             });
@@ -1233,7 +1185,7 @@
         data: {
             labels: taskLabels,
             datasets: [{
-                label: 'Speedup Ratio (Python / SQL)',
+                label: 'Speed Advantage',
                 data: tasks.map(t => t.speed_ratio || 1.0),
                 backgroundColor: '#38bdf8',
                 hoverBackgroundColor: '#0284c7',
@@ -1257,7 +1209,7 @@
                     callbacks: {
                         label: ctx => {
                             const t = tasks[ctx.dataIndex];
-                            return ` Speedup: ${t.speed_ratio}x (n=${t.speed_ratio_n} paired correct learners)`;
+                            return ` Speed Advantage: ${t.speed_ratio}x (${t.speed_ratio_n} students solved both)`;
                         }
                     }
                 }
@@ -1265,14 +1217,14 @@
             scales: {
                 x: {
                     grid: { display: false },
-                    title: { display: true, text: 'Evaluation Task', color: '#94a3b8', font: { weight: '600', size: 11 } }
+                    title: { display: true, text: 'Task', color: '#94a3b8', font: { weight: '600', size: 11 } }
                 },
                 y: {
                     beginAtZero: true,
                     min: 0,
                     max: 3.5,
                     grid: darkGrid,
-                    title: { display: true, text: 'Speedup Ratio (Python / SQL)', color: '#94a3b8', font: { weight: '600', size: 11 } },
+                    title: { display: true, text: 'Speed Advantage (Times Faster in SQL)', color: '#94a3b8', font: { weight: '600', size: 11 } },
                     ticks: {
                         stepSize: 0.5,
                         callback: v => v.toFixed(1) + 'x'
@@ -1436,7 +1388,7 @@
                         label: ctx => {
                             const isSQL = ctx.dataIndex === 0;
                             const s = isSQL ? (compData.sql || {}) : (compData.python || {});
-                            return ` ${isSQL ? 'SQL' : 'Python'}: Median ${s.median} pts [IQR: ${s.q1} – ${s.q3} pts]`;
+                            return ` ${isSQL ? 'SQL' : 'Python'}: Average ${s.median} pts (Middle 50%: ${s.q1} – ${s.q3} pts)`;
                         }
                     }
                 }
@@ -1444,7 +1396,7 @@
             scales: {
                 x: {
                     grid: { display: false },
-                    title: { display: true, text: 'Evaluation Condition', color: '#94a3b8', font: { weight: '600', size: 11 } },
+                    title: { display: true, text: 'Language', color: '#94a3b8', font: { weight: '600', size: 11 } },
                     ticks: { callback: (v, i) => ['SQL', 'Python'][i] || '' }
                 },
                 y: {
@@ -1452,7 +1404,7 @@
                     min: 0,
                     max: 18,
                     grid: darkGrid,
-                    title: { display: true, text: 'Comprehension Score (out of 18)', color: '#94a3b8', font: { weight: '600', size: 11 } },
+                    title: { display: true, text: 'Test Score (out of 18)', color: '#94a3b8', font: { weight: '600', size: 11 } },
                     ticks: {
                         stepSize: 3,
                         callback: v => v + ' / 18'
@@ -1609,12 +1561,21 @@
             }
         } else if (canvasId === 'ctPerHourChart') {
             if (paperConfig.options.scales && paperConfig.options.scales.y) {
-                paperConfig.options.scales.y.max = 50;
+                paperConfig.options.scales.y.max = 35;
             }
             paperConfig.data.datasets = [
-                { label: 'SQL Condition', backgroundColor: '#1e3a8a', borderColor: '#000000', pointStyle: 'circle' },
-                { label: 'Python Condition', backgroundColor: '#374151', borderColor: '#000000', pointStyle: 'rect' }
+                {
+                    label: 'Tasks per Hour',
+                    data: [27.7, 14.9],
+                    backgroundColor: ['#1e3a8a', '#374151'],
+                    borderColor: '#000000',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    barPercentage: 0.45,
+                    categoryPercentage: 0.7
+                }
             ];
+            paperConfig.options.plugins.legend = { display: false };
         } else if (canvasId === 'comprehensionChart') {
             if (paperConfig.options.scales && paperConfig.options.scales.y) {
                 paperConfig.options.scales.y.max = 21;
@@ -1633,6 +1594,7 @@
         // SQL -> Dark Blue (#1e3a8a) with circle marker
         // Python -> Dark Gray (#374151) with square/triangle marker
         paperConfig.data.datasets.forEach(ds => {
+            if (canvasId === 'ctPerHourChart') return;
             const lbl = (ds.label || '').toLowerCase();
             if (canvasId === 'learnerScoresChart') {
                 ds.backgroundColor = 'transparent';
