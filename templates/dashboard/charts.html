@@ -415,52 +415,6 @@
 
         </div>
 
-        <!-- Task Comparison Summary Table -->
-        <div style="background: #111726; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-                <div>
-                    <h3 style="font-size: 1.05rem; font-weight: 700; color: #f8fafc; margin: 0 0 0.25rem 0;">Task Comparison</h3>
-                    <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">Details for all 6 tasks completed by the 15 students</p>
-                </div>
-                <span style="font-size: 0.76rem; color: #38bdf8; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 9999px; padding: 0.25rem 0.65rem; font-weight: 600;">
-                    180 total task attempts
-                </span>
-            </div>
-            <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse; font-size: 0.84rem; text-align: left;">
-                    <thead>
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: #94a3b8;">
-                            <th style="padding: 0.6rem 0.75rem;">Task</th>
-                            <th style="padding: 0.6rem 0.75rem;">What it tests</th>
-                            <th style="padding: 0.6rem 0.75rem;">SQL Correct</th>
-                            <th style="padding: 0.6rem 0.75rem;">Python Correct</th>
-                            <th style="padding: 0.6rem 0.75rem;">Accuracy difference</th>
-                            <th style="padding: 0.6rem 0.75rem;">Time (SQL vs Python)</th>
-                            <th style="padding: 0.6rem 0.75rem;">Speed Advantage</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for t in m.tasks %}
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.04); color: #cbd5e1;">
-                            <td style="padding: 0.65rem 0.75rem; font-weight: 700; color: #f8fafc;">{{ t.task_id }}</td>
-                            <td style="padding: 0.65rem 0.75rem; color: #94a3b8;">{{ t.what_it_tests }}</td>
-                            <td style="padding: 0.65rem 0.75rem; color: #38bdf8; font-weight: 600;">{{ t.sql_right }}/15 ({{ t.sql_success }}%)</td>
-                            <td style="padding: 0.65rem 0.75rem; color: #c084fc; font-weight: 600;">{{ t.python_right }}/15 ({{ t.python_success }}%)</td>
-                            <td style="padding: 0.65rem 0.75rem; font-weight: 600; color: {% if t.accuracy_delta > 0 %}#34d399{% elif t.accuracy_delta < 0 %}#f87171{% else %}#94a3b8{% endif %};">
-                                {% if t.accuracy_delta > 0 %}+{{ t.accuracy_delta }} pts{% elif t.accuracy_delta < 0 %}{{ t.accuracy_delta }} pts{% else %}0 pts{% endif %}
-                            </td>
-                            <td style="padding: 0.65rem 0.75rem; font-family: var(--font-mono); font-size: 0.8rem;">
-                                {{ t.sql_median_time }}s vs {{ t.python_median_time }}s
-                            </td>
-                            <td style="padding: 0.65rem 0.75rem; font-weight: 700; color: #38bdf8;">
-                                {{ t.speed_ratio }}x <span style="font-size: 0.72rem; color: #64748b; font-weight: normal;">({{ t.speed_ratio_n }} students)</span>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
 
         <!-- COLLAPSIBLE SUPPLEMENTARY SECTION -->
         <details class="supplementary-details">
