@@ -1696,8 +1696,10 @@
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            exportChartInstance.destroy();
+            setTimeout(() => {
+                URL.revokeObjectURL(url);
+                exportChartInstance.destroy();
+            }, 60000);
         }, 'image/png');
     }
 
