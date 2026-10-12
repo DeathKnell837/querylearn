@@ -93,27 +93,6 @@
             gap: 0.5rem;
             flex-wrap: wrap;
         }
-        .btn-paper-download {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 6px;
-            color: #cbd5e1;
-            font-size: 0.74rem;
-            font-weight: 600;
-            padding: 0.35rem 0.65rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-        }
-        .btn-paper-download:hover {
-            background: rgba(255, 255, 255, 0.12);
-            color: #ffffff;
-            border-color: rgba(255, 255, 255, 0.25);
-            transform: translateY(-1px);
-        }
         .kpi-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -339,11 +318,6 @@
             </div>
         </div>
 
-        <!-- Clean Study Overview Note -->
-        <div class="cohort-banner">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-            <span><strong>Study Overview:</strong> 15 students completed 6 tasks in both SQL and Python (90 total attempts for each language).</span>
-        </div>
 
         <!-- PRIMARY CHARTS GRID (2x2 Balanced Layout) -->
         <div class="analytics-grid">
@@ -357,12 +331,6 @@
                             Tasks Solved Correctly (T1 to T6)
                         </h3>
                         <p class="analytics-card-sub">Correct Tasks per Task: Number of students who got each task right (out of 15 students).</p>
-                    </div>
-                    <div class="header-actions">
-                        <button class="btn-paper-download" onclick="exportChartForPaper('correctTasksChart', 'Figure_1_Correct_Tasks_per_Task.png', 'Tasks Solved Correctly (T1 to T6)')">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                            Download for paper
-                        </button>
                     </div>
                 </div>
                 <div class="chart-legend-row">
@@ -385,12 +353,6 @@
                         </h3>
                         <p class="analytics-card-sub">Correct Tasks per Hour: Average speed: how many tasks students can complete in one hour.</p>
                     </div>
-                    <div class="header-actions">
-                        <button class="btn-paper-download" onclick="exportChartForPaper('ctPerHourChart', 'Figure_2_Correct_Tasks_per_Hour.png', 'Tasks Solved per Hour by Language')">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                            Download for paper
-                        </button>
-                    </div>
                 </div>
                 <div class="chart-legend-row">
                     <div class="legend-item"><span class="legend-swatch sql"></span> SQL (27.7 tasks/hr)</div>
@@ -411,12 +373,6 @@
                             Time Taken to Finish (Seconds)
                         </h3>
                         <p class="analytics-card-sub">Median Completion Duration: Average time in seconds spent on each task (lower is faster).</p>
-                    </div>
-                    <div class="header-actions">
-                        <button class="btn-paper-download" onclick="exportChartForPaper('durationChart', 'Figure_3_Median_Completion_Duration.png', 'Time Taken to Finish (Seconds)')">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                            Download for paper
-                        </button>
                     </div>
                 </div>
                 <div class="chart-legend-row">
@@ -445,10 +401,6 @@
                         <span style="font-size: 0.78rem; font-weight: 700; color: #34d399; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 9999px; padding: 0.25rem 0.65rem;">
                             Overall: {{ m.paired_time_ratio }}x faster
                         </span>
-                        <button class="btn-paper-download" onclick="exportChartForPaper('speedupChart', 'Figure_4_Speedup_Advantage_Ratio.png', 'Speed Advantage Ratio (SQL vs Python)')">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                            Download for paper
-                        </button>
                     </div>
                 </div>
                 <div class="chart-legend-row">
@@ -528,12 +480,6 @@
                                 </h3>
                                 <p class="analytics-card-sub">Correct Tasks per Learner (out of 6): How many tasks each student solved correctly in SQL versus Python.</p>
                             </div>
-                            <div class="header-actions">
-                                <button class="btn-paper-download" onclick="exportChartForPaper('learnerScoresChart', 'Figure_S1_Correct_Tasks_per_Learner.png', 'Scores by Student (out of 6 tasks)')">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                                    Download for paper
-                                </button>
-                            </div>
                         </div>
                         <div class="chart-legend-row">
                             <div class="legend-item"><span class="legend-swatch circle-sql"></span> SQL Score</div>
@@ -556,12 +502,6 @@
                                 </h3>
                                 <p class="analytics-card-sub">Attempt Distribution: Average tries taken before getting the correct answer.</p>
                             </div>
-                            <div class="header-actions">
-                                <button class="btn-paper-download" onclick="exportChartForPaper('attemptChart', 'Figure_S2_Attempt_Distribution.png', 'Average Attempts per Task')">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                                    Download for paper
-                                </button>
-                            </div>
                         </div>
                         <div class="chart-legend-row">
                             <div class="legend-item"><span class="legend-swatch sql"></span> SQL Attempts</div>
@@ -582,12 +522,6 @@
                                     Code Reading Test Score (out of 18)
                                 </h3>
                                 <p class="analytics-card-sub">Code Comprehension Score: Reading test given before coding, where students predicted code outputs.</p>
-                            </div>
-                            <div class="header-actions">
-                                <button class="btn-paper-download" onclick="exportChartForPaper('comprehensionChart', 'Figure_S3_Code_Comprehension_Score.png', 'Code Reading Test Score (out of 18)')">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                                    Download for paper
-                                </button>
                             </div>
                         </div>
                         <div class="chart-legend-row">
@@ -612,12 +546,6 @@
                                     Student Feedback Survey (Q1 to Q5)
                                 </h3>
                                 <p class="analytics-card-sub">Survey Likert Responses by Condition: Student ratings on ease of use, readability, and confidence.</p>
-                            </div>
-                            <div class="header-actions">
-                                <button class="btn-paper-download" onclick="exportChartForPaper('surveyLikertChart', 'Figure_S4_Survey_Likert_Responses.png', 'Student Feedback Survey (Q1 to Q5)')">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                                    Download for paper
-                                </button>
                             </div>
                         </div>
                         <div class="chart-legend-row">
@@ -961,8 +889,7 @@
             },
             scales: {
                 x: {
-                    grid: { display: false },
-                    title: { display: true, text: 'Language', color: '#94a3b8', font: { weight: '600', size: 11 } }
+                    grid: { display: false }
                 },
                 y: {
                     beginAtZero: true,
@@ -1396,7 +1323,6 @@
             scales: {
                 x: {
                     grid: { display: false },
-                    title: { display: true, text: 'Language', color: '#94a3b8', font: { weight: '600', size: 11 } },
                     ticks: { callback: (v, i) => ['SQL', 'Python'][i] || '' }
                 },
                 y: {
@@ -1500,170 +1426,7 @@
         }
     });
 
-    // ==========================================
-    // REQUIREMENT 8: High-Resolution Paper PNG Exporter
-    // 2x resolution, white bg, black text, dark blue SQL (#1e3a8a), dark gray Python (#374151)
-    // Distinguishable marker shapes and patterns for black-and-white print
-    // ==========================================
-    function exportChartForPaper(canvasId, filename, figureTitle) {
-        const srcChart = Chart.getChart(canvasId);
-        if (!srcChart) {
-            console.error('Source chart not found:', canvasId);
-            return;
-        }
 
-        const width = 1600;
-        const height = canvasId === 'learnerScoresChart' ? 1000 : 900;
-        const offCanvas = document.createElement('canvas');
-        offCanvas.width = width;
-        offCanvas.height = height;
-        const offCtx = offCanvas.getContext('2d');
-
-        // 1. Fill crisp white background
-        offCtx.fillStyle = '#ffffff';
-        offCtx.fillRect(0, 0, width, height);
-
-        // 2. Clone configuration and adapt to Paper Palette
-        const rawConfig = srcChart.config._config || srcChart.config;
-        const paperConfig = JSON.parse(JSON.stringify(rawConfig));
-        paperConfig.type = rawConfig.type || srcChart.config.type || 'bar';
-        paperConfig.options = paperConfig.options || {};
-        paperConfig.options.responsive = false;
-        paperConfig.options.animation = false;
-        paperConfig.options.plugins = paperConfig.options.plugins || {};
-        paperConfig.options.plugins.paperExportMode = true;
-
-        // Paper Title at top in black
-        paperConfig.options.plugins.title = {
-            display: true,
-            text: figureTitle,
-            color: '#000000',
-            font: { family: 'Inter, sans-serif', size: 20, weight: 'bold' },
-            padding: { top: 22, bottom: 20 }
-        };
-
-        // Ensure clean paper legend
-        paperConfig.options.plugins.legend = {
-            display: true,
-            position: 'top',
-            labels: {
-                color: '#000000',
-                font: { family: 'Inter, sans-serif', size: 13, weight: '600' },
-                padding: 16,
-                boxWidth: 14,
-                usePointStyle: true
-            }
-        };
-
-        if (canvasId === 'correctTasksChart') {
-            if (paperConfig.options.scales && paperConfig.options.scales.y) {
-                paperConfig.options.scales.y.max = 18;
-            }
-        } else if (canvasId === 'ctPerHourChart') {
-            if (paperConfig.options.scales && paperConfig.options.scales.y) {
-                paperConfig.options.scales.y.max = 35;
-            }
-            paperConfig.data.datasets = [
-                {
-                    label: 'Tasks per Hour',
-                    data: [27.7, 14.9],
-                    backgroundColor: ['#1e3a8a', '#374151'],
-                    borderColor: '#000000',
-                    borderWidth: 1,
-                    borderRadius: 4,
-                    barPercentage: 0.45,
-                    categoryPercentage: 0.7
-                }
-            ];
-            paperConfig.options.plugins.legend = { display: false };
-        } else if (canvasId === 'comprehensionChart') {
-            if (paperConfig.options.scales && paperConfig.options.scales.y) {
-                paperConfig.options.scales.y.max = 21;
-            }
-            paperConfig.data.datasets = [
-                { label: 'SQL Comprehension', backgroundColor: '#1e3a8a', borderColor: '#000000', pointStyle: 'circle' },
-                { label: 'Python Comprehension', backgroundColor: '#374151', borderColor: '#000000', pointStyle: 'rect' }
-            ];
-        } else if (canvasId === 'speedupChart') {
-            paperConfig.options.plugins.legend.display = false;
-        }
-
-        paperConfig.options.layout = { padding: { top: 20, bottom: 20, left: 30, right: 40 } };
-
-        // Color mapping & B/W marker shapes
-        // SQL -> Dark Blue (#1e3a8a) with circle marker
-        // Python -> Dark Gray (#374151) with square/triangle marker
-        paperConfig.data.datasets.forEach(ds => {
-            if (canvasId === 'ctPerHourChart') return;
-            const lbl = (ds.label || '').toLowerCase();
-            if (canvasId === 'learnerScoresChart') {
-                ds.backgroundColor = 'transparent';
-                ds.borderColor = 'transparent';
-                ds.pointStyle = lbl.includes('sql') ? 'circle' : 'rect';
-            } else if (lbl.includes('sql')) {
-                ds.backgroundColor = '#1e3a8a';
-                ds.borderColor = '#000000';
-                ds.pointStyle = 'circle';
-                if (ds.pointBackgroundColor) ds.pointBackgroundColor = '#1e3a8a';
-                if (ds.pointBorderColor) ds.pointBorderColor = '#000000';
-            } else if (lbl.includes('python')) {
-                ds.backgroundColor = '#374151';
-                ds.borderColor = '#000000';
-                ds.pointStyle = 'rect';
-                if (ds.pointBackgroundColor) ds.pointBackgroundColor = '#374151';
-                if (ds.pointBorderColor) ds.pointBorderColor = '#000000';
-            } else if (lbl.includes('speedup')) {
-                ds.backgroundColor = '#1e3a8a';
-                ds.borderColor = '#000000';
-            } else if (lbl.includes('iqr')) {
-                ds.backgroundColor = 'rgba(0, 0, 0, 0.08)';
-                ds.borderColor = '#000000';
-            }
-        });
-
-        // Scales in crisp black
-        if (paperConfig.options.scales) {
-            Object.values(paperConfig.options.scales).forEach(scale => {
-                scale.ticks = scale.ticks || {};
-                scale.ticks.color = '#000000';
-                scale.ticks.font = { family: 'Inter, sans-serif', size: 12, weight: '600' };
-                if (scale.title) {
-                    scale.title.color = '#000000';
-                    scale.title.font = { family: 'Inter, sans-serif', size: 13, weight: 'bold' };
-                }
-                scale.grid = scale.grid || {};
-                scale.grid.color = 'rgba(0, 0, 0, 0.12)';
-                scale.grid.drawBorder = true;
-                scale.grid.borderColor = '#000000';
-            });
-        }
-
-        const plugins = (srcChart.config.plugins || []).slice();
-
-        // Render paper chart
-        const exportChartInstance = new Chart(offCtx, {
-            type: paperConfig.type,
-            data: paperConfig.data,
-            options: paperConfig.options,
-            plugins: plugins
-        });
-        exportChartInstance.update();
-
-        // Trigger PNG Download
-        offCanvas.toBlob(blob => {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            setTimeout(() => {
-                URL.revokeObjectURL(url);
-                exportChartInstance.destroy();
-            }, 60000);
-        }, 'image/png');
-    }
 
     document.querySelector('.supplementary-details')?.addEventListener('toggle', function() {
         if (this.open) {

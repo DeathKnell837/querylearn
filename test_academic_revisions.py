@@ -291,10 +291,8 @@ class AcademicRevisionsTestCase(unittest.TestCase):
         self.assertNotIn('Task Outcomes: Correct vs. Incorrect', html)
         self.assertNotIn('Overall Correct vs. Incorrect', html)
 
-        # 3. Download for paper buttons on every chart
-        download_btn_count = html.count('Download for paper')
-        self.assertGreaterEqual(download_btn_count, 8, "Expected at least 8 Download for paper buttons across charts")
-        self.assertIn('exportChartForPaper', html)
+        # 3. Download for paper buttons removed as requested
+        self.assertNotIn('Download for paper', html)
 
         # 4. Supplementary section with Comprehension & Survey Likert charts
         self.assertIn('Supplementary', html)
