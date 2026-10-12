@@ -41,7 +41,7 @@ def compute_paired_speedup_data(cursor, cohort_only=False):
     A paired record requires that the same participant succeeded (success = 1) in BOTH
     SQL and Python conditions on the same task_id.
     """
-    where_extra = "AND CAST(SUBSTR(p.study_id, 2) AS INTEGER) BETWEEN 1 AND 15" if cohort_only else ""
+    where_extra = "AND p.status = 'completed'" if cohort_only else ""
     cursor.execute(f"""
         SELECT r_sql.task_id, s_sql.participant_id, r_sql.elapsed_seconds as sql_time, r_py.elapsed_seconds as py_time
         FROM task_results r_sql
@@ -531,7 +531,7 @@ def charts():
         FROM task_results r
         JOIN sessions s ON r.session_id = s.id
         JOIN participants p ON s.participant_id = p.id
-        WHERE CAST(SUBSTR(p.study_id, 2) AS INTEGER) BETWEEN 1 AND 15
+        WHERE p.status = 'completed'
         ORDER BY r.task_id ASC, p.study_id ASC
     """)
     raw_task_rows = cursor.fetchall()
@@ -658,7 +658,7 @@ def charts():
         FROM participants p
         JOIN sessions s ON s.participant_id = p.id
         LEFT JOIN task_results r ON r.session_id = s.id
-        WHERE CAST(SUBSTR(p.study_id, 2) AS INTEGER) BETWEEN 1 AND 15
+        WHERE p.status = 'completed'
         GROUP BY p.id, s.language
         ORDER BY p.study_id ASC
     """)
@@ -685,7 +685,7 @@ def charts():
         FROM task_results r
         JOIN sessions s ON r.session_id = s.id
         JOIN participants p ON s.participant_id = p.id
-        WHERE CAST(SUBSTR(p.study_id, 2) AS INTEGER) BETWEEN 1 AND 15
+        WHERE p.status = 'completed'
         ORDER BY p.study_id, s.language, r.task_id
     """)
     ct_all_rows = cursor.fetchall()
@@ -732,6 +732,15 @@ def charts():
         }
     }
 
+    ct_sql_mean = round(sum(d['rate'] for d in ct_sql_learners) / len(ct_sql_learners), 1) if ct_sql_learners else 0.0
+    ct_py_mean = round(sum(d['rate'] for d in ct_py_learners) / len(ct_py_learners), 1) if ct_py_learners else 0.0
+
+    # Per-task speed facts for plain-language captions
+    speed_tasks = [(t['task_id'], t['speed_ratio']) for t in task_breakdown.values() if t.get('speed_ratio_n')]
+    best_speed_task, best_speed_ratio = (max(speed_tasks, key=lambda x: x[1]) if speed_tasks else ('T1', 1.0))
+    sql_faster_all_tasks = bool(speed_tasks) and all(r > 1.0 for _, r in speed_tasks)
+    learner_overall_median = round(statistics.median(learner_sql_scores + learner_py_scores), 1) if learner_scores else 0.0
+
     # 7. Code Comprehension Scores (0 to 18 by condition)
     cursor.execute("""
         SELECT s.language, p.study_id,
@@ -740,7 +749,7 @@ def charts():
         JOIN sessions s ON cr.session_id = s.id
         JOIN participants p ON s.participant_id = p.id
         WHERE cr.item_id IN ('C1', 'C2', 'C3', 'C4', 'C5', 'C6')
-          AND CAST(SUBSTR(p.study_id, 2) AS INTEGER) BETWEEN 1 AND 15
+          AND p.status = 'completed'
         GROUP BY cr.session_id, s.language, p.study_id
         HAVING COUNT(cr.id) = 6
     """)
@@ -775,7 +784,7 @@ def charts():
         FROM survey_responses sr
         JOIN sessions s ON sr.session_id = s.id
         JOIN participants p ON s.participant_id = p.id
-        WHERE CAST(SUBSTR(p.study_id, 2) AS INTEGER) BETWEEN 1 AND 15
+        WHERE p.status = 'completed'
     """)
     survey_raw = cursor.fetchall()
     survey_likert_data = {'sql': {}, 'python': {}}
@@ -822,6 +831,16 @@ def charts():
         "comprehension_data": comprehension_data,
         "survey_likert_data": survey_likert_data,
         "has_seeded": has_seeded,
+        "cohort_n": len(learner_scores),
+        "ct_sql_mean": ct_sql_mean,
+        "ct_py_mean": ct_py_mean,
+        "best_speed_task": best_speed_task,
+        "best_speed_ratio": best_speed_ratio,
+        "sql_faster_all_tasks": sql_faster_all_tasks,
+        "learner_overall_median": learner_overall_median,
+        "learners_all_six_both": sum(1 for l in learner_scores if l["sql"] == 6 and l["python"] == 6),
+        "learners_sql_better": sum(1 for l in learner_scores if l["sql"] > l["python"]),
+        "learners_python_better": sum(1 for l in learner_scores if l["python"] > l["sql"]),
     }
 
     grouped = {}

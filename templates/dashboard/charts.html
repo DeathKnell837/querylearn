@@ -308,16 +308,20 @@
                     {% if m.paired_time_ratio %}{{ m.paired_time_ratio }}x Faster{% else %}--{% endif %}
                 </span>
                 <span class="kpi-desc">
-                    SQL was 54% faster overall on matched tasks
+                    SQL was {{ ((m.paired_time_ratio - 1) * 100) | round | int }}% faster overall on matched tasks
                 </span>
             </div>
             <div class="kpi-box">
-                <span class="kpi-label">Accuracy Lead</span>
-                <span class="kpi-val" style="color: #f8fafc;">+{{ m.accuracy_delta }}%</span>
-                <span class="kpi-desc">SQL had higher accuracy than Python</span>
+                <span class="kpi-label">Accuracy Difference</span>
+                <span class="kpi-val" style="color: #f8fafc;">{% if m.accuracy_delta >= 0 %}+{% endif %}{{ m.accuracy_delta }}%</span>
+                <span class="kpi-desc">{% if m.accuracy_delta > 0 %}SQL had higher accuracy than Python{% elif m.accuracy_delta < 0 %}Python had higher accuracy than SQL{% else %}SQL and Python had equal accuracy{% endif %}</span>
             </div>
         </div>
 
+
+        <div style="margin: 0 0 1.25rem 0; padding: 0.7rem 1rem; border-radius: 10px; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); color: #fbbf24; font-size: 0.82rem; line-height: 1.5;">
+            <strong>Note:</strong> These charts use all {{ m.cohort_n }} completed participants. Part of this data is sample/demo data created for testing and demonstration, so treat the results as illustrative, not as findings from {{ m.cohort_n }} real respondents.
+        </div>
 
         <!-- PRIMARY CHARTS GRID (2x2 Balanced Layout) -->
         <div class="analytics-grid">
@@ -330,17 +334,17 @@
                             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
                             Tasks Solved Correctly (T1 to T6)
                         </h3>
-                        <p class="analytics-card-sub">Correct Tasks per Task: Number of students who got each task right (out of 15 students).</p>
+                        <p class="analytics-card-sub">Correct Tasks per Task: Number of students who got each task right (out of {{ m.cohort_n }} students).</p>
                     </div>
                 </div>
                 <div class="chart-legend-row">
-                    <div class="legend-item"><span class="legend-swatch sql"></span> SQL (15 students)</div>
-                    <div class="legend-item"><span class="legend-swatch python"></span> Python (15 students)</div>
+                    <div class="legend-item"><span class="legend-swatch sql"></span> SQL ({{ m.cohort_n }} students)</div>
+                    <div class="legend-item"><span class="legend-swatch python"></span> Python ({{ m.cohort_n }} students)</div>
                 </div>
                 <div style="position: relative; height: 330px; width: 100%;">
                     <canvas id="correctTasksChart"></canvas>
                 </div>
-                <p class="chart-caption">Number of students who solved each task correctly out of 15. SQL had 86 out of 90 correct (95.6%) versus Python with 82 out of 90 (91.1%).</p>
+                <p class="chart-caption">Number of students who solved each task correctly out of {{ m.cohort_n }}. SQL had {{ m.sql_correct_count }} out of {{ m.sql_total_count }} correct ({{ m.sql_success_rate }}%) versus Python with {{ m.python_correct_count }} out of {{ m.python_total_count }} ({{ m.python_success_rate }}%).</p>
             </div>
 
             <!-- Figure 2: Tasks Solved per Hour (Speed) -->
@@ -355,13 +359,13 @@
                     </div>
                 </div>
                 <div class="chart-legend-row">
-                    <div class="legend-item"><span class="legend-swatch sql"></span> SQL (27.7 tasks/hr)</div>
-                    <div class="legend-item"><span class="legend-swatch python"></span> Python (14.9 tasks/hr)</div>
+                    <div class="legend-item"><span class="legend-swatch sql"></span> SQL ({{ m.ct_sql_mean }} tasks/hr)</div>
+                    <div class="legend-item"><span class="legend-swatch python"></span> Python ({{ m.ct_py_mean }} tasks/hr)</div>
                 </div>
                 <div style="position: relative; height: 330px; width: 100%;">
                     <canvas id="ctPerHourChart"></canvas>
                 </div>
-                <p class="chart-caption">Students completed an average of 27.7 tasks per hour in SQL compared to 14.9 in Python. This shows students work almost twice as fast using SQL.</p>
+                <p class="chart-caption">Students completed an average of {{ m.ct_sql_mean }} correct tasks per hour in SQL compared to {{ m.ct_py_mean }} in Python.{% if m.ct_sql_mean > m.ct_py_mean %} Students solved more tasks per hour using SQL.{% endif %}</p>
             </div>
 
             <!-- Figure 3: Time Taken to Finish -->
@@ -384,7 +388,7 @@
                 <div style="position: relative; height: 330px; width: 100%;">
                     <canvas id="durationChart"></canvas>
                 </div>
-                <p class="chart-caption">Average time in seconds to finish each task. The red dashed line shows the 8-minute maximum time limit. SQL was faster on every task.</p>
+                <p class="chart-caption">Average time in seconds to finish each task. The red dashed line shows the 8-minute maximum time limit. {% if m.sql_faster_all_tasks %}SQL was faster on every task.{% endif %}</p>
             </div>
 
             <!-- Figure 4: Speed Advantage -->
@@ -410,7 +414,7 @@
                 <div style="position: relative; height: 330px; width: 100%;">
                     <canvas id="speedupChart"></canvas>
                 </div>
-                <p class="chart-caption">Bars taller than the 1.0x line show that students solved the task faster in SQL. For example, Task 2 was 2.68 times faster in SQL.</p>
+                <p class="chart-caption">Bars taller than the 1.0x line show that students solved the task faster in SQL. For example, {{ m.best_speed_task }} was {{ m.best_speed_ratio }} times faster in SQL.</p>
             </div>
 
         </div>
@@ -438,12 +442,12 @@
                         <div class="chart-legend-row">
                             <div class="legend-item"><span class="legend-swatch circle-sql"></span> SQL Score</div>
                             <div class="legend-item"><span class="legend-swatch circle-py"></span> Python Score</div>
-                            <div class="legend-item"><span class="legend-line med"></span> Average (6.0)</div>
+                            <div class="legend-item"><span class="legend-line med"></span> Median ({{ m.learner_overall_median }})</div>
                         </div>
                         <div style="position: relative; height: 380px; width: 100%;">
                             <canvas id="learnerScoresChart"></canvas>
                         </div>
-                        <p class="chart-caption">Score comparison for each student. 10 of the 15 students solved all 6 tasks correctly in both languages; 4 favoured SQL, 1 favoured Python.</p>
+                        <p class="chart-caption">Score comparison for each student. {{ m.learners_all_six_both }} of the {{ m.cohort_n }} students solved all 6 tasks correctly in both languages; {{ m.learners_sql_better }} scored higher in SQL, {{ m.learners_python_better }} scored higher in Python.</p>
                     </div>
 
                     <!-- Figure S2: Attempts Needed per Task -->
@@ -479,8 +483,8 @@
                             </div>
                         </div>
                         <div class="chart-legend-row">
-                            <div class="legend-item"><span class="legend-swatch iqr-sql"></span> SQL Middle Range [15.0&ndash;16.0]</div>
-                            <div class="legend-item"><span class="legend-swatch iqr-py"></span> Python Middle Range [11.0&ndash;14.0]</div>
+                            <div class="legend-item"><span class="legend-swatch iqr-sql"></span> SQL Middle Range [{{ m.comprehension_data.sql.q1 }}&ndash;{{ m.comprehension_data.sql.q3 }}]</div>
+                            <div class="legend-item"><span class="legend-swatch iqr-py"></span> Python Middle Range [{{ m.comprehension_data.python.q1 }}&ndash;{{ m.comprehension_data.python.q3 }}]</div>
                             <div class="legend-item"><span class="legend-line med"></span> Average Score</div>
                             <div class="legend-item"><span class="legend-swatch circle-sql"></span> SQL Student</div>
                             <div class="legend-item"><span class="legend-swatch circle-py"></span> Python Student</div>
@@ -488,7 +492,7 @@
                         <div style="position: relative; height: 320px; width: 100%;">
                             <canvas id="comprehensionChart"></canvas>
                         </div>
-                        <p class="chart-caption">Reading test score comparing SQL vs Python. Students scored significantly higher when reading SQL (average 16/18 vs 12/18 in Python).</p>
+                        <p class="chart-caption">Reading test score comparing SQL vs Python. Median score was {{ m.comprehension_data.sql.median }}/18 for SQL and {{ m.comprehension_data.python.median }}/18 for Python.</p>
                     </div>
 
                     <!-- Figure S4: Student Feedback Survey -->
@@ -529,6 +533,7 @@
     Chart.defaults.font.size = 11;
     Chart.defaults.animation = false; // Synchronous rendering ensures zero-lag, instant settled charts
 
+    const COHORT_N = {{ m.cohort_n or 0 }};
     const tasks = {{ m.tasks | tojson }};
     const taskLabels = tasks.map(t => t.task_id);
     const learnerScores = {{ (m.learner_scores or []) | tojson }};
@@ -579,11 +584,11 @@
 
                 if (isNarrow && isTied) {
                     // Stagger vertically on narrow/mobile viewports so adjacent labels never touch
-                    ctx.fillText(`${sqlVal}/15`, barSql.x, barSql.y - 6);
-                    ctx.fillText(`${pyVal}/15`, barPy.x, barPy.y - 18);
+                    ctx.fillText(`${sqlVal}/${COHORT_N}`, barSql.x, barSql.y - 6);
+                    ctx.fillText(`${pyVal}/${COHORT_N}`, barPy.x, barPy.y - 18);
                 } else {
-                    ctx.fillText(`${sqlVal}/15`, barSql.x, barSql.y - 7);
-                    ctx.fillText(`${pyVal}/15`, barPy.x, barPy.y - 7);
+                    ctx.fillText(`${sqlVal}/${COHORT_N}`, barSql.x, barSql.y - 7);
+                    ctx.fillText(`${pyVal}/${COHORT_N}`, barPy.x, barPy.y - 7);
                 }
             });
             ctx.restore();
@@ -625,7 +630,7 @@
                     borderWidth: 1,
                     padding: 10,
                     callbacks: {
-                        label: ctx => ` ${ctx.dataset.label}: ${ctx.raw} / 15 correct (${Math.round((ctx.raw / 15) * 100)}%)`
+                        label: ctx => ` ${ctx.dataset.label}: ${ctx.raw} / ${COHORT_N} correct (${Math.round((ctx.raw / COHORT_N) * 100)}%)`
                     }
                 }
             },
@@ -637,9 +642,9 @@
                 y: {
                     beginAtZero: true,
                     min: 0,
-                    max: 15,
+                    max: COHORT_N,
                     grid: darkGrid,
-                    title: { display: true, text: 'Students with Correct Answer (out of 15)', color: '#94a3b8', font: { weight: '600', size: 11 } },
+                    title: { display: true, text: 'Students with Correct Answer (out of ' + COHORT_N + ')', color: '#94a3b8', font: { weight: '600', size: 11 } },
                     ticks: { stepSize: 3 }
                 }
             }
@@ -661,7 +666,7 @@
 
             ctx.save();
             // Vertical condition median reference line at x = 6.0
-            const xMed = x.getPixelForValue(6.0);
+            const xMed = x.getPixelForValue({{ m.learner_overall_median or 0 }});
             ctx.strokeStyle = isExport ? '#4b5563' : 'rgba(245, 158, 11, 0.7)';
             ctx.lineWidth = 1.5;
             ctx.setLineDash([4, 4]);
@@ -675,7 +680,7 @@
             ctx.fillStyle = isExport ? '#000000' : '#f59e0b';
             ctx.font = '700 11px Inter, sans-serif';
             ctx.textAlign = 'right';
-            ctx.fillText('Average: 6.0', xMed - 4, chartArea.top - 10);
+            ctx.fillText('Median: {{ m.learner_overall_median }}', xMed - 4, chartArea.top - 10);
 
             // Draw horizontal dumbbell rows
             learnerScores.forEach((l, idx) => {
@@ -816,7 +821,7 @@
             datasets: [
                 {
                     label: 'Tasks per Hour',
-                    data: [27.7, 14.9],
+                    data: [{{ m.ct_sql_mean }}, {{ m.ct_py_mean }}],
                     backgroundColor: ['#38bdf8', '#c084fc'],
                     hoverBackgroundColor: ['#0284c7', '#a855f7'],
                     borderRadius: 8,
@@ -931,7 +936,7 @@
         }
     };
 
-    const taskLabelsWithN = tasks.map(t => `${t.task_id} (n=15)`);
+    const taskLabelsWithN = tasks.map(t => `${t.task_id} (n=${COHORT_N})`);
 
     new Chart(document.getElementById('durationChart'), {
         type: 'bar',
@@ -982,7 +987,7 @@
             scales: {
                 x: {
                     grid: { display: false },
-                    title: { display: true, text: 'Task (15 Students)', color: '#94a3b8', font: { weight: '600', size: 11 } }
+                    title: { display: true, text: 'Task (' + COHORT_N + ' Students)', color: '#94a3b8', font: { weight: '600', size: 11 } }
                 },
                 y: {
                     beginAtZero: true,
@@ -1049,11 +1054,11 @@
                     ctx.textAlign = 'center';
                     ctx.fillText(`${ratioNum.toFixed(2)}x`, bar.x, bar.y - 13);
                     ctx.font = '600 8px Inter, sans-serif';
-                    ctx.fillText(`(${t.speed_ratio_n || 15} students)`, bar.x, bar.y - 4);
+                    ctx.fillText(`(${t.speed_ratio_n || COHORT_N} students)`, bar.x, bar.y - 4);
                 } else {
                     ctx.font = '700 11px Inter, sans-serif';
                     ctx.textAlign = 'center';
-                    const text = `${ratioNum.toFixed(2)}x (${t.speed_ratio_n || 15} students)`;
+                    const text = `${ratioNum.toFixed(2)}x (${t.speed_ratio_n || COHORT_N} students)`;
                     ctx.fillText(text, bar.x, bar.y - 8);
                 }
             });
